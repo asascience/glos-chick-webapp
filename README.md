@@ -1,5 +1,6 @@
 # glos-chick-webapp
 [![CircleCI](https://circleci.com/gh/asascience/glos-chick-webapp/tree/master.svg?style=svg&circle-token=0a2624d7aa3a4dd04e31839f5b999c660dc21903)](https://circleci.com/gh/asascience/glos-chick-webapp/tree/master)
+
 Lightweight web app for demonstration of the GLOS Rapid Prototype (chick) of streaming sensor data
 
 
