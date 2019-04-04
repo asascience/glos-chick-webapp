@@ -1,7 +1,6 @@
 import { LinkContainer } from 'react-router-bootstrap';
 import React, { Component, Fragment } from 'react';
 import { Link, withRouter } from 'react-router-dom';
-
 import { Nav, Navbar, NavItem } from 'react-bootstrap';
 import Routes from './Routes';
 import { Auth } from 'aws-amplify';
