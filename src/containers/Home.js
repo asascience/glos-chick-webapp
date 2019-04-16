@@ -4,8 +4,11 @@ import { API } from 'aws-amplify';
 import {StaticMap} from 'react-map-gl';
 import DeckGL, {IconLayer, HexagonLayer} from 'deck.gl';
 import {json as requestJson} from 'd3-request';
+import HighChartsPlot from './HighChartsPlot'
 import './Home.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
+
+import { subscribeToTimer } from '../api';
 
 // Viewport settings
 const viewstate = {
@@ -47,14 +50,18 @@ const DATA_URL = './meta_english.json'
 export default class Home extends Component {
     constructor(props) {
         super(props);
-
+        subscribeToTimer((err, timestamp) => this.setState({
+            timestamp
+        }));
         this.state = {
-            isLoading: true,
-            testApiCall: [],
             x: null,
             y: null,
+            isLoading: true,
+            testApiCall: [],
             hoveredObject: null,
-            data: null
+            clickedObject: null,
+            data: null,
+            timestamp: 'no timestamp yet',
         };
         requestJson(DATA_URL, (error, response) => {
           if (!error) {
@@ -91,7 +98,6 @@ export default class Home extends Component {
         const name = hoveredObject.longName;
         const owner = hoveredObject.buoyOwners;
         const recovered = hoveredObject.recovered ? 'Yes' : 'No';
-
         return (
             <div className="marker-tooltip" style={{left: x, top: y}}>
                 <div><b>{`${name}`}</b></div>
@@ -124,10 +130,34 @@ export default class Home extends Component {
         return (
             <div className="test">
                 <PageHeader>Test API call</PageHeader>
-
                 <ListGroup>{!this.state.isLoading && this.renderTestAPI(this.state.testApiCall)}</ListGroup>
             </div>
         );
+    }
+
+    _renderPlot() {
+        const {clickedObject} = this.state;
+        if (!clickedObject) {
+            return null;
+        }
+        const name = clickedObject.longName;
+        return (
+            <div>
+                <b>{`${name}`} plot coming soon!</b>
+                <p>Timer value: {this.state.timestamp}</p>
+                <HighChartsPlot> </HighChartsPlot>
+            </div>
+
+        );
+    }
+    /*
+      renderStream:
+      Connect to API Gateway stream, open plot modal, stream data
+
+     */
+    renderStream(station) {
+        console.log('renderStream')
+        console.log(station)
     }
 
     renderMap() {
@@ -151,11 +181,14 @@ export default class Home extends Component {
             getPosition: d => [d.lon, d.lat],
             getSize: d => 15,
             getColor: d => d.recovered ? [220,20,60] : [55,126,184],
-            onHover: info => this.setState({
-              hoveredObject: info.object,
-              x: info.x,
-              y: info.y
-            })
+            onHover: station => this.setState({
+              hoveredObject: station.object,
+              x: station.x,
+              y: station.y
+            }),
+            onClick: station => this.setState({
+              clickedObject: station.object,
+            }),
         });
 
         // const OPTIONS = ['radius', 'coverage', 'upperPercentile'];
@@ -178,19 +211,7 @@ export default class Home extends Component {
           numberOfLights: 2
         };
 
-        // OPTIONS.forEach(key => {
-        //   document.getElementById(key).oninput = renderLayer;
-        // });
-
-        // function renderLayer () {
-          // const options = {};
-          // OPTIONS.forEach(key => {
-          //   const value = document.getElementById(key).value;
-          //   document.getElementById(key + '-value').innerHTML = value;
-          //   options[key] = Number(value);
-          // });
-          // let data = this.state.data;
-          const hexagonLayer = new HexagonLayer({
+        const hexagonLayer = new HexagonLayer({
             id: 'hexagonLayer',
             colorRange: COLOR_RANGE,
             data: data,
@@ -202,15 +223,19 @@ export default class Home extends Component {
             opacity: 1,
             radius: 8000
             // ...options
-          });
-        // }
+        });
 
         return (
-            <div className="map-container">
-                {this._renderTooltip()}
-                <DeckGL initialViewState={viewstate} controller={true} layers={[hexagonLayer, layer]}>
-                    <StaticMap mapStyle={mapStyle} />
-                </DeckGL>
+            <div className="home-container">
+                <div className="map-container">
+                    {this._renderTooltip()}
+                    <DeckGL initialViewState={viewstate} controller={true} layers={[hexagonLayer, layer]}>
+                        <StaticMap mapStyle={mapStyle} />
+                    </DeckGL>
+                </div>
+                <div id="plot">
+                    {this._renderPlot()}
+                </div>
             </div>
         )
     }
