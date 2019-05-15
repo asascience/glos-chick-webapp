@@ -2,61 +2,60 @@ import React, { Component } from 'react';
 import { HelpBlock, FormGroup, FormControl, ControlLabel } from 'react-bootstrap';
 import LoaderButton from '../components/LoaderButton';
 import { Auth } from 'aws-amplify';
-
 import './Signup.css';
 
 export default class Signup extends Component {
     constructor(props) {
-        super(props);
+      super(props);
 
-        this.state = {
-            isLoading: false,
-            email: '',
-            password: '',
-            confirmPassword: '',
-            confirmationCode: '',
-            phoneNumber: '',
-            newUser: null
-        };
+      this.state = {
+        isLoading: false,
+        email: '',
+        password: '',
+        confirmPassword: '',
+        confirmationCode: '',
+        phoneNumber: '',
+        newUser: null
+      };
     }
 
     validateForm() {
-        return (
-            this.state.email.length > 0 &&
-            this.state.password.length > 0 &&
-            this.state.password === this.state.confirmPassword
-        );
+      return (
+        this.state.email.length > 0 &&
+        this.state.password.length > 0 &&
+        this.state.password === this.state.confirmPassword
+      );
     }
 
     validateConfirmationForm() {
-        return this.state.confirmationCode.length > 0;
+      return this.state.confirmationCode.length > 0;
     }
 
     handleChange = event => {
-        this.setState({
-            [event.target.id]: event.target.value
-        });
+      this.setState({
+        [event.target.id]: event.target.value
+      });
     };
 
     handleSubmit = async event => {
-        event.preventDefault();
+      event.preventDefault();
 
-        this.setState({ isLoading: true });
+      this.setState({ isLoading: true });
 
         try {
-            const newUser = await Auth.signUp({
-                username: this.state.email,
-                password: this.state.password,
-                attributes: {
-                  email: this.state.email,
-                  phone_number: this.state.phoneNumber
-                }
-            });
-            this.setState({
-                newUser
-            });
+          const newUser = await Auth.signUp({
+            username: this.state.email,
+            password: this.state.password,
+            attributes: {
+              email: this.state.email,
+              phone_number: this.state.phoneNumber
+            }
+          });
+          this.setState({
+            newUser
+          });
         } catch (e) {
-            alert(e.message);
+          alert(e.message);
         }
 
         this.setState({ isLoading: false });
@@ -104,7 +103,7 @@ export default class Signup extends Component {
     renderForm() {
         return (
             <form onSubmit={this.handleSubmit}>
-                <h1>Sign Up to Stream Data</h1>
+                <h1>Sign Up to access the GLOS HABS Prototype</h1>
                 <FormGroup controlId="email" bsSize="large">
                     <ControlLabel>Email</ControlLabel>
                     <FormControl autoFocus type="email" value={this.state.email} onChange={this.handleChange} />
