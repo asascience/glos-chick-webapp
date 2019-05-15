@@ -124,12 +124,26 @@ export default class StationDashboard extends Component {
       }
     }
 
+    handleOnSelectAll = (isSelect, rows) => {
+      const params = rows.map(r => r.parameter);
+      if (isSelect) {
+        this.setState(() => ({
+          selected: params
+        }));
+      } else {
+        this.setState(() => ({
+          selected: []
+        }));
+      }
+    }
+
     _renderTable2() {
       const selectRow = {
         mode: 'checkbox',
         clickToSelect: true,
         selected: this.state.selected,
         onSelect: this.handleOnSelect,
+        onSelectAll: this.handleOnSelectAll,
       };
       return (
         <div className="container" style={{ marginTop: 50 }}>
