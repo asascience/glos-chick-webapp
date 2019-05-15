@@ -63,21 +63,6 @@ export default class Home extends Component {
           this.setState({data: response});
         }
       });
-      // const url = 'wss://gdjcxvsub6.execute-api.us-east-2.amazonaws.com/testing';
-      // const connection = new WebSocket(url);
-      // connection.onopen = () => {
-      //   console.log('Stream opened')
-      // }
-      // connection.onmessage = e => {
-      //   let stream = [JSON.parse(e.data)].concat(this.state.stream);
-      //   if (stream.length >= 5) {
-      //     stream = stream.slice(0, 5);
-      //   }
-      //   this.setState({
-      //     table_columns: Object.keys(stream[0]),
-      //     stream: stream
-      //   })
-      // }
     }
 
     async componentDidMount() {

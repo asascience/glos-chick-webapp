@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import Moment from 'react-moment';
+import moment from 'moment'
 import BootstrapTable from 'react-bootstrap-table-next';
-import { PageHeader, ListGroup, Table } from 'react-bootstrap';
-import { API } from 'aws-amplify';
-import {json as requestJson} from 'd3-request';
+import { Table } from 'react-bootstrap';
 import GaugePlot from './GaugePlot'
 import TimeSeriesPlot from './TimeSeriesPlot'
 import './Home.css';
@@ -20,8 +19,9 @@ export default class StationDashboard extends Component {
         isLoading: true,
         data: null,
         stream: [],
-        table_columns: [],
-        table_data: [],
+        tableColumns: [],
+        tableData: [],
+        selected: ['ph'],
       };
 
       const url = 'wss://gdjcxvsub6.execute-api.us-east-2.amazonaws.com/testing';
@@ -35,9 +35,34 @@ export default class StationDashboard extends Component {
         if (stream.length >= 5) {
           stream = stream.slice(0, 5);
         }
+
+        // Format data for react-bootstrap-table2
+        let tableColumns = [{
+          dataField: 'parameter',
+          text: 'Parameter',
+          sort: true,
+        }];
+        stream.map((obj, idx) => {
+          tableColumns.push({
+            dataField: obj.date.toString(),
+            text: moment(obj.date).format("ddd MMM DD YYYY HH:mm"),
+          });
+        });
+        let tableData = []
+        let paramRows = Object.keys(stream[0]);
+        let rowObj = {};
+        paramRows = paramRows.filter(item => item !== 'date' && item !== 'station');
+        paramRows.map((param, idx) => {
+          rowObj = {parameter: param};
+          stream.map((obj, ind) => {
+            rowObj[obj.date] = obj[param];
+          });
+          tableData.push(rowObj);
+        });
         this.setState({
-          table_columns: Object.keys(stream[0]),
-          stream: stream
+          tableColumns: tableColumns,
+          tableData: tableData,
+          stream: [JSON.parse(e.data)].concat(this.state.stream),
         })
       }
     }
@@ -76,13 +101,46 @@ export default class StationDashboard extends Component {
     }
 
     _renderTimeSeriesPlot() {
-      const {stream} = this.state;
+      const {stream, selected} = this.state;
       if (stream.length === 0) {
         return null;
       }
       return (
         <div>
-          <TimeSeriesPlot stream={stream}/>
+          <TimeSeriesPlot stream={stream} parameters={selected}/>
+        </div>
+      );
+    }
+
+    handleOnSelect = (row, isSelect) => {
+      if (isSelect) {
+        this.setState(() => ({
+          selected: [...this.state.selected, row.parameter]
+        }));
+      } else {
+        this.setState(() => ({
+          selected: this.state.selected.filter(x => x !== row.parameter)
+        }));
+      }
+    }
+
+    _renderTable2() {
+      const selectRow = {
+        mode: 'checkbox',
+        clickToSelect: true,
+        selected: this.state.selected,
+        onSelect: this.handleOnSelect,
+      };
+      return (
+        <div className="container" style={{ marginTop: 50 }}>
+          <BootstrapTable
+            striped
+            hover
+            keyField='parameter'
+            data={ this.state.tableData }
+            columns={ this.state.tableColumns }
+            selectRow={ selectRow }
+          />
         </div>
       );
     }
@@ -139,7 +197,7 @@ export default class StationDashboard extends Component {
             {this._renderTimeSeriesPlot()}
           </div>
           <div id="table">
-            {this._renderTable()}
+            {this._renderTable2()}
           </div>
         </div>
       )
