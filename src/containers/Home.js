@@ -123,8 +123,7 @@ export default class Home extends Component {
     renderLander() {
       return (
         <div className="lander">
-          <h1>GLOS Chick Demo App</h1>
-          <p>A simple react app</p>
+          <h1>GLOS HABS Prototype Demo App</h1>
         </div>
       );
     }
