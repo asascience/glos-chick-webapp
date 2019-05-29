@@ -48,7 +48,7 @@ jobs:
           name: Deploy to S3
           command: |
             ./write_config.sh
-            npm run deploy
+            CI=false npm run deploy
 
 
 
