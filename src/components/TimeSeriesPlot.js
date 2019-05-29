@@ -1,5 +1,4 @@
 import React from 'react'
-import { render } from 'react-dom'
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 
@@ -8,6 +7,7 @@ class TimeSeriesPlot extends React.Component {
   render () {
     let stream = this.props.stream;
     let parameters = this.props.parameters;
+    let color = this.props.color;
     let series = [];
     parameters.map((param, idx) => {
       let seriesData = [];
@@ -17,23 +17,31 @@ class TimeSeriesPlot extends React.Component {
           y: stream[i][param],
         });
       }
-      series.push({
+      return series.push({
         name: param,
-        data: seriesData
+        data: seriesData,
+        color: color
       });
     });
     const options = {
         chart: {
-            type: 'spline',
+          type: 'spline',
+          height: 250,
         },
         xAxis: {
           type: 'datetime'
         },
-        // yAxis: {
-        //   title: {text:}
-        // },
+        yAxis: {
+          title: {text: 'units'}
+        },
         title: {
-          text: stream[0].station
+          text: parameters[0]
+        },
+        legend: {
+          enabled: false
+        },
+        credits: {
+          enabled: false
         },
         series: series
     }

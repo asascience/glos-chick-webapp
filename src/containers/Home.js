@@ -1,8 +1,4 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router, Route, Link, Redirect } from "react-router-dom";
-import Moment from 'react-moment';
-import BootstrapTable from 'react-bootstrap-table-next';
-import { PageHeader, ListGroup, Table } from 'react-bootstrap';
 import { API } from 'aws-amplify';
 import {StaticMap} from 'react-map-gl';
 import DeckGL, {IconLayer, HexagonLayer} from 'deck.gl';
@@ -32,6 +28,24 @@ const mapStyle = {
         'http://c.tile.stamen.com/terrain/{z}/{x}/{y}.jpg'
       ],
       "tileSize": 256
+    },
+    "wms-glcfs-currents": {
+      'type': 'raster',
+      'tiles': [
+        'http://tds.glos.us/thredds/wms/glos/glcfs/erie/ncfmrc-2d/Lake_Erie_-_Nowcast_2D_best.ncd?bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:3857&transparent=true&width=256&height=256&layers=utm:vtm-group&&TIME=2019-05-28T12%3A00%3A00.000Z&STYLES=default-vector%2Fseq-Heat-inv'
+      ],
+      'tileSize': 256
+    },
+    "overlay": {
+      "type": "image",
+      // "url": "https://docs.mapbox.com/mapbox-gl-js/assets/radar.gif",
+      "url": "https://s3.amazonaws.com/asa-dev/MyGLOS/terra.2019147.0527.1542_1545_1720C.L3.GL1.v930seadasv7521_1_2.CI_merge.tif",
+      "coordinates": [
+        [-80.425, 46.437],
+        [-71.516, 46.437],
+        [-71.516, 37.936],
+        [-80.425, 37.936]
+      ]
     }
   },
   "layers": [
@@ -40,7 +54,11 @@ const mapStyle = {
       "source": "stamen-terrain-raster",
       "type": "raster"
     },
-
+    {
+      'id': 'wms-glcfs-currents',
+      'type': 'raster',
+      'source': 'wms-glcfs-currents',
+    },
   ]
 }
 
@@ -177,13 +195,13 @@ export default class Home extends Component {
         radius: 8000
         // ...options
       });
-
+      let token = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
       return (
         <div className="home-container">
           <div className="map-container">
             {this._renderTooltip()}
-            <DeckGL initialViewState={viewstate} controller={true} layers={[hexagonLayer, layer]}>
-              <StaticMap mapStyle={mapStyle} />
+            <DeckGL initialViewState={viewstate} controller={true} layers={[layer]}>
+              <StaticMap mapStyle={mapStyle} mapboxApiAccessToken={token} />
             </DeckGL>
           </div>
         </div>

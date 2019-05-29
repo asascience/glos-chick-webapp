@@ -4,8 +4,13 @@ import { Link, withRouter } from 'react-router-dom';
 import { Nav, Navbar, NavItem } from 'react-bootstrap';
 import Routes from './Routes';
 import { Auth } from 'aws-amplify';
-
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSpinner } from '@fortawesome/free-solid-svg-icons'
 import './App.css';
+
+library.add(faSpinner)
+
 
 class App extends Component {
     constructor(props) {

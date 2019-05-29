@@ -1,5 +1,4 @@
 import React from 'react'
-import { render } from 'react-dom'
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import HighchartsMore from 'highcharts-more'
@@ -18,11 +17,15 @@ class GaugePlot extends React.Component {
     }
     const options = {
       chart: {
+        height: 250,
         type: 'gauge',
         plotBackgroundColor: null,
         plotBackgroundImage: null,
         plotBorderWidth: 0,
-        plotShadow: false
+        plotShadow: false,
+      },
+      credits: {
+        enabled: false
       },
       title: {
         text: 'pH @ ' + stream[0].station
