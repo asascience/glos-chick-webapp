@@ -46,7 +46,9 @@ jobs:
             aws s3 ls
       - run:
           name: Deploy to S3
-          command: npm run deploy
+          command: |
+            ./write_config.sh
+            npm run deploy
 
 
 
