@@ -4,7 +4,7 @@
 
 Lightweight web app for demonstration of the GLOS Rapid Prototype (chick) of streaming sensor data
 
-
+The dev site is deployed to a web enabled S3 bucket [here](http://glos-ottews.s3-website.us-east-2.amazonaws.com)
 
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
