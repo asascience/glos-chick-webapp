@@ -3,11 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.18",
+    "@fortawesome/free-solid-svg-icons": "^5.8.2",
+    "@fortawesome/react-fontawesome": "^0.1.4",
     "aws-amplify": "^1.1.23",
     "bootstrap": "^4.3.1",
     "d3": "^5.9.2",
     "d3-request": "^1.0.6",
     "deck.gl": "^6.4.9",
+    "dotenv": "^8.0.0",
     "highcharts": "^7.1.1",
     "highcharts-exporting": "^0.1.7",
     "highcharts-more": "^0.1.7",
@@ -25,6 +29,7 @@
     "socket.io-client": "^2.2.0"
   },
   "devDependencies": {
+    "@fortawesome/fontawesome-free": "^5.8.2",
     "react-scripts": "2.1.8"
   },
   "scripts": {
