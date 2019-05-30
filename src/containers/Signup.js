@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { HelpBlock, FormGroup, FormControl, ControlLabel } from 'react-bootstrap';
+import { FormText, FormGroup, FormControl, FormLabel } from 'react-bootstrap';
 import LoaderButton from '../components/LoaderButton';
 import { Auth } from 'aws-amplify';
 import './Signup.css';
@@ -83,9 +83,9 @@ export default class Signup extends Component {
             <form onSubmit={this.handleConfirmationSubmit}>
                 <h2>Confirm</h2>
                 <FormGroup controlId="confirmationCode" bsSize="large">
-                    <ControlLabel>Confirmation Code</ControlLabel>
+                    <FormLabel>Confirmation Code</FormLabel>
                     <FormControl autoFocus type="tel" value={this.state.confirmationCode} onChange={this.handleChange} />
-                    <HelpBlock>Please check your email for the code.</HelpBlock>
+                    <FormText>Please check your email for the code.</FormText>
                 </FormGroup>
                 <LoaderButton
                     block
@@ -103,21 +103,21 @@ export default class Signup extends Component {
     renderForm() {
         return (
             <form onSubmit={this.handleSubmit}>
-                <h1>Sign Up to access the GLOS HABS Prototype</h1>
+                <h1 align='center'>Sign Up</h1>
                 <FormGroup controlId="email" bsSize="large">
-                    <ControlLabel>Email</ControlLabel>
+                    <FormLabel>Email</FormLabel>
                     <FormControl autoFocus type="email" value={this.state.email} onChange={this.handleChange} />
                 </FormGroup>
                 <FormGroup controlId="phoneNumber" bsSize="large">
-                    <ControlLabel>Phone Number</ControlLabel>
+                    <FormLabel>Phone Number</FormLabel>
                     <FormControl value={this.state.phoneNumber} onChange={this.handleChange} />
                 </FormGroup>
                 <FormGroup controlId="password" bsSize="large">
-                    <ControlLabel>Password</ControlLabel>
+                    <FormLabel>Password</FormLabel>
                     <FormControl value={this.state.password} onChange={this.handleChange} type="password" />
                 </FormGroup>
                 <FormGroup controlId="confirmPassword" bsSize="large">
-                    <ControlLabel>Confirm Password</ControlLabel>
+                    <FormLabel>Confirm Password</FormLabel>
                     <FormControl value={this.state.confirmPassword} onChange={this.handleChange} type="password" />
                 </FormGroup>
                 <LoaderButton
