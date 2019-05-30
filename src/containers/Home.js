@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { API } from 'aws-amplify';
 import {StaticMap} from 'react-map-gl';
 import DeckGL, {IconLayer, HexagonLayer} from 'deck.gl';
 import {json as requestJson} from 'd3-request';

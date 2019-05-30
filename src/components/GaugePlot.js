@@ -8,11 +8,14 @@ HighchartsMore(Highcharts)
 class GaugePlot extends React.Component {
   render () {
     let stream = this.props.stream;
-    let phValue = stream[0].ph;
+    let parameter = this.props.parameter;
+    let parameterMapping = this.props.parameterMapping;
+    let prettyName = parameterMapping[parameter];
+    let value = stream[0][parameter];
     let backgroundColor = '#55BF3B';
-    if (phValue > 10 || phValue < 4) {
+    if (value > 10 || value < 4) {
       backgroundColor = '#DF5353';
-    } else if (phValue > 8.5 || phValue < 6) {
+    } else if (value > 8.5 || value < 6) {
       backgroundColor = '#DDDF0D';
     }
     const options = {
@@ -28,7 +31,7 @@ class GaugePlot extends React.Component {
         enabled: false
       },
       title: {
-        text: 'pH @ ' + stream[0].station
+        text: prettyName
       },
       pane: {
         startAngle: -150,
@@ -89,7 +92,7 @@ class GaugePlot extends React.Component {
           rotation: 'auto'
         },
         title: {
-          text: 'pH'
+          text: ''
         },
         plotBands: [
           {
@@ -121,8 +124,8 @@ class GaugePlot extends React.Component {
       },
 
       series: [{
-        name: 'pH',
-        data: [phValue],
+        name: prettyName,
+        data: [value],
         tooltip: {
           valueSuffix: ' '
         },
