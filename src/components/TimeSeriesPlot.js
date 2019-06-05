@@ -10,24 +10,25 @@ class TimeSeriesPlot extends React.Component {
     let parameters = this.props.parameters;
     let color = this.props.color;
     let series = [];
-    let prettyName = this.props.parameterMapping[parameters[0]]
+    let prettyName = this.props.parameterMapping[parameters[0]];
+    let units = '(' + prettyName.split('(')[1];
     parameters.map((param, idx) => {
       let seriesData = [];
       let zones = [];
       for (var i = stream.length - 1; i >= 0; i--) {
         seriesData.push({
-          x: stream[i].date,
+          x: stream[i].timestamp * 1000,
           y: stream[i][param],
         });
       }
-      if (param === 'ph') {
+      if (param === 'Turb') {
         zones = [
           {
-            value: 8.35,
+            value: 8,
             color: '#008000'
           },
           {
-            value: 8.375,
+            value: 10,
             color: '#ffbf00'
           },
           {
@@ -43,26 +44,26 @@ class TimeSeriesPlot extends React.Component {
       });
     });
     const options = {
-        chart: {
-          type: 'spline',
-          height: 250,
-        },
-        xAxis: {
-          type: 'datetime'
-        },
-        yAxis: {
-          title: {text: 'units'}
-        },
-        title: {
-          text: prettyName
-        },
-        legend: {
-          enabled: false
-        },
-        credits: {
-          enabled: false
-        },
-        series: series
+      chart: {
+        type: 'spline',
+        height: 250,
+      },
+      xAxis: {
+        type: 'datetime'
+      },
+      yAxis: {
+        title: {text: units}
+      },
+      title: {
+        text: prettyName
+      },
+      legend: {
+        enabled: false
+      },
+      credits: {
+        enabled: false
+      },
+      series: series
     }
     return (
       <HighchartsReact
