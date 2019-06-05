@@ -48,6 +48,9 @@ class TimeSeriesPlot extends React.Component {
         type: 'spline',
         height: 250,
       },
+      time: {
+        useUTC: false
+      },
       xAxis: {
         type: 'datetime'
       },
