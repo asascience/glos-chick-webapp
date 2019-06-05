@@ -21,7 +21,7 @@ export default class StationDashboard extends Component {
       stream: [],
       tableColumns: [],
       tableData: [],
-      selected: ['ph'],
+      selected: ['Turb'],
       alert: false,
       alertMessage: ''
     };
@@ -42,8 +42,17 @@ export default class StationDashboard extends Component {
       ysichlrfu: 'Chlorophyll (rfu)',
       ysichlugl: 'Chlorophyll (ugl)',
       ysiturbntu: 'Turbidity (ntu)',
+      Turb: 'Turbidity (ntu)',
+      CHLrfu: 'Chlorophyll (rfu)',
+      WTempC: 'Water Temp (C)',
+      BGAPCrfu: 'Blue Green Algae (rfu)',
+      SpConduS: 'Specific Conductivity (uS)',
     };
 
+    let thisStation = this.props.location.pathname.split('/')[1];
+    if (thisStation !== 'lelorain') {
+      thisStation = 'IAGLR';
+    }
     const url = 'wss://gdjcxvsub6.execute-api.us-east-2.amazonaws.com/testing';
     const connection = new WebSocket(url);
 
@@ -53,17 +62,33 @@ export default class StationDashboard extends Component {
     connection.onmessage = e => {
       let self = this;
       let jsonStream = JSON.parse(e.data);
+
+      // Check the stream for the correct station
+      let station = jsonStream.station;
+      if (station !== thisStation) {
+        return null;
+      }
+
+
+      // Check the stream for repeated record
+      let timestamp = jsonStream.timestamp;
+      let timestamps = [];
+      this.state.stream.map((obj, idx) => {return timestamps.push(obj.timestamp)});
+      if (timestamp in timestamps) {
+        return null;
+      }
+
       let stream = [jsonStream].concat(this.state.stream);
       if (stream.length >= 5) {
         stream = stream.slice(0, 5);
       }
 
-      let phData = jsonStream.ph;
+      let turbData = jsonStream.Turb;
       let alert = false;
       let alertMessage = '';
-      if (phData > 8.35) {
+      if (turbData > 10) {
         alert = true;
-        alertMessage = 'This station is detecting turbidity values that could indicate the presence of a HAB.'
+        alertMessage = 'This station is detecting turbidity values that could indicate the presence of a HAB.';
       }
 
       // Format data for react-bootstrap-table2
@@ -80,21 +105,21 @@ export default class StationDashboard extends Component {
       }];
       stream.map((obj, idx) => {
         return tableColumns.push({
-          dataField: obj.date.toString(),
-          text: moment(obj.date).format("ddd MMM DD YYYY HH:mm"),
+          dataField: obj.timestamp.toString(),
+          text: moment.unix(obj.timestamp).format("ddd MMM DD YYYY HH:mm:ss"),
         });
       });
       let tableData = [];
       let paramRows = Object.keys(stream[0]);
       let rowObj = {};
-      paramRows = paramRows.filter(item => item !== 'date' && item !== 'station');
+      paramRows = paramRows.filter(item => item !== 'timestamp' && item !== 'station' && item !== 'topic');
       paramRows.map((param, idx) => {
         rowObj = {
-          prettyName: self.parameterMapping[param],
+          prettyName: param in self.parameterMapping ? self.parameterMapping[param] : param,
           parameter: param
         };
         stream.map((obj, ind) => {
-          return rowObj[obj.date] = obj[param];
+          return rowObj[obj.timestamp] = obj[param];
         });
         return tableData.push(rowObj);
       });
@@ -156,8 +181,8 @@ export default class StationDashboard extends Component {
       <div>
         <Container>
           <Row>
-            <Col><GaugePlot stream={stream} parameter='ph' parameterMapping={this.parameterMapping}/></Col>
-            <Col><GaugePlot stream={stream} parameter='ysiturbntu' parameterMapping={this.parameterMapping}/></Col>
+            <Col><GaugePlot stream={stream} parameter='BGAPCrfu' parameterMapping={this.parameterMapping}/></Col>
+            <Col><GaugePlot stream={stream} parameter='Turb' parameterMapping={this.parameterMapping}/></Col>
           </Row>
         </Container>
       </div>
@@ -250,6 +275,6 @@ export default class StationDashboard extends Component {
   }
 
   render() {
-      return <div className="Home">{this.renderDashboard()}</div>;
+    return <div className="Home">{this.renderDashboard()}</div>;
   }
 }
