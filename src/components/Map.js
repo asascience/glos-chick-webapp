@@ -70,6 +70,29 @@ class StationMap extends Component {
       if (!data) {
         return null;
       }
+
+      // Set the Viewport
+      let latitude = 45;
+      let longitude = -84.5;
+      let zoom = 5;
+      if ('station' in this.props) {
+        let stationObj = data.find(x => x.id === this.props.station);
+        if (stationObj) {
+          zoom = 7;
+          latitude = stationObj.lat;
+          longitude = stationObj.lon;
+        }
+      }
+
+      // Viewport settings
+      const viewstate = {
+        longitude: longitude,
+        latitude: latitude,
+        zoom: zoom,
+        pitch: 0,
+        bearing: 0
+      };
+
       const ICON_MAPPING = {
         marker: {x: 0, y: 0, width: 20, height: 50, mask: true}
       };
@@ -84,7 +107,12 @@ class StationMap extends Component {
         getIcon: d => 'marker',
         getPosition: d => [d.lon, d.lat],
         getSize: d => 15,
-        getColor: d => d.recovered ? [220,20,60] : [55,126,184],
+        getColor: d => {
+          if ('station' in this.props && d.id === this.props.station) {
+            return [0,0,0];
+          }
+          return d.recovered ? [220,20,60] : [55,126,184];
+        },
         onHover: station => this.setState({
           hoveredObject: station.object,
           x: station.x,
@@ -96,25 +124,6 @@ class StationMap extends Component {
           this.props.history.push(route);
         }
       });
-
-      let latitude = 45;
-      let longitude = -84.5;
-      let zoom = 5;
-      if ('station' in this.props) {
-        let stationObj = data.find(x => x.id === this.props.station);
-        zoom = 7;
-        latitude = stationObj.lat;
-        longitude = stationObj.lon;
-      }
-
-      // Viewport settings
-      const viewstate = {
-        longitude: longitude,
-        latitude: latitude,
-        zoom: zoom,
-        pitch: 0,
-        bearing: 0
-      };
 
       const mapStyle = {
         "version": 8,
