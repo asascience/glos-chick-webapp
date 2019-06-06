@@ -14,12 +14,14 @@ class GaugePlot extends React.Component {
     let prettyName = parameterMapping[parameter];
     let value = stream[0][parameter];
     let backgroundColor = '#55BF3B';
-    if (value > 10 || value < 4) {
+    let yaxis = gaugePlotDefaults[prettyName].yAxis;
+    let dangerThreshold = gaugePlotDefaults[prettyName].dangerThreshold;
+    let warningThreshold = gaugePlotDefaults[prettyName].warningThreshold;
+    if (value > dangerThreshold) {
       backgroundColor = '#DF5353';
-    } else if (value > 8.5 || value < 6) {
+    } else if (value > warningThreshold) {
       backgroundColor = '#DDDF0D';
     }
-    let yaxis = gaugePlotDefaults['Turbidity'].yAxis;
 
     const options = {
       yAxis: yaxis,

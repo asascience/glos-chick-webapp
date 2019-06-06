@@ -8,13 +8,13 @@ import Row from 'react-bootstrap/Row'
 import GaugePlot from '../components/GaugePlot'
 import TimeSeriesPlot from '../components/TimeSeriesPlot'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import StationMap from '../components/Map'
 import './StationDashboard.css';
 
 
 export default class StationDashboard extends Component {
   constructor(props) {
     super(props);
-
     this.state = {
       isLoading: true,
       data: null,
@@ -49,7 +49,9 @@ export default class StationDashboard extends Component {
       SpConduS: 'Specific Conductivity (uS)',
     };
 
-    let thisStation = this.props.location.pathname.split('/')[1];
+    // let thisStation = this.props.location.pathname.split('/')[1];
+    let thisStation = this.props.match.params.id;
+    this.station = thisStation;
     if (thisStation !== 'lelorain') {
       thisStation = 'IAGLR';
     }
@@ -169,11 +171,11 @@ export default class StationDashboard extends Component {
         </Alert>
       </div>
     )
-
   }
 
   _renderGaugePlot() {
     const {stream} = this.state;
+    let thisStation = this.props.match.params.id;
     if (stream.length === 0) {
       return null;
     }
@@ -181,6 +183,7 @@ export default class StationDashboard extends Component {
       <div>
         <Container>
           <Row>
+            <Col><StationMap station={thisStation}/></Col>
             <Col><GaugePlot stream={stream} parameter='BGAPCrfu' parameterMapping={this.parameterMapping}/></Col>
             <Col><GaugePlot stream={stream} parameter='Turb' parameterMapping={this.parameterMapping}/></Col>
           </Row>
@@ -258,7 +261,6 @@ export default class StationDashboard extends Component {
         this.renderLander()
       )
     }
-
     return (
       <div className="home-container">
         {this._renderAlert()}

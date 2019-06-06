@@ -67,7 +67,7 @@ class TimeSeriesPlot extends React.Component {
         enabled: false
       },
       series: series
-    }
+    };
     return (
       <HighchartsReact
         highcharts={Highcharts}
