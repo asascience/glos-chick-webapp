@@ -181,9 +181,9 @@ export default class StationDashboard extends Component {
       <div>
         <Container>
           <Row>
-            <Col><StationMap station={thisStation}/></Col>
-            <Col><GaugePlot stream={stream} parameter='BGAPCrfu' parameterMapping={this.parameterMapping}/></Col>
-            <Col><GaugePlot stream={stream} parameter='Turb' parameterMapping={this.parameterMapping}/></Col>
+            <Col sm={4}><StationMap station={thisStation}/></Col>
+            <Col sm={4}><GaugePlot stream={stream} parameter='BGAPCrfu' parameterMapping={this.parameterMapping}/></Col>
+            <Col sm={4}><GaugePlot stream={stream} parameter='Turb' parameterMapping={this.parameterMapping}/></Col>
           </Row>
         </Container>
       </div>
@@ -259,10 +259,11 @@ export default class StationDashboard extends Component {
         this.renderLander()
       )
     }
+    let stationName = this.state.stream[0].station;
     return (
       <div className="home-container">
         {this._renderAlert()}
-        <h1 align='center'>Station {this.state.stream[0].station}</h1>
+        <h1 align='center'>Station {stationName}</h1>
         <div id="plot">
           {this._renderGaugePlot()}
           {this._renderTimeSeriesPlot()}

@@ -12,7 +12,6 @@ const DATA_URL = './meta_english.json';
 class StationMap extends Component {
     constructor(props) {
       super(props);
-      console.log(props)
       this.state = {
         x: null,
         y: null,
