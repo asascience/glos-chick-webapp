@@ -51,10 +51,8 @@ export default class StationDashboard extends Component {
 
     // let thisStation = this.props.location.pathname.split('/')[1];
     let thisStation = this.props.match.params.id;
-    this.station = thisStation;
-    if (thisStation !== 'lelorain') {
-      thisStation = 'IAGLR';
-    }
+    thisStation = 'IAGLR';  // Hard coded for the demo
+
     const url = 'wss://gdjcxvsub6.execute-api.us-east-2.amazonaws.com/testing';
     const connection = new WebSocket(url);
 
@@ -90,7 +88,7 @@ export default class StationDashboard extends Component {
       let alertMessage = '';
       if (turbData > 10) {
         alert = true;
-        alertMessage = 'This station is detecting turbidity values that could indicate the presence of a HAB.';
+        alertMessage = 'This station is currently detecting turbidity values that could indicate the presence of a HAB.';
       }
 
       // Format data for react-bootstrap-table2

@@ -1,5 +1,6 @@
 import gaugePlotDefaults from '../config/gaugePlotDefaults';
 import React from 'react'
+import moment from 'moment'
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import HighchartsMore from 'highcharts-more'
@@ -38,6 +39,9 @@ class GaugePlot extends React.Component {
       },
       title: {
         text: prettyName
+      },
+      subtitle: {
+        text: moment.unix(stream[0].timestamp).format("ddd MMM DD YYYY HH:mm:ss")
       },
       pane: {
         startAngle: -150,
