@@ -181,7 +181,7 @@ export default class StationDashboard extends Component {
       <div>
         <Container>
           <Row>
-            <Col sm={4}><StationMap station={thisStation}/></Col>
+            <Col sm={4}><div className='dashboard-map-container'><StationMap station={thisStation}/></div></Col>
             <Col sm={4}><GaugePlot stream={stream} parameter='BGAPCrfu' parameterMapping={this.parameterMapping}/></Col>
             <Col sm={4}><GaugePlot stream={stream} parameter='Turb' parameterMapping={this.parameterMapping}/></Col>
           </Row>
