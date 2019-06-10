@@ -18,8 +18,12 @@ class GaugePlot extends React.Component {
     let yaxis = gaugePlotDefaults[prettyName].yAxis;
     let dangerThreshold = gaugePlotDefaults[prettyName].dangerThreshold;
     let warningThreshold = gaugePlotDefaults[prettyName].warningThreshold;
+    if (value > 15) {
+        value = 15;
+    }
     if (value > dangerThreshold) {
       backgroundColor = '#DF5353';
+
     } else if (value > warningThreshold) {
       backgroundColor = '#DDDF0D';
     }
@@ -84,10 +88,11 @@ class GaugePlot extends React.Component {
         name: prettyName,
         data: [value],
         tooltip: {
-          valueSuffix: ' '
+          valuePrefix: value >= 15 ? '>' : ''
         },
         dataLabels: {
           backgroundColor: backgroundColor,
+          format: value >= 15 ? '>{point.y}' : '{point.y}'
         }
       }]
     }

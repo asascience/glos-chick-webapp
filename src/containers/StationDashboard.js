@@ -56,7 +56,8 @@ export default class StationDashboard extends Component {
     const url = 'wss://gdjcxvsub6.execute-api.us-east-2.amazonaws.com/testing';
     const connection = new WebSocket(url);
 
-    connection.onopen = () => {
+    connection.onopen = e => {
+      console.log(e)
       console.log('Stream opened');
     }
     connection.onmessage = e => {
@@ -148,7 +149,7 @@ export default class StationDashboard extends Component {
 
   renderLander() {
     return (
-      <div className="lander">
+      <div className="station-lander">
         <h1>Loading Data...</h1>
         <FontAwesomeIcon icon='spinner' size='4x' spin />
       </div>

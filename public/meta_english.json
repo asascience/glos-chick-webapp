@@ -77,6 +77,83 @@ null,
 "GLCFS": false
 },
 {
+    "lon": -77.9576036,
+    "recovered": false,
+    "lat": 43.2145402,
+    "timeZone": "America/New_York",
+    "buoyInfo": "This buoy is owned and maintained by the NOAA National Data Buoy Center.  More information on this station can be found on <a href=\"http://www.ndbc.noaa.gov/station_page.php?station=45001\">its NOAA National Data Buoy Center page</a>",
+    "buoyAlert": "",
+    "metaGLOS": "",
+    "uglosLink": true,
+    "contact": [
+    "everhamme@limno.com"
+    ],
+    "id": "IAGLR",
+    "lake": "SUP",
+    "longName": "Station IAGLR",
+    "buoyOwners": "GLOS",
+    "sponsors": [
+    "img/NOAA_logo.png"
+    ],
+    "sponsorsSrc": [
+    "http://www.ndbc.noaa.gov/"
+    ],
+    "webcamSrc": [],
+    "webcamLink": [],
+    "obsID": [
+    "WDIR",
+    "WSPD",
+    "GST",
+    "WVHT",
+    "APD",
+    "MWD",
+    "PRES",
+    "ATMP",
+    "WTMP",
+    "DEWP"
+    ],
+    "obsUnits": [
+    "\u00b0",
+    "kts",
+    "kts",
+    "ft",
+    "sec",
+    "\u00b0",
+    "mBar",
+    "\u00b0F",
+    "\u00b0F",
+    "\u00b0F"
+    ],
+    "obsLongName": [
+    "Wind Direction",
+    "Wind Speed",
+    "Wind Gust",
+    "Wave Height",
+    "Wave Period",
+    "Mean Wave Direction",
+    "Air Pressure",
+    "Air Temp",
+    "Water Temp",
+    "Dew Point"
+    ],
+    "updateTime": "2019-05-28T16:30:00Z",
+    "obsValues": [
+        200.0,
+        3.88768,
+        3.88768,
+        null,
+        null,
+        null,
+        1012.5,
+        37.94,
+        36.5,
+        34.34
+    ],
+    "thermistorDepths": [],
+    "thermistorValues": [],
+    "GLCFS": false
+},
+{
 "lon": -86.411,
 "recovered": false,
 "lat": 45.344,
