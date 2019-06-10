@@ -37,7 +37,7 @@ export default {
         },
         {
           from: 10,
-          to: 15,
+          to: 1000,
           color: '#DF5353' // red
         }
       ]
