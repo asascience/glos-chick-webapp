@@ -16,7 +16,7 @@ import {json as requestJson} from 'd3-request';
 import { point, distance } from '@turf/turf';
 
 const DATA_URL = 'https://cors-anywhere.herokuapp.com/https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
-
+const FEATURED_PARAM = 'BGAPCrfu'
 
 
 export default class StationDashboard extends Component {
@@ -28,7 +28,7 @@ export default class StationDashboard extends Component {
       stream: [],
       tableColumns: [],
       tableData: [],
-      selected: ['Turb'],
+      selected: [FEATURED_PARAM],
       alert: false,
       alertMessage: ''
     };
@@ -214,11 +214,11 @@ export default class StationDashboard extends Component {
     //   return null;
     // }
 
-    let turbData = stream[0].Turb;
+    let featuredData = stream[0][FEATURED_PARAM];
 
-    if (turbData > 10) {
+    if (featuredData > 2) {
       alert = true;
-      alertMessage = 'This station is currently detecting turbidity values that could indicate the presence of a HAB.';
+      alertMessage = 'This station is currently detecting Blue Green Algae values that could indicate the presence of a HAB.';
     }
 
     stream.map((obj, idx) => {
@@ -307,20 +307,19 @@ export default class StationDashboard extends Component {
         sort: false,
       },
       {
-        dataField: 'turbidity',
-        text: 'Turbidity (NTU)',
+        dataField: 'parameter',
+        text: this.parameterMapping[FEATURED_PARAM],
         sort: false,
       }
     ];
     let tableData = [];
     nearbyStations.map((station, idx) => {
-      let ind = station.obsLongName.indexOf('Turbidity')
-      let turbidity = ind < 0 ? 'N/A' : station.obsValues[ind];
-
+      let ind = station.obsLongName.indexOf('Blue-Green Algae');
+      let val = ind < 0 ? 'N/A' : station.obsValues[ind];
       let rowObj = {
         station: station.id,
         distance: station.distance.toFixed(2),
-        turbidity: turbidity
+        parameter: val
       };
       return tableData.push(rowObj);
     });
@@ -412,7 +411,7 @@ export default class StationDashboard extends Component {
           <Row>
             <Col sm={5}><div className='dashboard-map-container'><StationMap station={thisStation} data={newData}/></div></Col>
             <Col sm={4}>{this._renderNearbyStationTable(newData)}</Col>
-            <Col sm={3}><GaugePlot stream={stream} parameter='Turb' parameterMapping={this.parameterMapping}/></Col>
+            <Col sm={3}><GaugePlot stream={stream} parameter={FEATURED_PARAM} parameterMapping={this.parameterMapping}/></Col>
           </Row>
         </Container>
       </div>
