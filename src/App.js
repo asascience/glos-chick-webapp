@@ -6,10 +6,12 @@ import Navbar from 'react-bootstrap/Navbar';
 import Routes from './Routes';
 import { Auth } from 'aws-amplify';
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faSpinner, faArrowCircleUp, faArrowCircleDown } from '@fortawesome/free-solid-svg-icons'
 import './App.css';
 
 library.add(faSpinner)
+library.add(faArrowCircleUp)
+library.add(faArrowCircleDown)
 
 
 class App extends Component {

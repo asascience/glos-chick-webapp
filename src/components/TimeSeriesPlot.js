@@ -12,16 +12,18 @@ class TimeSeriesPlot extends React.Component {
     let series = [];
     let prettyName = this.props.parameterMapping[parameters[0]];
     let units = '(' + prettyName.split('(')[1];
+    let timestamp = 'timestamp' in stream[0] ? 'timestamp' : 'date';
+
     parameters.map((param, idx) => {
       let seriesData = [];
       let zones = [];
       for (var i = stream.length - 1; i >= 0; i--) {
         seriesData.push({
-          x: stream[i].timestamp * 1000,
+          x: stream[i][timestamp],
           y: stream[i][param],
         });
       }
-      if (param === 'Turb') {
+      if (prettyName === 'Turbidity (ntu)') {
         zones = [
           {
             value: 8,

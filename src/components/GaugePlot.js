@@ -13,6 +13,7 @@ class GaugePlot extends React.Component {
     let parameter = this.props.parameter;
     let parameterMapping = this.props.parameterMapping;
     let prettyName = parameterMapping[parameter];
+    let timestamp = 'timestamp' in stream[0] ? 'timestamp' : 'date';
     let value = stream[0][parameter];
     let backgroundColor = '#55BF3B';
     let yaxis = gaugePlotDefaults[prettyName].yAxis;
@@ -45,7 +46,7 @@ class GaugePlot extends React.Component {
         text: prettyName
       },
       subtitle: {
-        text: moment.unix(stream[0].timestamp).format("ddd MMM DD YYYY HH:mm:ss")
+        text: moment.unix(stream[0][timestamp]).format("ddd MMM DD YYYY HH:mm:ss")
       },
       pane: {
         startAngle: -150,

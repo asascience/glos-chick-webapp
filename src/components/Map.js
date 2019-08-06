@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-import {StaticMap} from 'react-map-gl';
-import DeckGL, {IconLayer, HexagonLayer} from 'deck.gl';
+import { StaticMap, InteractiveMap} from 'react-map-gl';
+import { Table } from 'react-bootstrap';
+import DeckGL, {IconLayer, HexagonLayer, TextLayer} from 'deck.gl';
 import {json as requestJson} from 'd3-request';
 import './Map.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 
-const DATA_URL = './meta_english.json';
+const DATA_URL = 'https://cors-anywhere.herokuapp.com/https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
 
 class StationMap extends Component {
     constructor(props) {
@@ -32,15 +33,11 @@ class StationMap extends Component {
         return;
       }
       try {
-          // Test API?
+        // Test API?
       } catch (e) {
         alert(e);
       }
       this.setState({ isLoading: false });
-    }
-
-    _onHover({x, y, object}) {
-      this.setState({x, y, hoveredObject: object});
     }
 
     _renderTooltip() {
@@ -53,13 +50,34 @@ class StationMap extends Component {
       const name = hoveredObject.longName;
       const owner = hoveredObject.buoyOwners;
       const recovered = hoveredObject.recovered ? 'Yes' : 'No';
+      const params = hoveredObject.obsLongName;
+      const values = hoveredObject.obsValues;
+      const units = hoveredObject.obsUnits;
       return (
         <div className="marker-tooltip" style={{left: x, top: y}}>
-            <div><b>{`${name}`}</b></div>
-            <div>{`latitude: ${Number.isFinite(lat) ? lat.toFixed(3) : ''}`}</div>
-            <div>{`longitude: ${Number.isFinite(lng) ? lng.toFixed(3) : ''}`}</div>
-            <div>{`Owner: ${owner}`}</div>
-            <div>{`Recovered: ${recovered}`}</div>
+          <div><b>{`${name}`}</b></div>
+          <Table striped bordered hover size="sm">
+            <tbody>
+              {params && params.map((param, idx) => {
+                let val = values[idx] ? values[idx].toFixed(2) : values[idx];
+                let valString = val + ' ' + units[idx]
+                return (
+                  <tr>
+                     <td>{`${param}`}</td>
+                     <td>{`${valString}`}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
+        </div>
+      );
+    }
+
+    _renderLegend() {
+      return (
+        <div className="legend-panel">
+          <img src="https://oceansmap.s3.amazonaws.com/assets/legends/habs_tracker_legend.png" alt="Logo" />
         </div>
       );
     }
@@ -71,13 +89,13 @@ class StationMap extends Component {
       }
 
       // Set the Viewport
-      let latitude = 45;
-      let longitude = -84.5;
-      let zoom = 5;
+      let latitude = 42.25;
+      let longitude = -82;
+      let zoom = 7;
       if ('station' in this.props) {
         let stationObj = data.find(x => x.id === this.props.station);
         if (stationObj) {
-          zoom = 7;
+          zoom = 8;
           latitude = stationObj.lat;
           longitude = stationObj.lon;
         }
@@ -98,7 +116,7 @@ class StationMap extends Component {
 
       const layer = new IconLayer({
         id: 'icon-layer',
-        data: data,
+        data: 'data' in this.props ? this.props.data : data,
         pickable: true,
         iconAtlas: 'https://a.tiles.mapbox.com/v3/marker/pin-s+BB9427.png',
         iconMapping: ICON_MAPPING,
@@ -110,6 +128,9 @@ class StationMap extends Component {
           if ('station' in this.props && d.id === this.props.station) {
             return [0,0,0];
           }
+          if (d.id === 'HabsGrab') {
+            return [0,128,0];
+          }
           return d.recovered ? [220,20,60] : [55,126,184];
         },
         onHover: station => this.setState({
@@ -118,10 +139,30 @@ class StationMap extends Component {
           y: station.y
         }),
         onClick: station => {
+          const {data} = this.state;
           // Redirect to station dashboard page
           let route = '/' + station.object.id;
-          this.props.history.push(route);
+          this.props.history.push({
+            pathname: route,
+            state: {data: data},
+          })
         }
+      });
+
+      const labelLayer = new TextLayer({
+        id: 'text-layer',
+        data: 'data' in this.props ? this.props.data : data,
+        pickable: true,
+        getPosition: d => [d.lon, d.lat],
+        getText: d => {
+          return d.id
+        },
+        getSize: 16,
+        getAngle: 0,
+        getTextAnchor: 'middle',
+        getAlignmentBaseline: 'center',
+        fontFamily: 'Arial',
+        fontWeight: 'bold'
       });
 
       const mapStyle = {
@@ -137,10 +178,17 @@ class StationMap extends Component {
             ],
             "tileSize": 256
           },
+          "habs": {
+            "type": "raster",
+            "tiles": [
+              'https://tiles.oceansmap.com/habs/2019-08-07T14:00:00/{z}/{x}/{y}.png'
+            ],
+            "tileSize": 256
+          },
           "wms-glcfs-currents": {
             'type': 'raster',
             'tiles': [
-              'http://tds.glos.us/thredds/wms/glos/glcfs/erie/ncfmrc-2d/Lake_Erie_-_Nowcast_2D_best.ncd?bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:3857&transparent=true&width=256&height=256&layers=utm:vtm-group&&TIME=2019-05-28T12%3A00%3A00.000Z&STYLES=default-vector%2Fseq-Heat-inv'
+              'http://tds.glos.us/thredds/wms/glos/glcfs/erie/ncfmrc-2d/Lake_Erie_-_Nowcast_2D_best.ncd?bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:3857&transparent=true&width=256&height=256&layers=utm:vtm-dir&STYLES=default-arrows/default'
             ],
             'tileSize': 256
           },
@@ -163,10 +211,15 @@ class StationMap extends Component {
             "type": "raster"
           },
           {
-            'id': 'wms-glcfs-currents',
-            'type': 'raster',
-            'source': 'wms-glcfs-currents',
-          },
+            "id": "habs",
+            "source": "habs",
+            "type": "raster"
+          }
+          // {
+          //   'id': 'wms-glcfs-currents',
+          //   'type': 'raster',
+          //   'source': 'wms-glcfs-currents',
+          // },
         ]
       };
 
@@ -193,7 +246,7 @@ class StationMap extends Component {
       const hexagonLayer = new HexagonLayer({
         id: 'hexagonLayer',
         colorRange: COLOR_RANGE,
-        data: data,
+        data: 'data' in this.props ? this.props.data : data,
         elevationRange: [0, 1000],
         elevationScale: 400,
         extruded: true,
@@ -207,15 +260,16 @@ class StationMap extends Component {
       return (
         <div className="map-container">
           {this._renderTooltip()}
-          <DeckGL initialViewState={viewstate} controller={true} layers={[layer]}>
-            <StaticMap mapStyle={mapStyle} mapboxApiAccessToken={token} />
+          <DeckGL initialViewState={viewstate} controller={true} layers={[layer, labelLayer]}>
+            <InteractiveMap mapStyle={mapStyle} mapboxApiAccessToken={token}/>
+            {this._renderLegend()}
           </DeckGL>
         </div>
       );
     }
 
     render() {
-        return this.renderMap()
+      return this.renderMap();
     }
 }
 
