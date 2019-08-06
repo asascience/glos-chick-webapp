@@ -19,7 +19,7 @@ class TimeSeriesPlot extends React.Component {
       let zones = [];
       for (var i = stream.length - 1; i >= 0; i--) {
         seriesData.push({
-          x: stream[i][timestamp],
+          x: stream[i][timestamp] * 1000,
           y: stream[i][param],
         });
       }

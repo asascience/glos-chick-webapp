@@ -80,6 +80,7 @@ export default class StationDashboard extends Component {
     connection.onmessage = e => {
       let self = this;
       let jsonStreams = JSON.parse(e.data);
+      console.log(jsonStreams)
 
       if (!Array.isArray(jsonStreams)) {
         return;
@@ -223,7 +224,7 @@ export default class StationDashboard extends Component {
     stream.map((obj, idx) => {
       return tableColumns.push({
         dataField: obj[timestamp].toString(),
-        text: moment.unix(obj[timestamp]/1000).format("ddd MMM DD YYYY HH:mm:ss"),
+        text: moment.unix(obj[timestamp]).format("ddd MMM DD YYYY HH:mm:ss"),
       });
     });
 
@@ -305,12 +306,21 @@ export default class StationDashboard extends Component {
         text: 'Distance (nm)',
         sort: false,
       },
+      {
+        dataField: 'turbidity',
+        text: 'Turbidity (NTU)',
+        sort: false,
+      }
     ];
     let tableData = [];
     nearbyStations.map((station, idx) => {
+      let ind = station.obsLongName.indexOf('Turbidity')
+      let turbidity = ind < 0 ? 'N/A' : station.obsValues[ind];
+
       let rowObj = {
         station: station.id,
-        distance: station.distance.toFixed(2)
+        distance: station.distance.toFixed(2),
+        turbidity: turbidity
       };
       return tableData.push(rowObj);
     });
@@ -401,8 +411,8 @@ export default class StationDashboard extends Component {
         <Container>
           <Row>
             <Col sm={5}><div className='dashboard-map-container'><StationMap station={thisStation} data={newData}/></div></Col>
-            <Col sm={3}>{this._renderNearbyStationTable(newData)}</Col>
-            <Col sm={4}><GaugePlot stream={stream} parameter='Turb' parameterMapping={this.parameterMapping}/></Col>
+            <Col sm={4}>{this._renderNearbyStationTable(newData)}</Col>
+            <Col sm={3}><GaugePlot stream={stream} parameter='Turb' parameterMapping={this.parameterMapping}/></Col>
           </Row>
         </Container>
       </div>
