@@ -103,7 +103,7 @@ export default class StationDashboard extends Component {
           return ((x < y) ? -1 : ((x > y) ? 1 : 0));
         });
       }
-      stream = sortByKey(stream, 'date').reverse();
+      stream = sortByKey(stream, 'timestamp').reverse();
 
       this.setState({
         stream: stream,
@@ -386,18 +386,7 @@ export default class StationDashboard extends Component {
           "id": "HabsGrab",
           "lake": "ER",
           "longName": "Habs Grab",
-          "obsID": [
-            "WDIR",
-            "WSPD",
-            "GST",
-            "WVHT",
-            "APD",
-            "MWD",
-            "PRES",
-            "ATMP",
-            "WTMP",
-            "DEWP"
-          ],
+          "obsID": [],
           "obsUnits": obsUnits,
           "obsLongName": obsLongName,
           "updateTime": "2019-05-28T16:30:00Z",

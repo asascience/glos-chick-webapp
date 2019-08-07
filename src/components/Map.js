@@ -19,13 +19,57 @@ class StationMap extends Component {
         isLoading: true,
         hoveredObject: null,
         data: null,
-        station: null
+        station: null,
+        stream: [],
       };
       requestJson(DATA_URL, (error, response) => {
         if (!error) {
           this.setState({data: response});
         }
       });
+
+      let thisStation = 'HabsGrab';  // Hard coded for the demo
+
+      const url = 'wss://gdjcxvsub6.execute-api.us-east-2.amazonaws.com/testing';
+      const connection = new WebSocket(url);
+
+
+      connection.onopen = e => {
+        console.log('Stream opened');
+        const message = JSON.stringify({action: 'history'});
+        connection.send(message);
+      }
+      connection.onmessage = e => {
+        let self = this;
+        let jsonStreams = JSON.parse(e.data);
+        console.log(jsonStreams)
+
+        if (!Array.isArray(jsonStreams)) {
+          return;
+        }
+
+        if (jsonStreams.length === 0) return null;
+        // Check the stream for the correct station
+        let station = jsonStreams[0].station;
+        if (station !== thisStation) {
+          return null;
+        }
+
+        let stream = jsonStreams.concat(this.state.stream);
+        // Define function to sort array of objects
+        const sortByKey = (array, key) => {
+          return array.sort(function(a, b) {
+            let x = a[key];
+            let y = b[key];
+            return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+          });
+        }
+        stream = sortByKey(stream, 'timestamp').reverse();
+
+        this.setState({
+          stream: stream,
+        });
+      }
     }
 
     async componentDidMount() {
@@ -48,8 +92,6 @@ class StationMap extends Component {
       const lat = hoveredObject.lat;
       const lng = hoveredObject.lon;
       const name = hoveredObject.longName;
-      const owner = hoveredObject.buoyOwners;
-      const recovered = hoveredObject.recovered ? 'Yes' : 'No';
       const params = hoveredObject.obsLongName;
       const values = hoveredObject.obsValues;
       const units = hoveredObject.obsUnits;
@@ -60,7 +102,7 @@ class StationMap extends Component {
             <tbody>
               {params && params.map((param, idx) => {
                 let val = values[idx] ? values[idx].toFixed(2) : values[idx];
-                let valString = val + ' ' + units[idx]
+                let valString = val + ' ' + units[idx];
                 return (
                   <tr>
                      <td>{`${param}`}</td>
@@ -83,9 +125,37 @@ class StationMap extends Component {
     }
 
     renderMap() {
-      const {data} = this.state;
+      const {data, stream} = this.state;
       if (!data) {
         return null;
+      }
+      let newData = null;
+      if (stream.length > 0) {
+        newData = JSON.parse(JSON.stringify(data));
+        let obsLongName = Object.keys(stream[0]);
+        obsLongName = obsLongName.filter(item => item !== 'timestamp' && item !== 'date' && item !== 'station' && item !== 'topic');
+        let obsValues = [];
+        let obsUnits = [];
+        obsLongName.forEach(function (item, index) {
+          obsValues.push(stream[0][item]);
+          obsUnits.push('');
+        });
+        newData.push({
+            "lon": stream[0].lon,
+            "recovered": false,
+            "lat": stream[0].lat,
+            "timeZone": "America/New_York",
+            "buoyInfo": "This buoy is for demo purposes only",
+            "buoyAlert": "",
+            "id": "HabsGrab",
+            "lake": "ER",
+            "longName": "Habs Grab",
+            "obsID": [],
+            "obsUnits": obsUnits,
+            "obsLongName": obsLongName,
+            "updateTime": "2019-05-28T16:30:00Z",
+            "obsValues": obsValues
+        });
       }
 
       // Set the Viewport
@@ -116,7 +186,7 @@ class StationMap extends Component {
 
       const layer = new IconLayer({
         id: 'icon-layer',
-        data: 'data' in this.props ? this.props.data : data,
+        data: 'data' in this.props ? this.props.data : newData || data,
         pickable: true,
         iconAtlas: 'https://a.tiles.mapbox.com/v3/marker/pin-s+BB9427.png',
         iconMapping: ICON_MAPPING,
@@ -151,7 +221,7 @@ class StationMap extends Component {
 
       const labelLayer = new TextLayer({
         id: 'text-layer',
-        data: 'data' in this.props ? this.props.data : data,
+        data: 'data' in this.props ? this.props.data : newData || data,
         pickable: true,
         getPosition: d => [d.lon, d.lat],
         getText: d => {
@@ -246,7 +316,7 @@ class StationMap extends Component {
       const hexagonLayer = new HexagonLayer({
         id: 'hexagonLayer',
         colorRange: COLOR_RANGE,
-        data: 'data' in this.props ? this.props.data : data,
+        data: 'data' in this.props ? this.props.data : newData || data,
         elevationRange: [0, 1000],
         elevationScale: 400,
         extruded: true,
