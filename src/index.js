@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import Amplify from 'aws-amplify';
 import { BrowserRouter as Router } from 'react-router-dom';
 import App from './App';
+import dotenv from 'dotenv'
 import config from './config/config';
 import registerServiceWorker from './registerServiceWorker';
 import './index.css';

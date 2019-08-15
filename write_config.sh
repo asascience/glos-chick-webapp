@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-write_config(){
+write_config() {
     config_template="
 export default {
     apiGateway: {
@@ -20,4 +20,14 @@ export default {
     echo "$config" > ./src/config/config.js
 }
 
+write_dot_env() {
+    dot_env_template="
+REACT_APP_MAPBOX_ACCESS_TOKEN='%s'
+REACT_APP_ZENDESK_KEY='%s'
+"
+    dotenv=$(printf "$dot_env_template" $REACT_APP_MAPBOX_ACCESS_TOKEN $REACT_APP_ZENDESK_KEY)
+    echo "$dotenv" > .env
+}
+
 write_config
+write_dot_env

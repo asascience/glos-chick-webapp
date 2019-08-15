@@ -80,7 +80,7 @@ export default class StationDashboard extends Component {
     connection.onmessage = e => {
       let self = this;
       let jsonStreams = JSON.parse(e.data);
-      console.log(jsonStreams)
+
 
       if (!Array.isArray(jsonStreams)) {
         return;
