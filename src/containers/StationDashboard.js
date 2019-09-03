@@ -16,7 +16,7 @@ import {json as requestJson} from 'd3-request';
 import { point, distance } from '@turf/turf';
 
 const DATA_URL = 'https://cors-anywhere.herokuapp.com/https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
-const FEATURED_PARAM = 'BGAPCrfu'
+const FEATURED_PARAM = 'BGAPCrfu';
 
 
 export default class StationDashboard extends Component {
@@ -65,7 +65,7 @@ export default class StationDashboard extends Component {
       }
     });
 
-    thisStation = 'HabsGrab';  // Hard coded for the demo
+    // thisStation = 'HabsGrab';  // Hard coded for the demo
 
     const url = 'wss://gdjcxvsub6.execute-api.us-east-2.amazonaws.com/testing';
     const connection = new WebSocket(url);
@@ -125,19 +125,25 @@ export default class StationDashboard extends Component {
       }
     });
 
+    if (!stationLat) {
+      return null;
+    }
+
     let fro = point([stationLon, stationLat]);
     var options = {units: 'miles'};
     // Now calculate the distance from all the other stations in nautical miles
     data.forEach(function(station) {
-        let to = point([station.lon, station.lat]);
-        // let value = station.lake === lake ? distance(fro, to, options) : 9999.99;
-        let value = distance(fro, to, options);
-        Object.defineProperty(station, 'distance', {
-          value: value,
-          writable: true,
-          enumerable: true,
-          configurable: true
-        });
+        if (station.lon && station.lat) {
+          let to = point([station.lon, station.lat]);
+          // let value = station.lake === lake ? distance(fro, to, options) : 9999.99;
+          let value = distance(fro, to, options);
+          Object.defineProperty(station, 'distance', {
+            value: value,
+            writable: true,
+            enumerable: true,
+            configurable: true
+          });
+        }
     });
     // Now sort by distance
     data.sort(function(a, b) {
@@ -295,6 +301,11 @@ export default class StationDashboard extends Component {
       );
     }
     let nearbyStations = this._sortStationsByDistance(data);
+    if (!nearbyStations) {
+      return (
+        <FontAwesomeIcon icon='spinner' size='4x' spin />
+      );
+    }
     let tableColumns = [
       {
         dataField: 'station',
