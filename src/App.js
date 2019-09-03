@@ -1,6 +1,7 @@
 import { LinkContainer } from 'react-router-bootstrap';
 import React, { Component, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
+import NavDropdown from 'react-bootstrap/NavDropdown'
 import Nav from 'react-bootstrap/Nav'
 import Navbar from 'react-bootstrap/Navbar';
 import glosLogo from './logos/glos_logo.png';
@@ -21,7 +22,8 @@ class App extends Component {
 
     this.state = {
       isAuthenticated: false,
-      isAuthenticating: true
+      isAuthenticating: true,
+      userEmail: null
     };
   }
 
@@ -54,6 +56,12 @@ class App extends Component {
       isAuthenticated: this.state.isAuthenticated,
       userHasAuthenticated: this.userHasAuthenticated
     };
+    if (this.state.isAuthenticated && !this.state.userEmail) {
+      Auth.currentAuthenticatedUser({
+        bypassCache: false  // Optional, By default is false. If set to true, this call will send a request to Cognito to get the latest user data
+      }).then(user => this.setState({userEmail: user.attributes.email}))
+      .catch(err => console.log(err));
+    }
 
     return (
       <div className="App container">
@@ -75,7 +83,9 @@ class App extends Component {
             </Navbar.Brand>
             <Nav>
               {this.state.isAuthenticated ? (
-                <Nav.Item onClick={this.handleLogout}>Logout</Nav.Item>
+                <NavDropdown title={this.state.userEmail}>
+                    <NavDropdown.Item onClick={this.handleLogout}>Logout</NavDropdown.Item>
+                </NavDropdown>
               ) : (
                 <Fragment>
                   <LinkContainer to="/signup">
