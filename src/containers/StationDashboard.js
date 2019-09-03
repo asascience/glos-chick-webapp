@@ -253,7 +253,8 @@ export default class StationDashboard extends Component {
         parameter: param
       };
       stream.map((obj, ind) => {
-        return rowObj[obj[timestamp]] = obj[param];
+        let val = obj[param] * 10;  // Take this multiplier out!
+        return rowObj[obj[timestamp]] = val.toFixed(2);
       });
       return tableData.push(rowObj);
     });
