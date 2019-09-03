@@ -3,6 +3,7 @@ import React, { Component, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
 import Nav from 'react-bootstrap/Nav'
 import Navbar from 'react-bootstrap/Navbar';
+import glosLogo from './logos/glos_logo.png';
 import Routes from './Routes';
 import { Auth } from 'aws-amplify';
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -64,6 +65,14 @@ class App extends Component {
                 <Nav.Item bsPrefix='nav'>Home</Nav.Item>
               </LinkContainer>
             </Nav>
+            <Navbar.Brand href={'http://glos.us'}>
+              <img
+                  alt={'Glos Logo'}
+                  src={glosLogo}
+                  height={40}
+                  className="d-inline-block align-middle"
+              />
+            </Navbar.Brand>
             <Nav>
               {this.state.isAuthenticated ? (
                 <Nav.Item onClick={this.handleLogout}>Logout</Nav.Item>

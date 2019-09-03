@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { FormText, FormGroup, FormControl, FormLabel } from 'react-bootstrap';
+import { FormText, FormGroup, FormControl, FormLabel, Form, Col } from 'react-bootstrap';
 import LoaderButton from '../components/LoaderButton';
 import { Auth } from 'aws-amplify';
 import './Signup.css';
@@ -10,6 +10,9 @@ export default class Signup extends Component {
 
     this.state = {
       isLoading: false,
+      firstname: '',
+      lastname: '',
+      organization: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -21,6 +24,9 @@ export default class Signup extends Component {
 
   validateForm() {
     return (
+      this.state.firstname.length > 0 &&
+      this.state.lastname.length > 0 &&
+      this.state.organization.length > 0 &&
       this.state.email.length > 0 &&
       this.state.password.length > 0 &&
       this.state.password === this.state.confirmPassword
@@ -104,34 +110,50 @@ export default class Signup extends Component {
     return (
       <form onSubmit={this.handleSubmit}>
         <h2 align='center'>Sign Up</h2>
-        <FormGroup controlId="email" bsSize="large">
-          <FormLabel>Email</FormLabel>
-          <FormControl autoFocus type="email" value={this.state.email} onChange={this.handleChange} />
-        </FormGroup>
-        <FormGroup controlId="phoneNumber" bsSize="large">
-          <FormLabel>Phone Number</FormLabel>
-          <FormControl value={this.state.phoneNumber} onChange={this.handleChange} />
-          <FormText>Example US based number: +14325551212</FormText>
-        </FormGroup>
-        <FormGroup controlId="password" bsSize="large">
-          <FormLabel>Password</FormLabel>
-          <FormControl value={this.state.password} onChange={this.handleChange} type="password" />
-          <FormText>8 characters min, uppercase letters, lowercase letters, numbers</FormText>
-        </FormGroup>
-        <FormGroup controlId="confirmPassword" bsSize="large">
-          <FormLabel>Confirm Password</FormLabel>
-          <FormControl value={this.state.confirmPassword} onChange={this.handleChange} type="password" />
-        </FormGroup>
-        <LoaderButton
-          block
-          bsStyle="primary"
-          bsSize="large"
-          disabled={!this.validateForm()}
-          type="submit"
-          isLoading={this.state.isLoading}
-          text="Signup"
-          loadingText="Signing up…"
-        />
+        <Form>
+          <Form.Row>
+            <FormGroup as={Col} controlId="firstname" bsSize="small">
+              <FormLabel>First Name</FormLabel>
+              <FormControl size="sm" autoFocus value={this.state.firstname} onChange={this.handleChange} />
+            </FormGroup>
+            <FormGroup as={Col} controlId="lastname" bsSize="small">
+              <FormLabel>Last Name</FormLabel>
+              <FormControl size="sm" autoFocus value={this.state.lastname} onChange={this.handleChange} />
+            </FormGroup>
+          </Form.Row>
+          <FormGroup controlId="organization" bsSize="small">
+            <FormLabel>Organization</FormLabel>
+            <FormControl size="sm" autoFocus value={this.state.organization} onChange={this.handleChange} />
+          </FormGroup>
+          <FormGroup controlId="email" bsSize="small">
+            <FormLabel>Email</FormLabel>
+            <FormControl size="sm" autoFocus type="email" value={this.state.email} onChange={this.handleChange} />
+          </FormGroup>
+          <FormGroup controlId="phoneNumber" bsSize="small">
+            <FormLabel>Phone Number</FormLabel>
+            <FormControl size="sm" value={this.state.phoneNumber} onChange={this.handleChange} />
+            <FormText>Example US based number: +14325551212</FormText>
+          </FormGroup>
+          <FormGroup controlId="password" bsSize="small">
+            <FormLabel>Password</FormLabel>
+            <FormControl size="sm" value={this.state.password} onChange={this.handleChange} type="password" />
+            <FormText>8 characters min, uppercase letters, lowercase letters, numbers</FormText>
+          </FormGroup>
+          <FormGroup controlId="confirmPassword" bsSize="small">
+            <FormLabel>Confirm Password</FormLabel>
+            <FormControl size="sm" value={this.state.confirmPassword} onChange={this.handleChange} type="password" />
+          </FormGroup>
+          <LoaderButton
+            block
+            bsStyle="primary"
+            bsSize="large"
+            disabled={!this.validateForm()}
+            type="submit"
+            isLoading={this.state.isLoading}
+            text="Create Account"
+            loadingText="Signing up…"
+          />
+        </Form>
       </form>
     );
   }
