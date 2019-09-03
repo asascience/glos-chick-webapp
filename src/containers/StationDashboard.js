@@ -26,6 +26,7 @@ export default class StationDashboard extends Component {
       isLoading: true,
       data: null,
       stream: [],
+      station: '',
       tableColumns: [],
       tableData: [],
       selected: [FEATURED_PARAM],
@@ -36,10 +37,13 @@ export default class StationDashboard extends Component {
     this.parameterMapping = {
       cond: 'Conductivity',
       do: 'Dissolved Oxygen Concentration',
+      odo: 'Dissolved Oxygen Concentration',
       dosat: 'Dissolved Oxygen Saturation',
+      odosat: 'Dissolved Oxygen Saturation',
       fdomQSU: 'FDOM',
       fdomRFU: 'FDOM (RFU)',
       ph: 'pH',
+      pH: 'pH',
       spcond: 'Specific Conductivity',
       wtmp1: 'Water Temp',
       ysibgaraw: 'Blue Green Algae (raw)',
@@ -54,11 +58,11 @@ export default class StationDashboard extends Component {
       WTempC: 'Water Temp (C)',
       BGAPCrfu: 'Blue Green Algae (rfu)',
       SpConduS: 'Specific Conductivity (uS)',
+      TurbidityNTU: 'Turbidity (ntu)',
     };
+  }
 
-    // let thisStation = this.props.location.pathname.split('/')[1];
-    let thisStation = this.props.match.params.id;
-
+  _fetchStream() {
     requestJson(DATA_URL, (error, response) => {
       if (!error) {
         this.setState({data: response});
@@ -81,19 +85,23 @@ export default class StationDashboard extends Component {
       let self = this;
       let jsonStreams = JSON.parse(e.data);
 
-
       if (!Array.isArray(jsonStreams)) {
         return;
       }
 
-      if (jsonStreams.length === 0) return null;
+      let thisStation = this.props.match.params.id;
+      let filteredStream = jsonStreams.filter(function(item){
+        return item.station === thisStation;
+      });
+
+      if (filteredStream.length === 0) return null;
       // Check the stream for the correct station
-      let station = jsonStreams[0].station;
+      let station = filteredStream[0].station;
       if (station !== thisStation) {
         return null;
       }
 
-      let stream = jsonStreams.concat(this.state.stream);
+      let stream = filteredStream.concat(this.state.stream);
 
       // Define function to sort array of objects
       const sortByKey = (array, key) => {
@@ -107,6 +115,7 @@ export default class StationDashboard extends Component {
 
       this.setState({
         stream: stream,
+        station: station
       });
     }
   }
@@ -133,7 +142,7 @@ export default class StationDashboard extends Component {
     var options = {units: 'miles'};
     // Now calculate the distance from all the other stations in nautical miles
     data.forEach(function(station) {
-        if (station.lon && station.lat) {
+        if (station.lon && station.lat && station.obsLongName) {
           let to = point([station.lon, station.lat]);
           // let value = station.lake === lake ? distance(fro, to, options) : 9999.99;
           let value = distance(fro, to, options);
@@ -337,7 +346,6 @@ export default class StationDashboard extends Component {
 
     const rowEvents = {
       onClick: (e, row, rowIndex) => {
-        console.log(row)
       }
     };
     return (
@@ -487,13 +495,21 @@ export default class StationDashboard extends Component {
   }
 
   renderDashboard() {
-    const {stream} = this.state;
+    const {stream, station} = this.state;
+    let thisStation = this.props.match.params.id;
+    if (station !== thisStation) {
+      this._fetchStream();
+      this.setState({
+        stream: [],
+        station: thisStation
+      });
+    }
     if (stream.length === 0) {
       return (
         this.renderLander()
       )
     }
-    let stationName = this.state.stream[0].station;
+    let stationName = this.state.station;
     return (
       <div className="home-container">
         {this._renderAlert()}
