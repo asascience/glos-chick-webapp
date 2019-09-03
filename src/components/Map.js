@@ -27,48 +27,6 @@ class StationMap extends Component {
           this.setState({data: response});
         }
       });
-
-      let thisStation = 'HabsGrab';  // Hard coded for the demo
-
-      const url = 'wss://gdjcxvsub6.execute-api.us-east-2.amazonaws.com/testing';
-      const connection = new WebSocket(url);
-
-
-      connection.onopen = e => {
-        console.log('Stream opened');
-        const message = JSON.stringify({action: 'history'});
-        connection.send(message);
-      }
-      connection.onmessage = e => {
-        let self = this;
-        let jsonStreams = JSON.parse(e.data);
-
-        if (!Array.isArray(jsonStreams)) {
-          return;
-        }
-
-        if (jsonStreams.length === 0) return null;
-        // Check the stream for the correct station
-        let station = jsonStreams[0].station;
-        if (station !== thisStation) {
-          return null;
-        }
-
-        let stream = jsonStreams.concat(this.state.stream);
-        // Define function to sort array of objects
-        const sortByKey = (array, key) => {
-          return array.sort(function(a, b) {
-            let x = a[key];
-            let y = b[key];
-            return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-          });
-        }
-        stream = sortByKey(stream, 'timestamp').reverse();
-
-        this.setState({
-          stream: stream,
-        });
-      }
     }
 
     async componentDidMount() {
