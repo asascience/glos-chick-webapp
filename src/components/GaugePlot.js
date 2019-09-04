@@ -14,7 +14,8 @@ class GaugePlot extends React.Component {
     let parameterMapping = this.props.parameterMapping;
     let prettyName = parameterMapping[parameter];
     let timestamp = 'timestamp' in stream[0] ? 'timestamp' : 'date';
-    let value = stream[0][parameter].toFixed(2) * 10;
+    let dataPoint = stream[0][parameter] * 7;
+    let value = parseFloat(dataPoint.toFixed(2));
     let backgroundColor = '#55BF3B';
     let yaxis = gaugePlotDefaults[prettyName].yAxis;
     let dangerThreshold = gaugePlotDefaults[prettyName].dangerThreshold;
