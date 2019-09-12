@@ -13,7 +13,7 @@
 }
 
 .Home .lander p {
-  color: #999;
+  color: rgba(21, 67, 114, 1);
 }
 
 .map-container {
@@ -36,8 +36,8 @@
 }
 
 .jumbotron {
-  color: white;
-  background-image: url("/glos_headers_data-collection.jpg");
+  color: rgba(21, 67, 114, 1);
+  /*background-image: url("/glos_headers_data-collection.jpg");*/
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;

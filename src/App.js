@@ -1,19 +1,19 @@
 import { LinkContainer } from 'react-router-bootstrap';
 import React, { Component, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
-import NavDropdown from 'react-bootstrap/NavDropdown'
-import Nav from 'react-bootstrap/Nav'
+import NavDropdown from 'react-bootstrap/NavDropdown';
+import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import glosLogo from './logos/glos_logo.png';
 import Routes from './Routes';
 import { Auth } from 'aws-amplify';
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { faSpinner, faArrowCircleUp, faArrowCircleDown } from '@fortawesome/free-solid-svg-icons'
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faSpinner, faArrowCircleUp, faArrowCircleDown } from '@fortawesome/free-solid-svg-icons';
 import './App.css';
 
-library.add(faSpinner)
-library.add(faArrowCircleUp)
-library.add(faArrowCircleDown)
+library.add(faSpinner);
+library.add(faArrowCircleUp);
+library.add(faArrowCircleDown);
 
 
 class App extends Component {
@@ -65,7 +65,7 @@ class App extends Component {
 
     return (
       <div className="App container">
-        <Navbar bg="light" expand="lg" fluid collapseOnSelect>
+        <Navbar bg="glos" expand="lg" fluid collapseOnSelect>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="mr-auto">
@@ -83,16 +83,16 @@ class App extends Component {
             </Navbar.Brand>
             <Nav>
               {this.state.isAuthenticated ? (
-                <NavDropdown title={this.state.userEmail}>
+                <NavDropdown bsPrefix='navbar-link' title={this.state.userEmail}>
                     <NavDropdown.Item onClick={this.handleLogout}>Logout</NavDropdown.Item>
                 </NavDropdown>
               ) : (
                 <Fragment>
                   <LinkContainer to="/signup">
-                    <Nav.Item bsPrefix='nav-link'>Signup</Nav.Item>
+                    <Nav.Item bsPrefix='navbar-link'>Signup</Nav.Item>
                   </LinkContainer>
                   <LinkContainer to="/login">
-                    <Nav.Item bsPrefix='nav-link'>Login</Nav.Item>
+                    <Nav.Item bsPrefix='navbar-link'>Login</Nav.Item>
                   </LinkContainer>
                 </Fragment>
               )}
