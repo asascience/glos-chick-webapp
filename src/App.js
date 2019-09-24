@@ -8,12 +8,16 @@ import glosLogo from './logos/glos_logo.png';
 import Routes from './Routes';
 import { Auth } from 'aws-amplify';
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faSpinner, faArrowCircleUp, faArrowCircleDown } from '@fortawesome/free-solid-svg-icons';
+import { faSpinner, faArrowCircleUp, faArrowCircleDown, faBell, faHome, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './App.css';
 
 library.add(faSpinner);
 library.add(faArrowCircleUp);
 library.add(faArrowCircleDown);
+library.add(faHome);
+library.add(faBell);
+library.add(faSignOutAlt);
 
 
 class App extends Component {
@@ -84,7 +88,13 @@ class App extends Component {
             <Nav>
               {this.state.isAuthenticated ? (
                 <NavDropdown bsPrefix='navbar-link' title={this.state.userEmail}>
-                    <NavDropdown.Item onClick={this.handleLogout}>Logout</NavDropdown.Item>
+                  <LinkContainer to="/">
+                    <NavDropdown.Item eventKey="1"><FontAwesomeIcon icon='home' style={{'marginRight': '7px'}} />Home</NavDropdown.Item>
+                  </LinkContainer>
+                  <LinkContainer to="/alerts">
+                    <NavDropdown.Item eventKey="2"><FontAwesomeIcon icon='bell' style={{'marginRight': '7px'}} />Alerts</NavDropdown.Item>
+                  </LinkContainer>
+                  <NavDropdown.Item eventKey="3" onClick={this.handleLogout}><FontAwesomeIcon icon='sign-out-alt' style={{'marginRight': '7px'}} />Logout</NavDropdown.Item>
                 </NavDropdown>
               ) : (
                 <Fragment>
