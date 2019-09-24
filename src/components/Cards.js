@@ -59,48 +59,43 @@ class SelectableCardList extends React.Component {
 
   onItemSelected(index) {
     this.setState((prevState, props) => {
-      if (props.multiple) {
-        let selectedIndexes = prevState.selected;
-        let selectedIndex = selectedIndexes.indexOf(index);
-        if (selectedIndex > -1) {
-          selectedIndexes.splice(selectedIndex, 1);
-          props.onChange(selectedIndexes);
-        } else {
-          if (!(selectedIndexes.length >= props.maxSelectable)) {
-            selectedIndexes.push(index);
-            props.onChange(selectedIndexes);
-          }
-        }
-        return {
-          selected: selectedIndexes
-        };
+      let selectedIndexes = prevState.selected;
+      let selectedIndex = selectedIndexes.indexOf(index);
+      if (selectedIndex > -1) {
+        selectedIndexes.splice(selectedIndex, 1);
+        props.onChange(selectedIndexes);
       } else {
-        props.onChange(index);
-        return {
-          selected: index
+        if (!(selectedIndexes.length >= props.maxSelectable)) {
+          selectedIndexes.push(index);
+          props.onChange(selectedIndexes);
         }
       }
+      return {
+        selected: selectedIndexes
+      };
+
     });
   }
 
   render() {
     let {
       contents,
-      multiple
+      selected
     } = this.props;
 
     let content = contents.map((cardContent, i) => {
       var {
         title,
         description,
-        selected
+        id
       } = cardContent;
-      var selected = multiple ? this.state.selected.indexOf(i) > -1 : this.state.selected == i;
+
+      var cardSelected = selected.indexOf(i) > -1;
       return (
         <Col sm={4}>
           <SelectableTitleCard key={i}
             title={title} description={description}
-            selected={selected}
+            selected={cardSelected}
             onClick={(e) => this.onItemSelected(i)} />
         </Col>
       );
@@ -119,9 +114,11 @@ class SelectableCardList extends React.Component {
 
 class Cards extends React.Component {
   onListChanged(selected) {
-    this.setState({
-      selected: selected
-    });
+    let selectedParams = this.props.cardContents.filter((item, index) => {
+      return selected.indexOf(index) > -1;
+    }).map((obj, idx) => {return obj.id;});
+    this.props.onChange(selectedParams)
+
   }
   render() {
     console.log(this.props.selected)
@@ -130,7 +127,6 @@ class Cards extends React.Component {
           <h1 className="title">{this.props.title}</h1>
           <SelectableCardList
             selected={this.props.selected}
-            multiple={this.props.multiple}
             maxSelectable={this.props.maxSelectable}
             contents={this.props.cardContents}
             onChange={this.onListChanged.bind(this)}/>

@@ -508,18 +508,6 @@ export default class StationDashboard extends Component {
     const options = {
       paginationSize: 4,
       pageStartIndex: 0,
-      // alwaysShowAllBtns: true, // Always show next and previous button
-      // withFirstAndLast: false, // Hide the going to First and Last page button
-      // hideSizePerPage: true, // Hide the sizePerPage dropdown always
-      // hidePageListOnlyOnePage: true, // Hide the pagination list when only one page
-      // firstPageText: 'First',
-      // prePageText: 'Back',
-      // nextPageText: 'Next',
-      // lastPageText: 'Last',
-      // nextPageTitle: 'First page',
-      // prePageTitle: 'Pre page',
-      // firstPageTitle: 'Next page',
-      // lastPageTitle: 'Last page',
       showTotal: true,
       paginationTotalRenderer: customTotal,
       sizePerPageList: [{
@@ -545,7 +533,11 @@ export default class StationDashboard extends Component {
       </div>
     );
   }
-
+  handleClick(selected){
+    this.setState({
+      selected: selected
+    });
+  }
   _renderCards() {
     const {stream} = this.state;
 
@@ -557,14 +549,18 @@ export default class StationDashboard extends Component {
         id: key
       });
     });
-    console.log(this.state.selected)
     params = params.filter(item => !this.blacklistParams.includes(item));
     let selectedParams = params.map((param, idx) => {
       return this.state.selected.indexOf(param.id) > -1 ? idx : null;
-    }).filter(x => x);
-
+    }).filter(x => x !== null);
     return (
-      <Cards title="" selected={selectedParams} cardContents={params} multiple maxSelectable={999} />
+      <Cards
+        title=""
+        selected={selectedParams}
+        cardContents={params}
+        maxSelectable={999}
+        onChange={this.handleClick.bind(this)}
+      />
     )
   }
 
