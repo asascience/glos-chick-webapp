@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import moment from 'moment'
 import BootstrapTable from 'react-bootstrap-table-next'
+import paginationFactory from 'react-bootstrap-table2-paginator';
 import Table from 'react-bootstrap/Table'
 import Alert from 'react-bootstrap/Alert'
 import Col from 'react-bootstrap/Col'
@@ -10,8 +11,11 @@ import GaugePlot from '../components/GaugePlot'
 import TimeSeriesPlot from '../components/TimeSeriesPlot'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import StationMap from '../components/Map'
+import Cards from '../components/Cards'
 import MovingStats from '../components/MovingStats'
 import './StationDashboard.css';
+import '../components/Cards.scss';
+import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
 import {json as requestJson} from 'd3-request';
 import { point, distance } from '@turf/turf';
 
@@ -33,6 +37,8 @@ export default class StationDashboard extends Component {
       alert: false,
       alertMessage: ''
     };
+
+    this.blacklistParams = ['timestamp', 'date', 'station', 'topic'];
 
     this.parameterMapping = {
       cond: 'Conductivity',
@@ -69,12 +75,24 @@ export default class StationDashboard extends Component {
       }
     });
 
-    // thisStation = 'HabsGrab';  // Hard coded for the demo
-
     const url = 'wss://gdjcxvsub6.execute-api.us-east-2.amazonaws.com/testing';
     const connection = new WebSocket(url);
 
     const movingStats = new MovingStats();
+
+    connection.onerror = e => {
+      console.error('Stream Connection Error');
+      return (
+        <div>
+          <Alert variant="danger">
+            <Alert.Heading>Error!</Alert.Heading>
+            <p>
+              Error connecting to Stream
+            </p>
+          </Alert>
+        </div>
+      )
+    }
 
     connection.onopen = e => {
       console.log('Stream opened');
@@ -246,7 +264,7 @@ export default class StationDashboard extends Component {
     let tableData = [];
     let paramRows = Object.keys(stream[0]);
     let rowObj = {};
-    paramRows = paramRows.filter(item => item !== 'timestamp' && item !== 'date' && item !== 'station' && item !== 'topic');
+    paramRows = paramRows.filter(item => !this.blacklistParams.includes(item));
     paramRows.map((param, idx) => {
       rowObj = {
         prettyName: param in self.parameterMapping ? self.parameterMapping[param] : param,
@@ -389,7 +407,7 @@ export default class StationDashboard extends Component {
     // } else {
       let newData = JSON.parse(JSON.stringify(data));
       let obsLongName = Object.keys(stream[0]);
-      obsLongName = obsLongName.filter(item => item !== 'timestamp' && item !== 'date' && item !== 'station' && item !== 'topic');
+      obsLongName = obsLongName.filter(item => !this.blacklistParams.includes(item));
       let obsValues = [];
       let obsUnits = [];
       obsLongName.forEach(function (item, index) {
@@ -481,6 +499,38 @@ export default class StationDashboard extends Component {
       onSelectAll: this.handleOnSelectAll,
     };
 
+    const customTotal = (fro, to, size) => (
+      <span className="react-bootstrap-table-pagination-total">
+        Showing { fro } to { to } of { size } Results
+      </span>
+    );
+
+    const options = {
+      paginationSize: 4,
+      pageStartIndex: 0,
+      // alwaysShowAllBtns: true, // Always show next and previous button
+      // withFirstAndLast: false, // Hide the going to First and Last page button
+      // hideSizePerPage: true, // Hide the sizePerPage dropdown always
+      // hidePageListOnlyOnePage: true, // Hide the pagination list when only one page
+      // firstPageText: 'First',
+      // prePageText: 'Back',
+      // nextPageText: 'Next',
+      // lastPageText: 'Last',
+      // nextPageTitle: 'First page',
+      // prePageTitle: 'Pre page',
+      // firstPageTitle: 'Next page',
+      // lastPageTitle: 'Last page',
+      showTotal: true,
+      paginationTotalRenderer: customTotal,
+      sizePerPageList: [{
+        text: '3', value: 3
+      }, {
+        text: '5', value: 5
+      }, {
+        text: 'All', value: tableData.length
+      }] // A numeric array is also available. the purpose of above example is custom the text
+    };
+
     return (
       <div className="container" style={{ marginTop: 50 }}>
         <BootstrapTable
@@ -490,9 +540,32 @@ export default class StationDashboard extends Component {
           data={ tableData }
           columns={ tableColumns }
           selectRow={ selectRow }
+          pagination={ paginationFactory(options) }
         />
       </div>
     );
+  }
+
+  _renderCards() {
+    const {stream} = this.state;
+
+    let params = [];
+    Object.keys(stream[0]).filter(item => !this.blacklistParams.includes(item)).map((key, idx) => {
+      return params.push({
+        title: key in this.parameterMapping ? this.parameterMapping[key] : key,
+        description: stream[0][key],
+        id: key
+      });
+    });
+    console.log(this.state.selected)
+    params = params.filter(item => !this.blacklistParams.includes(item));
+    let selectedParams = params.map((param, idx) => {
+      return this.state.selected.indexOf(param.id) > -1 ? idx : null;
+    }).filter(x => x);
+
+    return (
+      <Cards title="" selected={selectedParams} cardContents={params} multiple maxSelectable={999} />
+    )
   }
 
   renderDashboard() {
@@ -511,16 +584,24 @@ export default class StationDashboard extends Component {
       )
     }
     let stationName = this.state.station;
+    let lastUpdate = moment.unix(this.state.stream[0]['timestamp']).format("ddd MMM DD YYYY hh:mm a");
+
     return (
       <div className="home-container">
         {this._renderAlert()}
-        <h1 align='center'>Station {stationName}</h1>
+        <h1 align='left'>Station - {stationName}</h1>
+        <h5 align='left'>Last Updated - {lastUpdate}</h5>
+        <div id="cards">
+          {this._renderCards()}
+        </div>
         <div id="plot">
-          {this._renderMapAndGauge()}
           {this._renderTimeSeriesPlot()}
         </div>
         <div id="table">
           {this._renderTable()}
+        </div>
+        <div>
+          {this._renderMapAndGauge()}
         </div>
       </div>
     )
