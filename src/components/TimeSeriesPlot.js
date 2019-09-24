@@ -20,7 +20,7 @@ class TimeSeriesPlot extends React.Component {
       for (var i = stream.length - 1; i >= 0; i--) {
         seriesData.push({
           x: stream[i][timestamp] * 1000,
-          y: stream[i][param].toFixed(3) * 7,
+          y: stream[i][param],
         });
       }
       if (prettyName === 'Turbidity (ntu)') {
