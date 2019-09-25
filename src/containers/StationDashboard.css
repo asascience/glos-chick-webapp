@@ -16,3 +16,14 @@
 .dashboard-nearby-station-table .table td {
   padding: .25rem;
 }
+
+@media screen and (max-width: 600px) {
+  #table {
+    visibility: hidden;
+    clear: both;
+    float: left;
+    margin: 10px auto 5px 20px;
+    width: 28%;
+    display: none;
+  }
+}
