@@ -62,8 +62,9 @@ class StationMap extends Component {
         return (
           <div className="marker-tooltip" style={{left: x, top: y}}>
             <div><b>{`${site.replace("WE", "Western Erie ")}`}</b></div>
-            <div><b>NOAA GLERL</b></div>
-            <div><b>Last Updated at {lastUpdate}</b></div>
+            <div>NOAA GLERL</div>
+            <div>Weekly Monitoring Station</div>
+            <div>Last Updated at {lastUpdate}</div>
           </div>
         );
       }
