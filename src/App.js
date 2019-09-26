@@ -68,7 +68,7 @@ class App extends Component {
     }
 
     return (
-      <div className="App container">
+      <div className="App container-fluid">
         <Navbar bg="glos" expand="lg" fluid collapseOnSelect>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
