@@ -20,7 +20,7 @@ import {json as requestJson} from 'd3-request';
 import { point, distance } from '@turf/turf';
 
 const DATA_URL = 'https://cors-anywhere.herokuapp.com/https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
-const HABS_DATA_URL = './weekly_habs_hypoxia.json';
+const HABS_DATA_URL = 'https://4431mqp2sj.execute-api.us-east-2.amazonaws.com/prod/grabsample';
 
 const FEATURED_PARAM = 'BGAPCrfu';
 
@@ -31,7 +31,7 @@ export default class StationDashboard extends Component {
     this.state = {
       isLoading: true,
       data: null,
-      habs_data: null,
+      habsData: null,
       stream: [],
       station: '',
       tableColumns: [],
@@ -85,7 +85,7 @@ export default class StationDashboard extends Component {
     requestJson(HABS_DATA_URL, (error, response) => {
       if (!error) {
         this.setState({
-          habs_data: response,
+          habsData: response,
           selected: ['Dissolved_Microcystin_ugL_1']
         });
       }
@@ -468,10 +468,7 @@ export default class StationDashboard extends Component {
   }
 
   _renderHabsTimeSeriesPlot(data) {
-    const {habs_data, selected} = this.state;
-    // if (stream.length === 0) {
-    //   return null;
-    // }
+    const {selected} = this.state;
     const colors = ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1"];
     return (
       <div>
@@ -560,21 +557,34 @@ export default class StationDashboard extends Component {
       selected: selected
     });
   }
-  _renderCards(data) {
-    const {stream} = this.state;
 
+  _renderCards(data) {
+    const {stream, habsData} = this.state;
     let params = [];
-    Object.keys(stream[0]).filter(item => !this.blacklistParams.includes(item)).map((key, idx) => {
-      return params.push({
-        title: key in this.parameterMapping ? this.parameterMapping[key] : key,
-        description: stream[0][key],
-        id: key
+    if (data) {
+      Object.keys(data.properties.data).filter(item => item in this.parameterMapping).map((key, idx) => {
+        let values = data.properties.data[key].values;
+        return params.push({
+          title: key in this.parameterMapping ? this.parameterMapping[key] : key,
+          description: values[values.length - 1] === 'bdl' ? 'Below Detection Limit' : values[values.length - 1],
+          id: key
+        });
       });
-    });
+    } else {
+      Object.keys(stream[0]).filter(item => !this.blacklistParams.includes(item)).map((key, idx) => {
+        return params.push({
+          title: key in this.parameterMapping ? this.parameterMapping[key] : key,
+          description: stream[0][key],
+          id: key
+        });
+      });
+    }
+
     params = params.filter(item => !this.blacklistParams.includes(item));
     let selectedParams = params.map((param, idx) => {
       return this.state.selected.indexOf(param.id) > -1 ? idx : null;
     }).filter(x => x !== null);
+
     return (
       <Cards
         title=""
@@ -627,17 +637,18 @@ export default class StationDashboard extends Component {
   }
 
   renderHabsDashboard() {
-    const {habs_data} = this.state;
-    if (!habs_data){
+    const {habsData} = this.state;
+    if (!habsData){
       this._fetchHabs();
       return (
         this.renderLander()
       )
     }
     let thisStation = this.props.match.params.id;
-    let data = habs_data.features.filter(item => {
+    let data = habsData.features.filter(item => {
       return thisStation === item.properties.metadata.Site;
     });
+
     if (data.length === 0) {
       return (
         <div className="home-container">
@@ -656,6 +667,9 @@ export default class StationDashboard extends Component {
         <h2 align='center'>Field monitoring stations</h2>
         <h1 align='left'>Station - {stationName}</h1>
         <h5 align='left'>Last Updated - {lastUpdate}</h5>
+        <div id="cards">
+          {this._renderCards(data)}
+        </div>
         <div id="plot">
           {this._renderHabsTimeSeriesPlot(data)}
         </div>

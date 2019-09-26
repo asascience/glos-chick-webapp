@@ -10,7 +10,7 @@ import {fromJS} from 'immutable';
 
 
 const GL_BUOYS_DATA_URL = 'https://cors-anywhere.herokuapp.com/https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
-const HABS_DATA_URL = './weekly_habs_hypoxia.json';
+const HABS_DATA_URL = 'https://4431mqp2sj.execute-api.us-east-2.amazonaws.com/prod/grabsample';
 
 class StationMap extends Component {
     constructor(props) {
@@ -76,20 +76,7 @@ class StationMap extends Component {
       return (
         <div className="marker-tooltip" style={{left: x, top: y}}>
           <div><b>{`${name}`}</b></div>
-          <Table striped bordered hover size="sm">
-            <tbody>
-              {params && params.map((param, idx) => {
-                let val = values[idx] ? values[idx].toFixed(2) : values[idx];
-                let valString = val + ' ' + units[idx];
-                return (
-                  <tr>
-                     <td>{`${param}`}</td>
-                     <td>{`${valString}`}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </Table>
+
         </div>
       );
     }
@@ -314,8 +301,6 @@ class StationMap extends Component {
         ]
       };
 
-      // const OPTIONS = ['radius', 'coverage', 'upperPercentile'];
-
       const COLOR_RANGE = [
         [1, 152, 189],
         [73, 227, 206],
@@ -333,7 +318,6 @@ class StationMap extends Component {
         lightsStrength: [0.8, 0.0, 0.8, 0.0],
         numberOfLights: 2
       };
-
 
       let token = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
       return (
