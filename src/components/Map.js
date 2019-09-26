@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-import { StaticMap, InteractiveMap} from 'react-map-gl';
+import { StaticMap, InteractiveMap, ReactMapGL} from 'react-map-gl';
 import { Table } from 'react-bootstrap';
-import DeckGL, {IconLayer, HexagonLayer, TextLayer} from 'deck.gl';
+import DeckGL, {IconLayer, TextLayer, GeoJsonLayer} from 'deck.gl';
 import {json as requestJson} from 'd3-request';
 import './Map.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import {fromJS} from 'immutable';
 
 
-const DATA_URL = 'https://cors-anywhere.herokuapp.com/https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
+const GL_BUOYS_DATA_URL = 'https://cors-anywhere.herokuapp.com/https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
+const HABS_DATA_URL = './weekly_habs_hypoxia.json';
 
 class StationMap extends Component {
     constructor(props) {
@@ -18,13 +20,19 @@ class StationMap extends Component {
         y: null,
         isLoading: true,
         hoveredObject: null,
-        data: null,
+        data: null,  // Buoy data
+        habs_data: null,  // Weekly habs data
         station: null,
         stream: [],
       };
-      requestJson(DATA_URL, (error, response) => {
+      requestJson(GL_BUOYS_DATA_URL, (error, response) => {
         if (!error) {
           this.setState({data: response});
+        }
+      });
+      requestJson(HABS_DATA_URL, (error, response) => {
+        if (!error) {
+          this.setState({habs_data: response});
         }
       });
     }
@@ -45,6 +53,19 @@ class StationMap extends Component {
       const {x, y, hoveredObject} = this.state;
       if (!hoveredObject) {
           return null;
+      }
+      if ('geometry' in hoveredObject) {
+        const site = hoveredObject.properties.metadata.Site;
+        const params = Object.keys(hoveredObject.properties.data);
+        const times = hoveredObject.properties.data[params[0]].times;
+        const lastUpdate = times[times.length - 1];
+        return (
+          <div className="marker-tooltip" style={{left: x, top: y}}>
+            <div><b>{`${site.replace("WE", "Western Erie ")}`}</b></div>
+            <div><b>NOAA GLERL</b></div>
+            <div><b>Last Updated at {lastUpdate}</b></div>
+          </div>
+        );
       }
       const lat = hoveredObject.lat;
       const lng = hoveredObject.lon;
@@ -82,37 +103,9 @@ class StationMap extends Component {
     }
 
     renderMap() {
-      const {data, stream} = this.state;
-      if (!data) {
+      const {data, habs_data, stream} = this.state;
+      if (!data || !habs_data) {
         return null;
-      }
-      let newData = null;
-      if (stream.length > 0) {
-        newData = JSON.parse(JSON.stringify(data));
-        let obsLongName = Object.keys(stream[0]);
-        obsLongName = obsLongName.filter(item => item !== 'timestamp' && item !== 'date' && item !== 'station' && item !== 'topic');
-        let obsValues = [];
-        let obsUnits = [];
-        obsLongName.forEach(function (item, index) {
-          obsValues.push(stream[0][item]);
-          obsUnits.push('');
-        });
-        newData.push({
-            "lon": stream[0].lon,
-            "recovered": false,
-            "lat": stream[0].lat,
-            "timeZone": "America/New_York",
-            "buoyInfo": "This buoy is for demo purposes only",
-            "buoyAlert": "",
-            "id": "HabsGrab",
-            "lake": "ER",
-            "longName": "Habs Grab",
-            "obsID": [],
-            "obsUnits": obsUnits,
-            "obsLongName": obsLongName,
-            "updateTime": "2019-05-28T16:30:00Z",
-            "obsValues": obsValues
-        });
       }
 
       // Set the Viewport
@@ -140,14 +133,70 @@ class StationMap extends Component {
       const ICON_MAPPING = {
         marker: {x: 0, y: 0, width: 20, height: 50, mask: true}
       };
+      const weeklyMonitoringLayer = new GeoJsonLayer({
+        id: 'geojson',
+        data: habs_data,
+        opacity: 1,
+        filled: true,
+        stroked: true,
+        radiusScale: 1,
+        pointRadiusScale: 1,
+        pointRadiusMinPixels: 10,
+        getLineWidth: 60,
+        getLineColor: [55,126,184],
+        getFillColor: [46, 139, 87],
+        getRadius: 100,
+        getLineWidth: 2,
+        pickable: true,
+        onHover: station => {
+          this.setState({
+            hoveredObject: station.object,
+            x: station.x,
+            y: station.y
+          });
+        },
+        onClick: station => {
+          const {data} = this.state;
+          // Redirect to station dashboard page
+          let route = '/' + station.object.properties.metadata.Site;
+          this.props.history.push({
+            pathname: route,
+          })
+        },
+      });
 
-      const layer = new IconLayer({
+      let weeklyMonitoringLabels = [];
+      habs_data.features.map((obj, idx) => {
+        return weeklyMonitoringLabels.push({
+          lat: obj.geometry.coordinates[1],
+          lon: obj.geometry.coordinates[0],
+          id: obj.properties.metadata.Site
+        });
+      });
+      const weeklyMonitoringLabelLayer = new TextLayer({
+        id: 'weekly-text-layer',
+        data: weeklyMonitoringLabels,
+        pickable: true,
+        opacity: 1,
+        getPosition: d => [d.lon, d.lat],
+        getText: d => {
+          return d.id
+        },
+        getSize: 20,
+        getAngle: 0,
+        getTextAnchor: 'start',
+        getAlignmentBaseline: 'top',
+        fontFamily: 'Arial',
+      });
+
+      const buoyLayer = new IconLayer({
         id: 'icon-layer',
-        data: 'data' in this.props ? this.props.data : newData || data,
+        data: data,
         pickable: true,
         iconAtlas: 'https://a.tiles.mapbox.com/v3/marker/pin-s+BB9427.png',
         iconMapping: ICON_MAPPING,
         sizeScale: 5,
+        opacity: 1,
         getIcon: d => 'marker',
         getPosition: d => [d.lon, d.lat],
         getSize: d => 15,
@@ -155,10 +204,7 @@ class StationMap extends Component {
           if ('station' in this.props && d.id === this.props.station) {
             return [0,0,0];
           }
-          if (d.id === 'HabsGrab') {
-            return [0,128,0];
-          }
-          return d.recovered ? [220,20,60] : [55,126,184];
+          return [55,126,184];
         },
         onHover: station => this.setState({
           hoveredObject: station.object,
@@ -176,20 +222,20 @@ class StationMap extends Component {
         }
       });
 
-      const labelLayer = new TextLayer({
+      const buoyLabelLayer = new TextLayer({
         id: 'text-layer',
-        data: 'data' in this.props ? this.props.data : newData || data,
+        data: data,
         pickable: true,
+        opacity: 1,
         getPosition: d => [d.lon, d.lat],
         getText: d => {
           return d.id
         },
-        getSize: 16,
+        getSize: 20,
         getAngle: 0,
-        getTextAnchor: 'middle',
+        getTextAnchor: 'start',
         getAlignmentBaseline: 'center',
         fontFamily: 'Arial',
-        fontWeight: 'bold'
       });
 
       const mapStyle = {
@@ -202,6 +248,13 @@ class StationMap extends Component {
               'http://a.tile.stamen.com/terrain/{z}/{x}/{y}.jpg',
               'http://b.tile.stamen.com/terrain/{z}/{x}/{y}.jpg',
               'http://c.tile.stamen.com/terrain/{z}/{x}/{y}.jpg'
+            ],
+            "tileSize": 256
+          },
+          "eds": {
+            "type": "raster",
+            "tiles": [
+              'http://coastmap.com/ecop/wms.aspx?service=WMS&request=GetMap&version=1.1.1&layers=WW3_WAVE_HEIGHT&styles=WAVE_HEIGHT_STYLE-Jet-0-8&format=image%2Fpng&transparent=true&time=2019-09-05T12%3A00%3A00Z&exceptions=application%2Fvnd.ogc.se_xml&width=256&height=256&srs=EPSG%3A3857&bbox={bbox-epsg-3857}'
             ],
             "tileSize": 256
           },
@@ -219,15 +272,25 @@ class StationMap extends Component {
             ],
             'tileSize': 256
           },
-          "overlay": {
+          "habs_image": {
             "type": "image",
             // "url": "https://docs.mapbox.com/mapbox-gl-js/assets/radar.gif",
-            "url": "https://s3.amazonaws.com/asa-dev/MyGLOS/terra.2019147.0527.1542_1545_1720C.L3.GL1.v930seadasv7521_1_2.CI_merge.tif",
+            "url": "https://cors-anywhere.herokuapp.com/https://rps-glos.s3.amazonaws.com/habs_images/2019092417_quivers.png",
             "coordinates": [
-              [-80.425, 46.437],
-              [-71.516, 46.437],
-              [-71.516, 37.936],
-              [-80.425, 37.936]
+              [-83.49609374999999, 42.940339233631825],
+              [-78.75000000000001, 42.940339233631825],
+              [-78.75000000000001, 41.37680856570234],
+              [-83.49609374999999, 41.37680856570234],
+            ]
+          },
+          "video": {
+            "type": "video",
+            "urls": ["https://cors-anywhere.herokuapp.com/https://user-images.githubusercontent.com/5702672/64719900-3cfeea00-d497-11e9-95d0-0b53909d8724.gif"],
+            "coordinates": [
+              [-83.49609374999999, 42.940339233631825],
+              [-78.75000000000001, 42.940339233631825],
+              [-78.75000000000001, 41.37680856570234],
+              [-83.49609374999999, 41.37680856570234],
             ]
           }
         },
@@ -235,18 +298,19 @@ class StationMap extends Component {
           {
             "id": "stamen-terrain",
             "source": "stamen-terrain-raster",
-            "type": "raster"
+            "type": "raster",
+            'layout': {
+              'visibility': 'visible'
+            },
           },
           {
-            "id": "habs",
-            "source": "habs",
-            "type": "raster"
-          }
-          // {
-          //   'id': 'wms-glcfs-currents',
-          //   'type': 'raster',
-          //   'source': 'wms-glcfs-currents',
-          // },
+            'id': 'habs_image',
+            'type': 'raster',
+            'source': 'habs_image',
+            'layout': {
+              'visibility': 'none'
+            },
+          },
         ]
       };
 
@@ -270,24 +334,12 @@ class StationMap extends Component {
         numberOfLights: 2
       };
 
-      const hexagonLayer = new HexagonLayer({
-        id: 'hexagonLayer',
-        colorRange: COLOR_RANGE,
-        data: 'data' in this.props ? this.props.data : newData || data,
-        elevationRange: [0, 1000],
-        elevationScale: 400,
-        extruded: true,
-        getPosition: d => [d.lon, d.lat],
-        lightSettings: LIGHT_SETTINGS,
-        opacity: 1,
-        radius: 8000
-        // ...options
-      });
+
       let token = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
       return (
         <div className="map-container">
           {this._renderTooltip()}
-          <DeckGL initialViewState={viewstate} controller={true} layers={[layer, labelLayer]}>
+          <DeckGL initialViewState={viewstate} controller={true} layers={[buoyLayer, buoyLabelLayer, weeklyMonitoringLayer, weeklyMonitoringLabelLayer]}>
             <InteractiveMap mapStyle={mapStyle} mapboxApiAccessToken={token}/>
             {this._renderLegend()}
           </DeckGL>

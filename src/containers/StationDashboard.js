@@ -8,7 +8,7 @@ import Col from 'react-bootstrap/Col'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import GaugePlot from '../components/GaugePlot'
-import TimeSeriesPlot from '../components/TimeSeriesPlot'
+import { TimeSeriesPlot, TimeSeriesHabsPlot} from '../components/TimeSeriesPlot'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import StationMap from '../components/Map'
 import Cards from '../components/Cards'
@@ -20,6 +20,8 @@ import {json as requestJson} from 'd3-request';
 import { point, distance } from '@turf/turf';
 
 const DATA_URL = 'https://cors-anywhere.herokuapp.com/https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
+const HABS_DATA_URL = './weekly_habs_hypoxia.json';
+
 const FEATURED_PARAM = 'BGAPCrfu';
 
 
@@ -29,6 +31,7 @@ export default class StationDashboard extends Component {
     this.state = {
       isLoading: true,
       data: null,
+      habs_data: null,
       stream: [],
       station: '',
       tableColumns: [],
@@ -61,11 +64,32 @@ export default class StationDashboard extends Component {
       ysiturbntu: 'Turbidity (ntu)',
       Turb: 'Turbidity (ntu)',
       CHLrfu: 'Chlorophyll (rfu)',
+      Extracted_CHLa_ugL_1: 'Extracted Chlorophyll a (ug/L)',
       WTempC: 'Water Temp (C)',
+      Temp_C: 'Sample Temp (C)',
       BGAPCrfu: 'Blue Green Algae (rfu)',
       SpConduS: 'Specific Conductivity (uS)',
       TurbidityNTU: 'Turbidity (ntu)',
+      Turbidity_NTU: 'Turbidity (ntu)',
+      Extracted_PC_ugL_1: 'Extracted Phycocyanin (ug/L)',
+      Particulate_Microcystin_ugL_1: 'Particulate Microcystin (ug/L)',
+      Dissolved_Microcystin_ugL_1: 'Dissolved Microcystin (ug/L)',
+      Wind_speed_knots: 'Wind Speed (kts)',
+      Secchi_Depth_m: 'Secchi Depth (m)',
+      SpCond_uScm_1: 'Specific Conductivity (uS/cm)',
+      DO_mgL_1: 'Dissolved Oxygen Concentration (mg/L)',
     };
+  }
+
+  _fetchHabs() {
+    requestJson(HABS_DATA_URL, (error, response) => {
+      if (!error) {
+        this.setState({
+          habs_data: response,
+          selected: ['Dissolved_Microcystin_ugL_1']
+        });
+      }
+    });
   }
 
   _fetchStream() {
@@ -389,48 +413,31 @@ export default class StationDashboard extends Component {
       return null;
     }
 
-    // Add station to data
-    // let ids = data.map(a => a.id);
-    // if (ids.includes("HabsGrab")) {
-    //   for (let i in data) {
-    //      if (data[i].id === 'HabsGrab') {
-    //         console.log('HABS GRAB')
-    //         // data[i].lat = Math.random() + 41;
-    //         // data[i].lon = Math.random() + -71;
-    //         data[i].lat = stream[0].lat + Math.random() * 15;
-    //         data[i].lon = stream[0].lon + Math.random() * 15;
-    //         console.log(data[i].lat)
-    //         console.log(data[i].lon)
-    //         break; //Stop this loop, we found it!
-    //      }
-    //    }
-    // } else {
-      let newData = JSON.parse(JSON.stringify(data));
-      let obsLongName = Object.keys(stream[0]);
-      obsLongName = obsLongName.filter(item => !this.blacklistParams.includes(item));
-      let obsValues = [];
-      let obsUnits = [];
-      obsLongName.forEach(function (item, index) {
-        obsValues.push(stream[0][item]);
-        obsUnits.push('');
-      });
-      newData.push({
-          "lon": stream[0].lon,
-          "recovered": false,
-          "lat": stream[0].lat,
-          "timeZone": "America/New_York",
-          "buoyInfo": "This buoy is for demo purposes only",
-          "buoyAlert": "",
-          "id": "HabsGrab",
-          "lake": "ER",
-          "longName": "Habs Grab",
-          "obsID": [],
-          "obsUnits": obsUnits,
-          "obsLongName": obsLongName,
-          "updateTime": "2019-05-28T16:30:00Z",
-          "obsValues": obsValues
-      });
-    // }
+    let newData = JSON.parse(JSON.stringify(data));
+    let obsLongName = Object.keys(stream[0]);
+    obsLongName = obsLongName.filter(item => !this.blacklistParams.includes(item));
+    let obsValues = [];
+    let obsUnits = [];
+    obsLongName.forEach(function (item, index) {
+      obsValues.push(stream[0][item]);
+      obsUnits.push('');
+    });
+    newData.push({
+        "lon": stream[0].lon,
+        "recovered": false,
+        "lat": stream[0].lat,
+        "timeZone": "America/New_York",
+        "buoyInfo": "This buoy is for demo purposes only",
+        "buoyAlert": "",
+        "id": "HabsGrab",
+        "lake": "ER",
+        "longName": "Habs Grab",
+        "obsID": [],
+        "obsUnits": obsUnits,
+        "obsLongName": obsLongName,
+        "updateTime": "2019-05-28T16:30:00Z",
+        "obsValues": obsValues
+    });
 
     return (
       <div>
@@ -455,6 +462,21 @@ export default class StationDashboard extends Component {
       <div>
         {selected.map((param, idx) => {
           return <TimeSeriesPlot key={param} stream={stream} parameters={[param]} parameterMapping={this.parameterMapping} color={colors[idx % colors.length]}/>
+        })}
+      </div>
+    );
+  }
+
+  _renderHabsTimeSeriesPlot(data) {
+    const {habs_data, selected} = this.state;
+    // if (stream.length === 0) {
+    //   return null;
+    // }
+    const colors = ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1"];
+    return (
+      <div>
+        {selected.map((param, idx) => {
+          return param in this.parameterMapping ? <TimeSeriesHabsPlot key={param} data={data.properties.data[param]} parameters={[param]} parameterMapping={this.parameterMapping} color={colors[idx % colors.length]}/> : null
         })}
       </div>
     );
@@ -538,7 +560,7 @@ export default class StationDashboard extends Component {
       selected: selected
     });
   }
-  _renderCards() {
+  _renderCards(data) {
     const {stream} = this.state;
 
     let params = [];
@@ -585,6 +607,7 @@ export default class StationDashboard extends Component {
     return (
       <div className="home-container">
         {this._renderAlert()}
+        <h2 align='center'>Real time buoys/sondes</h2>
         <h1 align='left'>Station - {stationName}</h1>
         <h5 align='left'>Last Updated - {lastUpdate}</h5>
         <div id="cards">
@@ -603,7 +626,50 @@ export default class StationDashboard extends Component {
     )
   }
 
+  renderHabsDashboard() {
+    const {habs_data} = this.state;
+    if (!habs_data){
+      this._fetchHabs();
+      return (
+        this.renderLander()
+      )
+    }
+    let thisStation = this.props.match.params.id;
+    let data = habs_data.features.filter(item => {
+      return thisStation === item.properties.metadata.Site;
+    });
+    if (data.length === 0) {
+      return (
+        <div className="home-container">
+          <h5>Station Data not found</h5>
+        </div>
+      );
+    }
+    data = data[0];
+    let stationName = thisStation;
+    let times = data.properties.data.Arrival_Time.times;
+    let lastUpdate = times[times.length - 1];
+
+    return (
+      <div className="home-container">
+        {this._renderAlert()}
+        <h2 align='center'>Field monitoring stations</h2>
+        <h1 align='left'>Station - {stationName}</h1>
+        <h5 align='left'>Last Updated - {lastUpdate}</h5>
+        <div id="plot">
+          {this._renderHabsTimeSeriesPlot(data)}
+        </div>
+      </div>
+    )
+  }
+
   render() {
+
+    let habsStations = ['WE2', 'WE4', 'WE6', 'WE8', 'WE9', 'WE12', 'WE13', 'WE16'];
+    let thisStation = this.props.match.params.id;
+    if (habsStations.indexOf(thisStation) > -1) {
+      return <div className="Home">{this.renderHabsDashboard()}</div>;
+    }
     return <div className="Home">{this.renderDashboard()}</div>;
   }
 }
