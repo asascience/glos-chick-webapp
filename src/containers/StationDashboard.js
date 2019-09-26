@@ -45,8 +45,8 @@ export default class StationDashboard extends Component {
 
     this.parameterMapping = {
       cond: 'Conductivity',
-      do: 'Dissolved Oxygen Concentration',
-      odo: 'Dissolved Oxygen Concentration',
+      do: 'Dissolved Oxygen',
+      odo: 'Dissolved Oxygen',
       dosat: 'Dissolved Oxygen Saturation',
       odosat: 'Dissolved Oxygen Saturation',
       fdomQSU: 'FDOM',
@@ -64,20 +64,19 @@ export default class StationDashboard extends Component {
       ysiturbntu: 'Turbidity (ntu)',
       Turb: 'Turbidity (ntu)',
       CHLrfu: 'Chlorophyll (rfu)',
-      Extracted_CHLa_ugL_1: 'Extracted Chlorophyll a (ug/L)',
       WTempC: 'Water Temp (C)',
-      Temp_C: 'Sample Temp (C)',
       BGAPCrfu: 'Blue Green Algae (rfu)',
       SpConduS: 'Specific Conductivity (uS)',
       TurbidityNTU: 'Turbidity (ntu)',
-      Turbidity_NTU: 'Turbidity (ntu)',
-      Extracted_PC_ugL_1: 'Extracted Phycocyanin (ug/L)',
-      Particulate_Microcystin_ugL_1: 'Particulate Microcystin (ug/L)',
-      Dissolved_Microcystin_ugL_1: 'Dissolved Microcystin (ug/L)',
-      Wind_speed_knots: 'Wind Speed (kts)',
-      Secchi_Depth_m: 'Secchi Depth (m)',
-      SpCond_uScm_1: 'Specific Conductivity (uS/cm)',
-      DO_mgL_1: 'Dissolved Oxygen Concentration (mg/L)',
+      Temp_C: 'Sample Temp',
+      Turbidity_NTU: 'Turbidity',
+      Extracted_CHLa_ugL_1: 'Extracted Chlorophyll a',
+      Extracted_PC_ugL_1: 'Extracted Phycocyanin',
+      Particulate_Microcystin_ugL_1: 'Particulate Microcystin',
+      Dissolved_Microcystin_ugL_1: 'Dissolved Microcystin',
+      Wind_speed_knots: 'Wind Speed',
+      Secchi_Depth_m: 'Secchi Depth',
+      DO_mgL_1: 'Dissolved Oxygen',
     };
   }
 
@@ -406,47 +405,56 @@ export default class StationDashboard extends Component {
     )
   }
 
-  _renderMapAndGauge() {
+  _renderMapAndGauge(habsData) {
     const {stream, data} = this.state;
     let thisStation = this.props.match.params.id;
-    if (stream.length === 0 || !data) {
+    if ( (stream.length === 0 || !data) && !habsData) {
       return null;
     }
 
-    let newData = JSON.parse(JSON.stringify(data));
-    let obsLongName = Object.keys(stream[0]);
-    obsLongName = obsLongName.filter(item => !this.blacklistParams.includes(item));
-    let obsValues = [];
-    let obsUnits = [];
-    obsLongName.forEach(function (item, index) {
-      obsValues.push(stream[0][item]);
-      obsUnits.push('');
-    });
-    newData.push({
-        "lon": stream[0].lon,
-        "recovered": false,
-        "lat": stream[0].lat,
-        "timeZone": "America/New_York",
-        "buoyInfo": "This buoy is for demo purposes only",
-        "buoyAlert": "",
-        "id": "HabsGrab",
-        "lake": "ER",
-        "longName": "Habs Grab",
-        "obsID": [],
-        "obsUnits": obsUnits,
-        "obsLongName": obsLongName,
-        "updateTime": "2019-05-28T16:30:00Z",
-        "obsValues": obsValues
-    });
+    let param1, param2, param3;
+    let dataPoint1, dataPoint2, dataPoint3;
+    let timestamp1, timestamp2, timestamp3;
 
+    if (habsData) {
+      console.log(habsData)
+      param1 = 'Particulate_Microcystin_ugL_1';
+      param2 = 'Dissolved_Microcystin_ugL_1';
+      param3 = 'Extracted_PC_ugL_1';
+      let values1 = habsData.properties.data[param1].values;
+      let values2 = habsData.properties.data[param2].values;
+      let values3 = habsData.properties.data[param3].values;
+      dataPoint1 = values1[values1.length - 1];
+      dataPoint2 = values2[values2.length - 1];
+      dataPoint3 = values3[values3.length - 1];
+      let times1 = habsData.properties.data[param1].times;
+      let times2 = habsData.properties.data[param2].times;
+      let times3 = habsData.properties.data[param3].times;
+      timestamp1 = times1[times1.length - 1];
+      timestamp2 = times2[times2.length - 1];
+      timestamp3 = times3[times3.length - 1];
+    } else {
+      param1 = 'BGAPCrfu';
+      param2 = 'BGAPCrfu';
+      param3 = 'BGAPCrfu';
+    }
+
+    // <Row className="justify-content-md-center">
+      // <Col sm={6}>{this._renderNearbyStationTable(data)}</Col>
+    // </Row>
     return (
       <div>
         <Container>
           <Row>
-            <Col sm={5}><div className='dashboard-map-container'><StationMap station={thisStation} data={newData}/></div></Col>
-            <Col sm={4}>{this._renderNearbyStationTable(newData)}</Col>
-            <Col sm={3}><GaugePlot stream={stream} parameter={FEATURED_PARAM} parameterMapping={this.parameterMapping}/></Col>
+            <Col sm={12}><div className='dashboard-map-container'><StationMap station={thisStation} data={data}/></div></Col>
           </Row>
+          <Row>
+
+            <Col sm={4}><GaugePlot dataPoint={dataPoint1} timestamp={timestamp1} parameter={this.parameterMapping[param1]}/></Col>
+            <Col sm={4}><GaugePlot dataPoint={dataPoint2} timestamp={timestamp2} parameter={this.parameterMapping[param2]}/></Col>
+            <Col sm={4}><GaugePlot dataPoint={dataPoint3} timestamp={timestamp3} parameter={this.parameterMapping[param3]}/></Col>
+          </Row>
+
         </Container>
       </div>
     );
@@ -564,9 +572,18 @@ export default class StationDashboard extends Component {
     if (data) {
       Object.keys(data.properties.data).filter(item => item in this.parameterMapping).map((key, idx) => {
         let values = data.properties.data[key].values;
+        let lastValue = values[values.length - 1];
+        let description;
+        if (lastValue === null) {
+          description = 'N/A';
+        } else if (lastValue === 'bdl') {
+          description = 'Below Detection Limit';
+        } else {
+          description = parseFloat(values[values.length - 1]).toFixed(2) + ' ' + data.properties.data[key].units;
+        }
         return params.push({
           title: key in this.parameterMapping ? this.parameterMapping[key] : key,
-          description: values[values.length - 1] === 'bdl' ? 'Below Detection Limit' : values[values.length - 1],
+          description: description,
           id: key
         });
       });
@@ -617,21 +634,27 @@ export default class StationDashboard extends Component {
     return (
       <div className="home-container">
         {this._renderAlert()}
-        <h2 align='center'>Real time buoys/sondes</h2>
-        <h1 align='left'>Station - {stationName}</h1>
+        <h1 align='center'>Real time buoys/sondes</h1>
+        <h2 align='left'>Station - {stationName}</h2>
         <h5 align='left'>Last Updated - {lastUpdate}</h5>
-        <div id="cards">
-          {this._renderCards()}
-        </div>
-        <div id="plot">
-          {this._renderTimeSeriesPlot()}
-        </div>
-        <div id="table">
-          {this._renderTable()}
-        </div>
-        <div>
-          {this._renderMapAndGauge()}
-        </div>
+        <Row>
+          <Col sm={6}>
+            <div id="cards">
+              {this._renderCards()}
+            </div>
+            <div id="plot">
+              {this._renderTimeSeriesPlot()}
+            </div>
+            <div id="table">
+              {this._renderTable()}
+            </div>
+          </Col>
+          <Col sm={6}>
+            <div>
+              {this._renderMapAndGauge()}
+            </div>
+          </Col>
+        </Row>
       </div>
     )
   }
@@ -659,26 +682,34 @@ export default class StationDashboard extends Component {
     data = data[0];
     let stationName = thisStation;
     let times = data.properties.data.Arrival_Time.times;
-    let lastUpdate = times[times.length - 1];
+    let lastUpdate = moment(times[times.length - 1]).format('ddd MMM DD YYYY');
 
     return (
       <div className="home-container">
         {this._renderAlert()}
-        <h2 align='center'>Field monitoring stations</h2>
-        <h1 align='left'>Station - {stationName}</h1>
+        <h1 align='center'>Field monitoring stations</h1>
+        <h2 align='left'>Station - {stationName}</h2>
         <h5 align='left'>Last Updated - {lastUpdate}</h5>
-        <div id="cards">
-          {this._renderCards(data)}
-        </div>
-        <div id="plot">
-          {this._renderHabsTimeSeriesPlot(data)}
-        </div>
+        <Row>
+          <Col sm={6}>
+            <div id="cards">
+              {this._renderCards(data)}
+            </div>
+            <div id="plot">
+              {this._renderHabsTimeSeriesPlot(data)}
+            </div>
+          </Col>
+          <Col sm={6}>
+            <div>
+              {this._renderMapAndGauge(data)}
+            </div>
+          </Col>
+        </Row>
       </div>
     )
   }
 
   render() {
-
     let habsStations = ['WE2', 'WE4', 'WE6', 'WE8', 'WE9', 'WE12', 'WE13', 'WE16'];
     let thisStation = this.props.match.params.id;
     if (habsStations.indexOf(thisStation) > -1) {

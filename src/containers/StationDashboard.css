@@ -5,7 +5,8 @@
 }
 
 .dashboard-map-container {
-  height: 250px;
+  height: 500px;
+  padding: .25rem;
 }
 
 .station-lander {

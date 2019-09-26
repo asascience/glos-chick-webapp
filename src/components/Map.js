@@ -68,21 +68,27 @@ class StationMap extends Component {
           </div>
         );
       }
-      const lat = hoveredObject.lat;
-      const lng = hoveredObject.lon;
       const name = hoveredObject.longName;
       const params = hoveredObject.obsLongName;
       const values = hoveredObject.obsValues;
-      const units = hoveredObject.obsUnits;
+      const lastUpdate = hoveredObject.updateTime;
+      const owner = hoveredObject.buoyOwners;
       return (
         <div className="marker-tooltip" style={{left: x, top: y}}>
           <div><b>{`${name}`}</b></div>
-
+          <div>{`${owner}`}</div>
+          <div>Last Updated at {lastUpdate}</div>
         </div>
       );
     }
 
     _renderLegend() {
+      // return (
+      //   <div id='legend'>
+      //     <strong>The Title or Explanation of your Map</strong>
+
+      //   </div>
+      // );
       return (
         <div className="legend-panel">
           <img src="https://oceansmap.s3.amazonaws.com/assets/legends/habs_tracker_legend.png" alt="Logo" />
@@ -132,7 +138,7 @@ class StationMap extends Component {
         pointRadiusMinPixels: 10,
         getLineWidth: 60,
         getLineColor: [55,126,184],
-        getFillColor: [46, 139, 87],
+        getFillColor: [115, 28, 226],
         getRadius: 100,
         getLineWidth: 2,
         pickable: true,

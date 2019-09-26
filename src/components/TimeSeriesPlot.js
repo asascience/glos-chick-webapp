@@ -93,7 +93,7 @@ class TimeSeriesHabsPlot extends React.Component {
     let color = this.props.color;
     let series = [];
     let prettyName = this.props.parameterMapping[parameters[0]];
-    let units = '(' + prettyName.split('(')[1];
+    let units = data.units;
 
     parameters.map((param, idx) => {
       let seriesData = [];
@@ -102,7 +102,7 @@ class TimeSeriesHabsPlot extends React.Component {
         seriesData.push({
           x: moment(data.times[i]).valueOf(),
           y: data.values[i] === 'bdl' ? 0.0001 : parseFloat(data.values[i]),
-          marker: data.values[i] === 'bdl' ? {enabled: true, radius: 10, fillColor: '#FFBBFF'} : null,
+          marker: data.values[i] === 'bdl' ? {enabled: true, radius: 8, fillColor: '#FFBBFF'} : null,
           bdl: data.values[i] === 'bdl',
           uom: units,
           fullname: prettyName,
@@ -170,7 +170,7 @@ class TimeSeriesHabsPlot extends React.Component {
         pointFormatter: function() {
           return [
             '<b>' + this.fullname +'</b>' + '<br/>',
-            (this.bdl ? 'Below Detection Limit' : this.y) +
+            (this.bdl ? 'Below Detection Limit' : this.y + ' ' + this.uom) +
             ' ' + (this.depth !== null ? '@ ' + this.depth : '')
           ].join('');
         }
