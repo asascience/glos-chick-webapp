@@ -10,12 +10,12 @@ export default {
       minorTickWidth: 1,
       minorTickLength: 10,
       minorTickPosition: 'inside',
-      minorTickColor: '#666',
+      minorTickColor: '#336E7B',
 
       tickPixelInterval: 30,
       tickWidth: 2,
       tickPosition: 'inside',
-      tickLength: 10,
+      tickLength: 15,
       tickColor: '#666',
       labels: {
         step: 2,
@@ -28,17 +28,17 @@ export default {
         {
           from: 0,
           to: 8.5,
-          color: '#55BF3B' // green
+          color: '#54C6DF' // blue
         },
         {
           from: 8.5,
           to: 10,
-          color: '#DDDF0D' // yellow
+          color: '#A3E3C3' // light green
         },
         {
           from: 10,
           to: 1000,
-          color: '#DF5353' // red
+          color: '#049372' // dark green
         }
       ]
     }
@@ -54,12 +54,12 @@ export default {
       minorTickWidth: 1,
       minorTickLength: 10,
       minorTickPosition: 'inside',
-      minorTickColor: '#666',
+      minorTickColor: '#336E7B',
 
       tickPixelInterval: 30,
       tickWidth: 2,
       tickPosition: 'inside',
-      tickLength: 10,
+      tickLength: 15,
       tickColor: '#666',
       labels: {
         step: 2,
@@ -72,17 +72,17 @@ export default {
         {
           from: 0,
           to: 8.5,
-          color: '#55BF3B' // green
+          color: '#54C6DF' // blue
         },
         {
           from: 8.5,
           to: 10,
-          color: '#DDDF0D' // yellow
+          color: '#A3E3C3' // light green
         },
         {
           from: 10,
           to: 1000,
-          color: '#DF5353' // red
+          color: '#049372' // dark green
         }
       ]
     }
@@ -98,13 +98,13 @@ export default {
       minorTickWidth: 1,
       minorTickLength: 10,
       minorTickPosition: 'inside',
-      minorTickColor: '#666',
+      minorTickColor: '#336E7B',
 
       tickPixelInterval: 30,
       tickWidth: 2,
       tickPosition: 'inside',
-      tickLength: 10,
-      tickColor: '#666',
+      tickLength: 15,
+      tickColor: '#336E7B',
       labels: {
         step: 2,
         rotation: 'auto'
@@ -116,17 +116,17 @@ export default {
         {
           from: -1,
           to: 2,
-          color: '#55BF3B' // green
+          color: '#54C6DF' // blue
         },
         {
           from: 2,
           to: 3,
-          color: '#DDDF0D' // yellow
+          color: '#A3E3C3' // light green
         },
         {
           from: 3,
           to: 5,
-          color: '#DF5353' // red
+          color: '#049372' // dark green
         }
       ]
     }
@@ -142,12 +142,12 @@ export default {
       minorTickWidth: 1,
       minorTickLength: 10,
       minorTickPosition: 'inside',
-      minorTickColor: '#666',
+      minorTickColor: '#336E7B',
 
       tickPixelInterval: 30,
       tickWidth: 2,
       tickPosition: 'inside',
-      tickLength: 10,
+      tickLength: 15,
       tickColor: '#666',
       labels: {
         step: 2,
@@ -160,17 +160,17 @@ export default {
         {
           from: -1,
           to: 2,
-          color: '#55BF3B' // green
+          color: '#54C6DF' // blue
         },
         {
           from: 2,
           to: 3,
-          color: '#DDDF0D' // yellow
+          color: '#A3E3C3' // light green
         },
         {
           from: 3,
           to: 5,
-          color: '#DF5353' // red
+          color: '#049372' // dark green
         }
       ]
     }
@@ -186,12 +186,12 @@ export default {
       minorTickWidth: 1,
       minorTickLength: 10,
       minorTickPosition: 'inside',
-      minorTickColor: '#666',
+      minorTickColor: '#336E7B',
 
       tickPixelInterval: 30,
       tickWidth: 2,
       tickPosition: 'inside',
-      tickLength: 10,
+      tickLength: 15,
       tickColor: '#666',
       labels: {
         step: 2,
@@ -204,17 +204,17 @@ export default {
         {
           from: -1,
           to: 2,
-          color: '#55BF3B' // green
+          color: '#54C6DF' // blue
         },
         {
           from: 2,
           to: 3,
-          color: '#DDDF0D' // yellow
+          color: '#A3E3C3' // light green
         },
         {
           from: 3,
           to: 5,
-          color: '#DF5353' // red
+          color: '#049372' // dark green
         }
       ]
     }
@@ -230,12 +230,12 @@ export default {
       minorTickWidth: 1,
       minorTickLength: 10,
       minorTickPosition: 'inside',
-      minorTickColor: '#666',
+      minorTickColor: '#336E7B',
 
       tickPixelInterval: 30,
       tickWidth: 2,
       tickPosition: 'inside',
-      tickLength: 10,
+      tickLength: 15,
       tickColor: '#666',
       labels: {
         step: 2,
@@ -248,17 +248,17 @@ export default {
         {
           from: -1,
           to: 2,
-          color: '#55BF3B' // green
+          color: '#54C6DF' // blue
         },
         {
           from: 2,
           to: 3,
-          color: '#DDDF0D' // yellow
+          color: '#A3E3C3' // light green
         },
         {
           from: 3,
           to: 5,
-          color: '#DF5353' // red
+          color: '#049372' // dark green
         }
       ]
     }
