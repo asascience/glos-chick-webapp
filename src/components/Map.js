@@ -12,6 +12,7 @@ import {fromJS} from 'immutable';
 const GL_BUOYS_DATA_URL = 'https://cors-anywhere.herokuapp.com/https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
 const HABS_DATA_URL = 'https://4431mqp2sj.execute-api.us-east-2.amazonaws.com/prod/grabsample';
 
+
 class StationMap extends Component {
     constructor(props) {
       super(props);
@@ -83,17 +84,17 @@ class StationMap extends Component {
     }
 
     _renderLegend() {
-      // return (
-      //   <div id='legend'>
-      //     <strong>The Title or Explanation of your Map</strong>
-
-      //   </div>
-      // );
       return (
-        <div className="legend-panel">
-          <img src="https://oceansmap.s3.amazonaws.com/assets/legends/habs_tracker_legend.png" alt="Logo" />
+        <div id='legend'>
+          <strong>The Title or Explanation of your Map</strong>
+
         </div>
       );
+      // return (
+      //   <div className="legend-panel">
+      //     <img src="https://oceansmap.s3.amazonaws.com/assets/legends/habs_tracker_legend.png" alt="Logo" />
+      //   </div>
+      // );
     }
 
     renderMap() {
@@ -124,23 +125,29 @@ class StationMap extends Component {
         bearing: 0
       };
 
+      // const ICON_MAPPING = {
+      //   marker: {x: 0, y: 0, width: 20, height: 50, mask: true}
+      // };
       const ICON_MAPPING = {
-        marker: {x: 0, y: 0, width: 20, height: 50, mask: true}
+        marker: {x: 0, y: 0, width: 128, height: 128, anchorY: 128, mask:true}
       };
+
       const weeklyMonitoringLayer = new GeoJsonLayer({
         id: 'geojson',
         data: habs_data,
         opacity: 1,
         filled: true,
-        stroked: true,
+        stroked: false,
         radiusScale: 1,
         pointRadiusScale: 1,
         pointRadiusMinPixels: 10,
-        getLineWidth: 60,
-        getLineColor: [55,126,184],
-        getFillColor: [115, 28, 226],
-        getRadius: 100,
+        pointRadiusMaxPixels: 100,
         getLineWidth: 2,
+        lineWidthScale: 1,
+        getLineColor: [1,1,1],
+        getFillColor: [115, 28, 226],
+        lineWidthMinPixelslineWidthMinPixels: 0,
+        getRadius: 100,
         pickable: true,
         onHover: station => {
           this.setState({
@@ -187,13 +194,15 @@ class StationMap extends Component {
         id: 'icon-layer',
         data: data,
         pickable: true,
-        iconAtlas: 'https://a.tiles.mapbox.com/v3/marker/pin-s+BB9427.png',
+        // iconAtlas: 'https://a.tiles.mapbox.com/v3/marker/pin-s+BB9427.png',
+        iconAtlas: '/icon-atlas.png',
         iconMapping: ICON_MAPPING,
-        sizeScale: 5,
+        // sizeScale: 15,
+        sizeScale: 8,
         opacity: 1,
         getIcon: d => 'marker',
         getPosition: d => [d.lon, d.lat],
-        getSize: d => 15,
+        getSize: d => 5,
         getColor: d => {
           if ('station' in this.props && d.id === this.props.station) {
             return [0,0,0];

@@ -422,7 +422,7 @@ export default class StationDashboard extends Component {
 
     let params;
     if (habsData) {
-      params = ['Particulate_Microcystin_ugL_1', 'Dissolved_Microcystin_ugL_1', 'Extracted_PC_ugL_1'];
+      params = ['Particulate_Microcystin_ugL_1', 'Turbidity_NTU', 'Turbidity_NTU'];
     } else {
       params = ['BGAPCrfu', 'ysiturbntu', 'BGAPCrfu'];
     }
@@ -439,15 +439,12 @@ export default class StationDashboard extends Component {
               let dataPoint, timestamp;
               if (habsData) {
                 let vals = habsData.properties.data[param].values;
-                let times = habsData.properties.data[param].times;
                 dataPoint = vals[vals.length - 1];
-                timestamp = times[times.length - 1];
               } else {
                 let timeParam = 'timestamp' in stream[0] ? 'timestamp' : 'date';
                 dataPoint = stream[0][param];
-                timestamp = stream[0][timeParam];
               }
-              return <Col sm={3}><GaugePlot dataPoint={dataPoint} timestamp={timestamp} parameter={this.parameterMapping[param]}/></Col>
+              return <Col sm={3}><GaugePlot dataPoint={dataPoint} parameter={this.parameterMapping[param]}/></Col>
             })}
           </Row>
 
@@ -650,7 +647,7 @@ export default class StationDashboard extends Component {
             <div id="cards">
               {this._renderCards()}
             </div>
-            <div id="plot">
+            <div id="plot" style={{marginBottom: '100px'}}>
               {this._renderTimeSeriesPlot()}
             </div>
             <div id="table">
@@ -711,7 +708,7 @@ export default class StationDashboard extends Component {
             <div id="cards">
               {this._renderCards(data)}
             </div>
-            <div id="plot">
+            <div id="plot" style={{marginBottom: '100px'}}>
               {this._renderHabsTimeSeriesPlot(data)}
             </div>
           </Col>

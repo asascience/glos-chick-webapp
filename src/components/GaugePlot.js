@@ -43,9 +43,6 @@ class GaugePlot extends React.Component {
       title: {
         text: prettyName
       },
-      subtitle: {
-        text: moment.unix(timestamp).format("ddd MMM DD YYYY HH:mm:ss")
-      },
       pane: {
         startAngle: -150,
         endAngle: 150,
