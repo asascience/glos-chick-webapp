@@ -55,7 +55,7 @@ class GaugePlot extends React.Component {
           valuePrefix: value >= 15 ? '>' : ''
         },
         dataLabels: {
-          backgroundColor: backgroundColor,
+          backgroundColor: null,
           format: value >= 15 ? '>{point.y}' : '{point.y}'
         }
       }]
