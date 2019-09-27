@@ -2,11 +2,14 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { StaticMap, InteractiveMap, ReactMapGL} from 'react-map-gl';
 import { Table } from 'react-bootstrap';
+import ButtonGroup from 'react-bootstrap/ButtonGroup'
+import Button from 'react-bootstrap/Button'
 import DeckGL, {IconLayer, TextLayer, GeoJsonLayer} from 'deck.gl';
 import {json as requestJson} from 'd3-request';
 import './Map.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import {fromJS} from 'immutable';
+import InfoPanel from './LayerPanel';
 
 
 const GL_BUOYS_DATA_URL = 'https://cors-anywhere.herokuapp.com/https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
@@ -25,6 +28,7 @@ class StationMap extends Component {
         habs_data: null,  // Weekly habs data
         station: null,
         stream: [],
+        forecastLayerActive: 'currents'
       };
       requestJson(GL_BUOYS_DATA_URL, (error, response) => {
         if (!error) {
@@ -85,17 +89,19 @@ class StationMap extends Component {
 
     _renderLegend() {
       return (
-        <div id='legend'>
-          <strong>The Title or Explanation of your Map</strong>
-
+        <div className="legend-panel">
+          <img src="https://oceansmap.s3.amazonaws.com/assets/legends/habs_tracker_legend.png" alt="Logo" />
         </div>
       );
-      // return (
-      //   <div className="legend-panel">
-      //     <img src="https://oceansmap.s3.amazonaws.com/assets/legends/habs_tracker_legend.png" alt="Logo" />
-      //   </div>
-      // );
     }
+
+    handleForecastLayerClick(event) {
+      let layer = event.target.attributes.getNamedItem('data-key').value;
+      if (layer != this.state.forecastLayer) {
+        this.setState({forecastLayerActive: layer});
+      }
+    }
+
 
     renderMap() {
       const {data, habs_data, stream} = this.state;
@@ -254,13 +260,6 @@ class StationMap extends Component {
             ],
             "tileSize": 256
           },
-          "eds": {
-            "type": "raster",
-            "tiles": [
-              'http://coastmap.com/ecop/wms.aspx?service=WMS&request=GetMap&version=1.1.1&layers=WW3_WAVE_HEIGHT&styles=WAVE_HEIGHT_STYLE-Jet-0-8&format=image%2Fpng&transparent=true&time=2019-09-05T12%3A00%3A00Z&exceptions=application%2Fvnd.ogc.se_xml&width=256&height=256&srs=EPSG%3A3857&bbox={bbox-epsg-3857}'
-            ],
-            "tileSize": 256
-          },
           "habs": {
             "type": "raster",
             "tiles": [
@@ -268,16 +267,18 @@ class StationMap extends Component {
             ],
             "tileSize": 256
           },
-          "wms-glcfs-currents": {
-            'type': 'raster',
-            'tiles': [
-              'http://tds.glos.us/thredds/wms/glos/glcfs/erie/ncfmrc-2d/Lake_Erie_-_Nowcast_2D_best.ncd?bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:3857&transparent=true&width=256&height=256&layers=utm:vtm-dir&STYLES=default-arrows/default'
-            ],
-            'tileSize': 256
-          },
-          "habs_image": {
+          "habs_currents": {
             "type": "image",
-            // "url": "https://docs.mapbox.com/mapbox-gl-js/assets/radar.gif",
+            "url": "https://cors-anywhere.herokuapp.com/https://rps-glos.s3.amazonaws.com/habs_images/2019092417_quivers.png",
+            "coordinates": [
+              [-83.49609374999999, 42.940339233631825],
+              [-78.75000000000001, 42.940339233631825],
+              [-78.75000000000001, 41.37680856570234],
+              [-83.49609374999999, 41.37680856570234],
+            ]
+          },
+          "habs_winds": {
+            "type": "image",
             "url": "https://cors-anywhere.herokuapp.com/https://rps-glos.s3.amazonaws.com/habs_images/2019092417_quivers.png",
             "coordinates": [
               [-83.49609374999999, 42.940339233631825],
@@ -307,11 +308,19 @@ class StationMap extends Component {
             },
           },
           {
-            'id': 'habs_image',
+            'id': 'habs_currents',
             'type': 'raster',
-            'source': 'habs_image',
+            'source': 'habs_currents',
             'layout': {
-              'visibility': 'none'
+              'visibility': this.props.showForecast && this.state.forecastLayerActive === 'currents' ? 'visible' : 'none'
+            },
+          },
+          {
+            'id': 'habs_winds',
+            'type': 'raster',
+            'source': 'habs',
+            'layout': {
+              'visibility': this.props.showForecast && this.state.forecastLayerActive === 'winds' ? 'visible' : 'none'
             },
           },
         ]
@@ -336,13 +345,26 @@ class StationMap extends Component {
       };
 
       let token = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
+
+      // let layers = this.props.showForecast ? [] : [buoyLayer, buoyLabelLayer, weeklyMonitoringLayer, weeklyMonitoringLabelLayer];
+      let layers = [buoyLayer, buoyLabelLayer, weeklyMonitoringLayer, weeklyMonitoringLabelLayer];
       return (
         <div className="map-container">
           {this._renderTooltip()}
-          <DeckGL initialViewState={viewstate} controller={true} layers={[buoyLayer, buoyLabelLayer, weeklyMonitoringLayer, weeklyMonitoringLabelLayer]}>
+
+          <DeckGL initialViewState={viewstate} controller={true} layers={layers}>
             <InteractiveMap mapStyle={mapStyle} mapboxApiAccessToken={token}/>
-            {this._renderLegend()}
           </DeckGL>
+          <div>
+          {this.props.showForecast && (
+            <ButtonGroup onClick={this.handleForecastLayerClick.bind(this)}>
+              <Button data-key='currents' variant="warning">Currents</Button>
+              <Button data-key='winds' variant="warning">Winds</Button>
+              <Button data-key='off' variant="warning">Off</Button>
+            </ButtonGroup>
+          )}
+          {this.props.showForecast && this._renderLegend()}
+          </div>
         </div>
       );
     }

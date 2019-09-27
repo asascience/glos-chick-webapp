@@ -78,7 +78,7 @@ export default class Home extends Component {
   renderMap() {
     return (
       <div className='home-container'>
-        <StationMap/>
+        <StationMap showForecast={true}/>
       </div>
     );
   }
