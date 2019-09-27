@@ -9,7 +9,6 @@ import {json as requestJson} from 'd3-request';
 import './Map.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import {fromJS} from 'immutable';
-import InfoPanel from './LayerPanel';
 
 
 const GL_BUOYS_DATA_URL = 'https://cors-anywhere.herokuapp.com/https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
