@@ -102,11 +102,9 @@ class SelectableCardList extends React.Component {
     });
     return (
       <div className="cardlist">
-        <Container>
           <Row>
             {content}
           </Row>
-        </Container>
       </div>
     );
   }

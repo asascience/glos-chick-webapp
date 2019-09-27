@@ -434,7 +434,6 @@ export default class StationDashboard extends Component {
     // </Row>
     return (
       <div>
-        <Container>
           <Row>
             {params.map((param, idx) => {
               let dataPoint, timestamp;
@@ -449,7 +448,6 @@ export default class StationDashboard extends Component {
             })}
           </Row>
 
-        </Container>
       </div>
     );
   }
