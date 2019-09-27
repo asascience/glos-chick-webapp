@@ -55,7 +55,7 @@ export default class Login extends Component {
           <LoaderButton
             block
             bsSize="large"
-            bsStyle="primary"
+            bsStyle="warning"
             disabled={!this.validateForm()}
             type="submit"
             isLoading={this.state.isLoading}

@@ -5,7 +5,7 @@ import './LoaderButton.css';
 
 
 export default ({ isLoading, text, loadingText, className = '', disabled = false, ...props }) => (
-    <Button className={`LoaderButton ${className}`} disabled={disabled || isLoading} {...props}>
+    <Button variant='warning' className={`LoaderButton ${className}`} disabled={disabled || isLoading} {...props}>
         {isLoading && <FontAwesomeIcon icon='spinner' spin style={{'marginRight': '7px'}} />}
         {!isLoading ? text : loadingText}
     </Button>

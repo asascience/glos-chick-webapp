@@ -58,12 +58,12 @@ export default class Home extends Component {
                 <Col sm={3}/>
                 <Col sm={3}>
                   <LinkContainer to="/signup">
-                    <Button size="lg" block variant='info'>SIGN UP</Button>
+                    <Button size="lg" block variant='warning'>SIGN UP</Button>
                   </LinkContainer>
                 </Col>
                 <Col sm={3}>
                   <LinkContainer to="/login">
-                    <Button size="lg" block variant='info'>LOGIN</Button>
+                    <Button size="lg" block variant='warning'>LOGIN</Button>
                   </LinkContainer>
                 </Col>
                 <Col sm={3}/>

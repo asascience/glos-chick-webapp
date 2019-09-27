@@ -96,6 +96,7 @@ export default class Signup extends Component {
         <LoaderButton
           block
           bsSize="large"
+          bsStyle="warning"
           disabled={!this.validateConfirmationForm()}
           type="submit"
           isLoading={this.state.isLoading}
@@ -145,7 +146,7 @@ export default class Signup extends Component {
           </FormGroup>
           <LoaderButton
             block
-            bsStyle="primary"
+            bsStyle="warning"
             bsSize="large"
             disabled={!this.validateForm()}
             type="submit"
