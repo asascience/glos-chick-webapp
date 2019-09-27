@@ -38,6 +38,11 @@
   font-size: 50;
 }
 
+.home-container  h2{
+  color: rgba(184, 75, 3, 1);
+  font-size: 50;
+}
+
 .home-container  h5{
   color: grey;
   font-weight: bold;

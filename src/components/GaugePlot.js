@@ -9,18 +9,11 @@ HighchartsMore(Highcharts)
 
 class GaugePlot extends React.Component {
   render () {
-    // let stream = this.props.stream;
-    // let parameter = this.props.parameter;
-    // let parameterMapping = this.props.parameterMapping;
-    // let prettyName = parameterMapping[parameter];
-    // let timestamp = 'timestamp' in stream[0] ? 'timestamp' : 'date';
-    // let dataPoint = stream[0][parameter];
-
     let prettyName = this.props.parameter;
     let timestamp = this.props.timestamp;
     let dataPoint = this.props.dataPoint;
 
-    let value = parseFloat(dataPoint).toFixed(2);
+    let value = parseFloat(parseFloat(dataPoint).toFixed(2));
     let backgroundColor = '#55BF3B';
     let yaxis = gaugePlotDefaults[prettyName].yAxis;
     let dangerThreshold = gaugePlotDefaults[prettyName].dangerThreshold;
@@ -34,7 +27,6 @@ class GaugePlot extends React.Component {
     } else if (value > warningThreshold) {
       backgroundColor = '#DDDF0D';
     }
-
     const options = {
       yAxis: yaxis,
       chart: {
@@ -55,8 +47,8 @@ class GaugePlot extends React.Component {
         text: moment.unix(timestamp).format("ddd MMM DD YYYY HH:mm:ss")
       },
       pane: {
-        startAngle: -90,
-        endAngle: 90,
+        startAngle: -150,
+        endAngle: 150,
         background: [
           {
             backgroundColor: {

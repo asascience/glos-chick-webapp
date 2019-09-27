@@ -405,40 +405,29 @@ export default class StationDashboard extends Component {
     )
   }
 
-  _renderMapAndGauge(habsData) {
+  _renderMap() {
+    const {stream, data} = this.state;
+    let thisStation = this.props.match.params.id;
+    return (
+        <Col sm={12}><div className='dashboard-map-container'><StationMap station={thisStation} data={data}/></div></Col>
+      )
+  }
+
+  _renderGauge(habsData) {
     const {stream, data} = this.state;
     let thisStation = this.props.match.params.id;
     if ( (stream.length === 0 || !data) && !habsData) {
       return null;
     }
 
-    let param1, param2, param3;
-    let dataPoint1, dataPoint2, dataPoint3;
-    let timestamp1, timestamp2, timestamp3;
-
+    let params;
     if (habsData) {
-      console.log(habsData)
-      param1 = 'Particulate_Microcystin_ugL_1';
-      param2 = 'Dissolved_Microcystin_ugL_1';
-      param3 = 'Extracted_PC_ugL_1';
-      let values1 = habsData.properties.data[param1].values;
-      let values2 = habsData.properties.data[param2].values;
-      let values3 = habsData.properties.data[param3].values;
-      dataPoint1 = values1[values1.length - 1];
-      dataPoint2 = values2[values2.length - 1];
-      dataPoint3 = values3[values3.length - 1];
-      let times1 = habsData.properties.data[param1].times;
-      let times2 = habsData.properties.data[param2].times;
-      let times3 = habsData.properties.data[param3].times;
-      timestamp1 = times1[times1.length - 1];
-      timestamp2 = times2[times2.length - 1];
-      timestamp3 = times3[times3.length - 1];
+      params = ['Particulate_Microcystin_ugL_1', 'Dissolved_Microcystin_ugL_1', 'Extracted_PC_ugL_1'];
     } else {
-      param1 = 'BGAPCrfu';
-      param2 = 'BGAPCrfu';
-      param3 = 'BGAPCrfu';
+      params = ['BGAPCrfu', 'ysiturbntu', 'BGAPCrfu'];
     }
 
+    // Goodbye nearest station table :-( Sneha doesn't like you
     // <Row className="justify-content-md-center">
       // <Col sm={6}>{this._renderNearbyStationTable(data)}</Col>
     // </Row>
@@ -446,13 +435,20 @@ export default class StationDashboard extends Component {
       <div>
         <Container>
           <Row>
-            <Col sm={12}><div className='dashboard-map-container'><StationMap station={thisStation} data={data}/></div></Col>
-          </Row>
-          <Row>
-
-            <Col sm={4}><GaugePlot dataPoint={dataPoint1} timestamp={timestamp1} parameter={this.parameterMapping[param1]}/></Col>
-            <Col sm={4}><GaugePlot dataPoint={dataPoint2} timestamp={timestamp2} parameter={this.parameterMapping[param2]}/></Col>
-            <Col sm={4}><GaugePlot dataPoint={dataPoint3} timestamp={timestamp3} parameter={this.parameterMapping[param3]}/></Col>
+            {params.map((param, idx) => {
+              let dataPoint, timestamp;
+              if (habsData) {
+                let vals = habsData.properties.data[param].values;
+                let times = habsData.properties.data[param].times;
+                dataPoint = vals[vals.length - 1];
+                timestamp = times[times.length - 1];
+              } else {
+                let timeParam = 'timestamp' in stream[0] ? 'timestamp' : 'date';
+                dataPoint = stream[0][param];
+                timestamp = stream[0][timeParam];
+              }
+              return <Col sm={3}><GaugePlot dataPoint={dataPoint} timestamp={timestamp} parameter={this.parameterMapping[param]}/></Col>
+            })}
           </Row>
 
         </Container>
@@ -639,6 +635,18 @@ export default class StationDashboard extends Component {
         <h5 align='left'>Last Updated - {lastUpdate}</h5>
         <Row>
           <Col sm={6}>
+            <div>
+              {this._renderGauge()}
+            </div>
+          </Col>
+          <Col sm={6}>
+            <div>
+              {this._renderMap()}
+            </div>
+          </Col>
+        </Row>
+        <Row>
+          <Col sm={12}>
             <div id="cards">
               {this._renderCards()}
             </div>
@@ -649,11 +657,7 @@ export default class StationDashboard extends Component {
               {this._renderTable()}
             </div>
           </Col>
-          <Col sm={6}>
-            <div>
-              {this._renderMapAndGauge()}
-            </div>
-          </Col>
+
         </Row>
       </div>
     )
@@ -692,6 +696,18 @@ export default class StationDashboard extends Component {
         <h5 align='left'>Last Updated - {lastUpdate}</h5>
         <Row>
           <Col sm={6}>
+            <div>
+              {this._renderGauge(data)}
+            </div>
+          </Col>
+          <Col sm={6}>
+            <div>
+              {this._renderMap()}
+            </div>
+          </Col>
+        </Row>
+        <Row>
+          <Col sm={12}>
             <div id="cards">
               {this._renderCards(data)}
             </div>
@@ -699,11 +715,7 @@ export default class StationDashboard extends Component {
               {this._renderHabsTimeSeriesPlot(data)}
             </div>
           </Col>
-          <Col sm={6}>
-            <div>
-              {this._renderMapAndGauge(data)}
-            </div>
-          </Col>
+
         </Row>
       </div>
     )
