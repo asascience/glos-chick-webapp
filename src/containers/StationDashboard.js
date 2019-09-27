@@ -8,6 +8,7 @@ import Col from 'react-bootstrap/Col'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import GaugePlot from '../components/GaugePlot'
+import InfoPopover from '../components/InfoPopover'
 import { TimeSeriesPlot, TimeSeriesHabsPlot} from '../components/TimeSeriesPlot'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import StationMap from '../components/Map'
@@ -409,7 +410,7 @@ export default class StationDashboard extends Component {
     const {stream, data} = this.state;
     let thisStation = this.props.match.params.id;
     return (
-        <Col sm={12}><div className='dashboard-map-container'><StationMap station={thisStation} data={data}/></div></Col>
+        <Col sm={12}><div className='dashboard-map-container'><StationMap station={thisStation} data={data} showForecast={false}/></div></Col>
       )
   }
 
@@ -689,8 +690,8 @@ export default class StationDashboard extends Component {
       <div className="home-container">
         {this._renderAlert()}
         <h1 align='center'>Field monitoring stations</h1>
-        <h2 align='left'>Station - {stationName}</h2>
-        <h5 align='left'>Last Updated - {lastUpdate}</h5>
+        <h2 align='left'>Station - {stationName} <InfoPopover/></h2>
+        <h5 align='left'>Last Updated - {lastUpdate} </h5>
         <Row>
           <Col sm={6}>
             <div>

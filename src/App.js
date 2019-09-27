@@ -8,7 +8,7 @@ import glosLogo from './logos/glos_logo.png';
 import Routes from './Routes';
 import { Auth } from 'aws-amplify';
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faSpinner, faArrowCircleUp, faArrowCircleDown, faBell, faHome, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faSpinner, faArrowCircleUp, faArrowCircleDown, faBell, faHome, faSignOutAlt, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './App.css';
 
@@ -18,6 +18,7 @@ library.add(faArrowCircleDown);
 library.add(faHome);
 library.add(faBell);
 library.add(faSignOutAlt);
+library.add(faInfoCircle);
 
 
 class App extends Component {
