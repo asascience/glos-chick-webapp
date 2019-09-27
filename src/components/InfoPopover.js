@@ -7,7 +7,7 @@ import { Button } from 'react-bootstrap';
 
 
 const popover = (
-  <Popover id="popover-positioned-right">
+  <Popover id="popover-positioned-bottom">
     <Popover.Content>
       This is a field monitoring station.
       These hand collected, weekly water samples
@@ -17,7 +17,7 @@ const popover = (
 );
 
 const InfoPopover = () => (
-  <OverlayTrigger trigger="click" placement="right" overlay={popover}>
+  <OverlayTrigger trigger="click" placement="bottom" overlay={popover}>
     <FontAwesomeIcon icon='info-circle' style={{'marginLeft': '7px'}} />
   </OverlayTrigger>
 );
