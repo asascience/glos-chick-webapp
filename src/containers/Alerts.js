@@ -2,8 +2,10 @@ import React, { Component } from 'react'
 import moment from 'moment'
 import BootstrapTable from 'react-bootstrap-table-next'
 import paginationFactory from 'react-bootstrap-table2-paginator';
+import Badge from 'react-bootstrap/Badge'
 import Table from 'react-bootstrap/Table'
 import Alert from 'react-bootstrap/Alert'
+import Button from 'react-bootstrap/Button'
 import Col from 'react-bootstrap/Col'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
@@ -14,7 +16,7 @@ import StationMap from '../components/Map'
 import Cards from '../components/Cards'
 import MovingStats from '../components/MovingStats'
 import './StationDashboard.css';
-import '../components/Cards.scss';
+import './Alerts.css';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
 import {json as requestJson} from 'd3-request';
 import { point, distance } from '@turf/turf';
@@ -293,9 +295,16 @@ export default class StationDashboard extends Component {
         <h2 align='left'>Station - {stationName}</h2>
         <h5 align='left'>Last Updated - {lastUpdate}</h5>
         <Row>
-          <Col sm={6}>
-            <div>
-            </div>
+          <Col sm={6} className='text-center'>
+            <Button
+              variant="warning"
+              size="lg"
+              type={null}
+              className="mr-auto ml-2 ml-sm-3 ml-md-4 ml-md-5 rounded-circle btn-sq btn-xl"
+              id="reset">
+              <FontAwesomeIcon style={{height: "50px", width: "50px"}} icon='bell' />
+              <Badge variant="primary">3</Badge>
+            </Button>
           </Col>
           <Col sm={6}>
             <div>
