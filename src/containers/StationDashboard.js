@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import moment from 'moment'
 import BootstrapTable from 'react-bootstrap-table-next'
 import paginationFactory from 'react-bootstrap-table2-paginator';
+import ButtonGroup from 'react-bootstrap/ButtonGroup'
+import Button from 'react-bootstrap/Button'
 import Table from 'react-bootstrap/Table'
 import Alert from 'react-bootstrap/Alert'
 import Col from 'react-bootstrap/Col'
@@ -39,7 +41,8 @@ export default class StationDashboard extends Component {
       tableData: [],
       selected: [FEATURED_PARAM],
       alert: false,
-      alertMessage: ''
+      alertMessage: '',
+      depth: 'surface'
     };
 
     this.blacklistParams = ['timestamp', 'date', 'station', 'topic'];
@@ -558,6 +561,13 @@ export default class StationDashboard extends Component {
     });
   }
 
+  handleDepthClick(event) {
+    let depth = event.target.attributes.getNamedItem('data-key').value;
+    if (depth != this.state.depth) {
+      this.setState({depth: depth});
+    }
+  }
+
   _renderCards(data) {
     const {stream, habsData} = this.state;
     let params = [];
@@ -704,6 +714,12 @@ export default class StationDashboard extends Component {
         </Row>
         <Row>
           <Col sm={12}>
+            <ButtonGroup onClick={this.handleDepthClick.bind(this)}>
+              <Button data-key='surface' variant='warning' active={this.state.depth === 'surface'}>Surface
+              </Button>
+              <Button data-key='bottom' variant='warning' active={this.state.depth === 'bottom'}>Bottom
+              </Button>
+            </ButtonGroup>
             <div id="cards">
               {this._renderCards(data)}
             </div>
