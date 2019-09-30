@@ -443,6 +443,11 @@ export default class StationDashboard extends Component {
               if (habsData) {
                 let vals = habsData.properties.data[param].values;
                 dataPoint = vals[vals.length - 1];
+                if (Array.isArray(dataPoint)) {
+                  let ind = this.state.depth === 'surface' ? 0 : 1;
+                  dataPoint = dataPoint[ind]
+                }
+
               } else {
                 let timeParam = 'timestamp' in stream[0] ? 'timestamp' : 'date';
                 dataPoint = stream[0][param];
