@@ -12,7 +12,7 @@ import Row from 'react-bootstrap/Row'
 import GaugePlot from '../components/GaugePlot'
 import { TimeSeriesPlot, TimeSeriesHabsPlot} from '../components/TimeSeriesPlot'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import StationMap from '../components/Map'
+import GLMap from '../components/Map'
 import Cards from '../components/Cards'
 import MovingStats from '../components/MovingStats'
 import './StationDashboard.css';
@@ -202,9 +202,9 @@ export default class StationDashboard extends Component {
   }
 
   _renderMap() {
-    const {stream, data, station} = this.state;
+    const {station} = this.state;
     return (
-        <Col sm={12}><div className='dashboard-map-container'><StationMap station={station} data={data}/></div></Col>
+        <Col sm={12}><div className='dashboard-map-container'><GLMap station={station}/></div></Col>
       )
   }
 

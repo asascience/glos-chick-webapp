@@ -13,7 +13,7 @@ import GaugePlot from '../components/GaugePlot'
 import InfoPopover from '../components/InfoPopover'
 import { TimeSeriesPlot, TimeSeriesHabsPlot} from '../components/TimeSeriesPlot'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import StationMap from '../components/Map'
+import GLMap from '../components/Map'
 import Cards from '../components/Cards'
 import MovingStats from '../components/MovingStats'
 import './StationDashboard.css';
@@ -35,6 +35,7 @@ export default class StationDashboard extends Component {
       isLoading: true,
       data: null,
       habsData: null,
+      loadingHabs: false,
       stream: [],
       station: '',
       tableColumns: [],
@@ -88,11 +89,15 @@ export default class StationDashboard extends Component {
     requestJson(HABS_DATA_URL, (error, response) => {
       if (!error) {
         this.setState({
+          loadingHabs: false,
           habsData: response,
           selected: ['Dissolved_Microcystin_ugL_1']
         });
       }
     });
+    this.setState({
+      loadingHabs: true
+    })
   }
 
   _fetchStream() {
@@ -122,7 +127,6 @@ export default class StationDashboard extends Component {
     }
 
     connection.onopen = e => {
-      console.log('Stream opened');
       const message = JSON.stringify({action: 'history'});
       connection.send(message);
     }
@@ -410,11 +414,11 @@ export default class StationDashboard extends Component {
   }
 
   _renderMap() {
-    const {stream, data} = this.state;
     let thisStation = this.props.match.params.id;
+    console.log(thisStation)
     return (
-        <div className='dashboard-map-container'><StationMap station={thisStation} data={data} showForecast={false}/></div>
-      )
+      <div className='dashboard-map-container'><GLMap station={thisStation} showForecast={false}/></div>
+    )
   }
 
   _renderGauge(habsData) {
@@ -677,9 +681,11 @@ export default class StationDashboard extends Component {
   }
 
   renderHabsDashboard() {
-    const {habsData} = this.state;
-    if (!habsData){
+    const {habsData, loadingHabs} = this.state;
+    if (!habsData  && !loadingHabs){
       this._fetchHabs();
+    }
+    if (!habsData) {
       return (
         this.renderLander()
       )

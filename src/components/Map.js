@@ -4,6 +4,7 @@ import { StaticMap, InteractiveMap, ReactMapGL} from 'react-map-gl';
 import { Table } from 'react-bootstrap';
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import Button from 'react-bootstrap/Button'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import DeckGL, {IconLayer, TextLayer, GeoJsonLayer} from 'deck.gl';
 import {json as requestJson} from 'd3-request';
 import './Map.css';
@@ -15,7 +16,7 @@ const GL_BUOYS_DATA_URL = 'https://cors-anywhere.herokuapp.com/https://glbuoys.g
 const HABS_DATA_URL = 'https://4431mqp2sj.execute-api.us-east-2.amazonaws.com/prod/grabsample';
 
 
-class StationMap extends Component {
+class GLMap extends Component {
     constructor(props) {
       super(props);
       this.state = {
@@ -24,10 +25,12 @@ class StationMap extends Component {
         isLoading: true,
         hoveredObject: null,
         data: null,  // Buoy data
-        habs_data: null,  // Weekly habs data
+        habsData: null,  // Weekly habs data
         station: null,
         stream: [],
-        forecastLayerActive: 'currents'
+        forecastLayerActive: 'none',
+        currentImage: 0,
+        animationState: 'pause',
       };
       requestJson(GL_BUOYS_DATA_URL, (error, response) => {
         if (!error) {
@@ -36,9 +39,13 @@ class StationMap extends Component {
       });
       requestJson(HABS_DATA_URL, (error, response) => {
         if (!error) {
-          this.setState({habs_data: response});
+          this.setState({habsData: response});
         }
       });
+      // Forecast image params
+      this.intervalId = null;
+      this.forecastFrameCount = 96;
+      this.nextFrame = this.nextFrame.bind(this);
     }
 
     async componentDidMount() {
@@ -51,6 +58,10 @@ class StationMap extends Component {
         alert(e);
       }
       this.setState({ isLoading: false });
+    }
+
+    componentWillUnmount(){
+      clearInterval(this.intervalId);
     }
 
     _renderTooltip() {
@@ -97,14 +108,52 @@ class StationMap extends Component {
     handleForecastLayerClick(event) {
       let layer = event.target.attributes.getNamedItem('data-key').value;
       if (layer != this.state.forecastLayer) {
-        this.setState({forecastLayerActive: layer});
+        this.setState({
+          forecastLayerActive: layer,
+        });
       }
+      if (layer === 'none') {
+        clearInterval(this.intervalId);
+      }
+    }
+
+    incrementAnimation() {
+      this.setState({
+        currentImage: (this.state.currentImage + 1) % this.forecastFrameCount
+      });
+    }
+
+    onPlayClick() {
+      this.setState({
+        animationState: 'play'
+      });
+      this.intervalId = setInterval(this.nextFrame, 2000);
+    }
+
+    onPauseClick() {
+      this.setState({
+        animationState: 'pause'
+      });
+      clearInterval(this.intervalId);
+    }
+
+    nextFrame() {
+      this.incrementAnimation();
+    }
+
+    getPath(type) {
+      const {currentImage} = this.state;
+      let prependZero = (number) => number <= 9 ? '0' + number : number;
+      // Type is a string (currents or winds)
+      let url = '/images/' + type + '_' + prependZero(currentImage) + '.png';
+      // let url = 'https://cors-anywhere.herokuapp.com/https://s3.us-east-2.amazonaws.com/ottews.glos.us/images/' + type + '_' + prependZero(currentImage) + '.png';
+      return url;
     }
 
 
     renderMap() {
-      const {data, habs_data, stream} = this.state;
-      if (!data || !habs_data) {
+      const {data, habsData, stream} = this.state;
+      if (!data || !habsData) {
         return null;
       }
 
@@ -114,13 +163,17 @@ class StationMap extends Component {
       let zoom = 7;
       if ('station' in this.props) {
         let stationObj = data.find(x => x.id === this.props.station);
+        let weeklyMonitoringObj = habsData.features.find(x => x.properties.metadata.id === this.props.station)
         if (stationObj) {
-          zoom = 8;
+          zoom = 9;
           latitude = stationObj.lat;
           longitude = stationObj.lon;
+        } else if (weeklyMonitoringObj) {
+          zoom = 9;
+          latitude = weeklyMonitoringObj.geometry.coordinates[1];
+          longitude = weeklyMonitoringObj.geometry.coordinates[0];
         }
       }
-
       // Viewport settings
       const viewstate = {
         longitude: longitude,
@@ -129,7 +182,6 @@ class StationMap extends Component {
         pitch: 0,
         bearing: 0
       };
-
       // const ICON_MAPPING = {
       //   marker: {x: 0, y: 0, width: 20, height: 50, mask: true}
       // };
@@ -138,8 +190,8 @@ class StationMap extends Component {
       };
 
       const weeklyMonitoringLayer = new GeoJsonLayer({
-        id: 'geojson',
-        data: habs_data,
+        id: 'station' in this.props ? this.props.station + '_geojson' : 'geojson',
+        data: habsData,
         opacity: 1,
         filled: true,
         stroked: false,
@@ -150,7 +202,13 @@ class StationMap extends Component {
         getLineWidth: 2,
         lineWidthScale: 1,
         getLineColor: [1,1,1],
-        getFillColor: [115, 28, 226],
+        // getFillColor: [115, 28, 226],
+        getFillColor: d => {
+          if ('station' in this.props && d.properties.metadata.id === this.props.station) {
+            return [0,0,0];
+          }
+          return [55,126,184];
+        },
         lineWidthMinPixelslineWidthMinPixels: 0,
         getRadius: 100,
         pickable: true,
@@ -162,17 +220,16 @@ class StationMap extends Component {
           });
         },
         onClick: station => {
-          const {data} = this.state;
           // Redirect to station dashboard page
           let route = '/' + station.object.properties.metadata.id;
           this.props.history.push({
-            pathname: route,
+            pathname: route
           })
         },
       });
 
       let weeklyMonitoringLabels = [];
-      habs_data.features.map((obj, idx) => {
+      habsData.features.map((obj, idx) => {
         return weeklyMonitoringLabels.push({
           lat: obj.geometry.coordinates[1],
           lon: obj.geometry.coordinates[0],
@@ -259,16 +316,9 @@ class StationMap extends Component {
             ],
             "tileSize": 256
           },
-          "habs": {
-            "type": "raster",
-            "tiles": [
-              'https://tiles.oceansmap.com/habs/2019-08-07T14:00:00/{z}/{x}/{y}.png'
-            ],
-            "tileSize": 256
-          },
           "habs_currents": {
             "type": "image",
-            "url": "https://cors-anywhere.herokuapp.com/https://rps-glos.s3.amazonaws.com/habs_images/2019092417_quivers.png",
+            "url": this.getPath('currents'),
             "coordinates": [
               [-83.49609374999999, 42.940339233631825],
               [-78.75000000000001, 42.940339233631825],
@@ -278,7 +328,7 @@ class StationMap extends Component {
           },
           "habs_winds": {
             "type": "image",
-            "url": "https://cors-anywhere.herokuapp.com/https://rps-glos.s3.amazonaws.com/habs_images/2019092417_quivers.png",
+            "url": this.getPath('winds'),
             "coordinates": [
               [-83.49609374999999, 42.940339233631825],
               [-78.75000000000001, 42.940339233631825],
@@ -305,25 +355,27 @@ class StationMap extends Component {
             'layout': {
               'visibility': 'visible'
             },
-          },
-          {
-            'id': 'habs_currents',
-            'type': 'raster',
-            'source': 'habs_currents',
-            'layout': {
-              'visibility': this.props.showForecast && this.state.forecastLayerActive === 'currents' ? 'visible' : 'none'
-            },
-          },
-          {
-            'id': 'habs_winds',
-            'type': 'raster',
-            'source': 'habs',
-            'layout': {
-              'visibility': this.props.showForecast && this.state.forecastLayerActive === 'winds' ? 'visible' : 'none'
-            },
-          },
+          }
         ]
       };
+
+      this.props.showForecast && this.state.forecastLayerActive === 'winds' && mapStyle.layers.push({
+        'id': 'habs_winds',
+        'type': 'raster',
+        'source': 'habs_winds',
+        'layout': {
+          'visibility': 'visible'
+        }
+      });
+
+      this.props.showForecast && this.state.forecastLayerActive === 'currents' && mapStyle.layers.push({
+        'id': 'habs_currents',
+        'type': 'raster',
+        'source': 'habs_currents',
+        'layout': {
+          'visibility': 'visible'
+        }
+      });
 
       const COLOR_RANGE = [
         [1, 152, 189],
@@ -350,19 +402,28 @@ class StationMap extends Component {
       return (
         <div className="map-container">
           {this._renderTooltip()}
-
           <DeckGL initialViewState={viewstate} controller={true} layers={layers}>
             <InteractiveMap mapStyle={mapStyle} mapboxApiAccessToken={token}/>
           </DeckGL>
-          <div>
           {this.props.showForecast && (
-            <ButtonGroup onClick={this.handleForecastLayerClick.bind(this)}>
-              <Button data-key='currents' variant="warning">Currents</Button>
-              <Button data-key='winds' variant="warning">Winds</Button>
-              <Button data-key='off' variant="warning">Off</Button>
-            </ButtonGroup>
+            <div>
+              <ButtonGroup onClick={this.handleForecastLayerClick.bind(this)}>
+                <Button active={this.state.forecastLayerActive === 'currents'} data-key='currents' variant="warning">Currents</Button>
+                <Button active={this.state.forecastLayerActive === 'winds'} data-key='winds' variant="warning">Winds</Button>
+                <Button active={this.state.forecastLayerActive === 'none'} data-key='none' variant="warning">Off</Button>
+              </ButtonGroup>
+            </div>
           )}
-          {this.props.showForecast && this._renderLegend()}
+          {this.props.showForecast && this.state.forecastLayerActive !== 'none' && (
+            <div>
+              <ButtonGroup>
+                <Button active={this.state.animationState === 'play'} variant="warning"><FontAwesomeIcon data-key='play' onClick={this.onPlayClick.bind(this)} icon='play-circle'/></Button>
+                <Button active={this.state.animationState === 'pause'} variant="warning"><FontAwesomeIcon data-key='pause' onClick={this.onPauseClick.bind(this)} icon='pause-circle'/></Button>
+              </ButtonGroup>
+            </div>
+          )}
+          <div>
+            {this.props.showForecast && this._renderLegend()}
           </div>
         </div>
       );
@@ -373,4 +434,4 @@ class StationMap extends Component {
     }
 }
 
-export default withRouter(StationMap);
+export default withRouter(GLMap);
