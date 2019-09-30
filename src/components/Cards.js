@@ -92,7 +92,7 @@ class SelectableCardList extends React.Component {
 
       var cardSelected = selected.indexOf(i) > -1;
       return (
-        <Col sm={4}>
+        <Col sm={3}>
           <SelectableTitleCard key={i}
             title={title} description={description}
             selected={cardSelected}
