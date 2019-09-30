@@ -28,16 +28,19 @@ export default {
         {
           from: 0,
           to: 8.5,
+          thickness: 15,
           color: '#54C6DF' // blue
         },
         {
           from: 8.5,
           to: 10,
+          thickness: 15,
           color: '#A3E3C3' // light green
         },
         {
           from: 10,
           to: 1000,
+          thickness: 15,
           color: '#049372' // dark green
         }
       ]
@@ -72,16 +75,19 @@ export default {
         {
           from: 0,
           to: 8.5,
+          thickness: 15,
           color: '#54C6DF' // blue
         },
         {
           from: 8.5,
           to: 10,
+          thickness: 15,
           color: '#A3E3C3' // light green
         },
         {
           from: 10,
           to: 1000,
+          thickness: 15,
           color: '#049372' // dark green
         }
       ]
@@ -116,16 +122,19 @@ export default {
         {
           from: -1,
           to: 2,
+          thickness: 15,
           color: '#54C6DF' // blue
         },
         {
           from: 2,
           to: 3,
+          thickness: 15,
           color: '#A3E3C3' // light green
         },
         {
           from: 3,
           to: 5,
+          thickness: 15,
           color: '#049372' // dark green
         }
       ]
@@ -160,16 +169,19 @@ export default {
         {
           from: -1,
           to: 2,
+          thickness: 15,
           color: '#54C6DF' // blue
         },
         {
           from: 2,
           to: 3,
+          thickness: 15,
           color: '#A3E3C3' // light green
         },
         {
           from: 3,
           to: 5,
+          thickness: 15,
           color: '#049372' // dark green
         }
       ]
@@ -204,16 +216,19 @@ export default {
         {
           from: -1,
           to: 2,
+          thickness: 15,
           color: '#54C6DF' // blue
         },
         {
           from: 2,
           to: 3,
+          thickness: 15,
           color: '#A3E3C3' // light green
         },
         {
           from: 3,
           to: 5,
+          thickness: 15,
           color: '#049372' // dark green
         }
       ]
@@ -248,16 +263,19 @@ export default {
         {
           from: -1,
           to: 2,
+          thickness: 15,
           color: '#54C6DF' // blue
         },
         {
           from: 2,
           to: 3,
+          thickness: 15,
           color: '#A3E3C3' // light green
         },
         {
           from: 3,
           to: 5,
+          thickness: 15,
           color: '#049372' // dark green
         }
       ]

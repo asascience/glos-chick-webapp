@@ -37,6 +37,23 @@ class GaugePlot extends React.Component {
         plotBorderWidth: 0,
         plotShadow: false,
       },
+      plotOptions: {
+        gauge: {
+          dial: {
+            radius: '60%',
+            backgroundColor: '#034554',
+            baseWidth: 3,
+            topWidth: 1,
+            baseLength: '90%', // of radius
+            rearLength: '0%'
+          },
+          pivot: {
+            backgroundColor: '#034554',
+            borderColor:"#000",
+            radius: 4
+          }
+        }
+      },
       credits: {
         enabled: false
       },
