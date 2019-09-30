@@ -688,7 +688,7 @@ export default class StationDashboard extends Component {
     }
     let thisStation = this.props.match.params.id;
     let data = habsData.features.filter(item => {
-      return thisStation === item.properties.metadata.Site;
+      return thisStation === item.properties.metadata.id;
     });
 
     if (data.length === 0) {
@@ -707,7 +707,9 @@ export default class StationDashboard extends Component {
       <div className="home-container">
         {this._renderAlert()}
         <h1 align='center'>Field monitoring stations</h1>
-        <h2 align='left'>Station - {stationName} <InfoPopover/></h2>
+        <h2 align='left'>Station - {stationName}
+          <InfoPopover content={data.properties.metadata.summary} />
+        </h2>
         <h5 align='left'>Last Updated - {lastUpdate} </h5>
         <Row>
           <Col sm={6}>

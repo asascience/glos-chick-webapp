@@ -59,7 +59,7 @@ class StationMap extends Component {
           return null;
       }
       if ('geometry' in hoveredObject) {
-        const site = hoveredObject.properties.metadata.Site;
+        const site = hoveredObject.properties.metadata.id;
         const params = Object.keys(hoveredObject.properties.data);
         const times = hoveredObject.properties.data[params[0]].times;
         const lastUpdate = times[times.length - 1];
@@ -164,7 +164,7 @@ class StationMap extends Component {
         onClick: station => {
           const {data} = this.state;
           // Redirect to station dashboard page
-          let route = '/' + station.object.properties.metadata.Site;
+          let route = '/' + station.object.properties.metadata.id;
           this.props.history.push({
             pathname: route,
           })
@@ -176,7 +176,7 @@ class StationMap extends Component {
         return weeklyMonitoringLabels.push({
           lat: obj.geometry.coordinates[1],
           lon: obj.geometry.coordinates[0],
-          id: obj.properties.metadata.Site
+          id: obj.properties.metadata.id
         });
       });
       const weeklyMonitoringLabelLayer = new TextLayer({

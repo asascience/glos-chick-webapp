@@ -6,18 +6,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button } from 'react-bootstrap';
 
 
-const popover = (
+const popover = props => (
   <Popover id="popover-positioned-bottom">
     <Popover.Content>
-      This is a field monitoring station.
-      These hand collected, weekly water samples
-      measure toxicity due to microcystin
+      {props.content}
     </Popover.Content>
   </Popover>
 );
 
-const InfoPopover = () => (
-  <OverlayTrigger trigger="click" placement="bottom" overlay={popover}>
+const InfoPopover = props => (
+  <OverlayTrigger trigger="click" placement="bottom" overlay={popover(props)}>
     <FontAwesomeIcon icon='info-circle' style={{'marginLeft': '7px'}} />
   </OverlayTrigger>
 );
