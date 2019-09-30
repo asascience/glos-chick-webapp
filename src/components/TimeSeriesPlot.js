@@ -90,6 +90,7 @@ class TimeSeriesHabsPlot extends React.Component {
     let data = this.props.data;
     // let data = this.props.data
     let parameters = this.props.parameters;
+    let depth = this.props.depth;
     let color = this.props.color;
     let series = [];
     let prettyName = this.props.parameterMapping[parameters[0]];
@@ -99,14 +100,19 @@ class TimeSeriesHabsPlot extends React.Component {
       let seriesData = [];
       let zones = [];
       for (var i = 0; i <= data.times.length - 1; i++) {
+        let value = data.values[i];
+        if (Array.isArray(value)) {
+          let ind = depth === 'surface' ? 0 : 1;
+          value = value[ind];
+        }
         seriesData.push({
           x: moment(data.times[i]).valueOf(),
-          y: data.values[i] === 'bdl' ? 0.0001 : parseFloat(data.values[i]),
-          marker: data.values[i] === 'bdl' ? {enabled: true, radius: 8, fillColor: '#FFBBFF'} : null,
-          bdl: data.values[i] === 'bdl',
+          y: value === 'bdl' ? 0.0001 : parseFloat(value),
+          marker: value === 'bdl' ? {enabled: true, radius: 8, fillColor: '#FFBBFF'} : null,
+          bdl: value === 'bdl',
           uom: units,
           fullname: prettyName,
-          depth: null
+          depth: depth
         });
       }
       if (prettyName === 'Turbidity (ntu)') {

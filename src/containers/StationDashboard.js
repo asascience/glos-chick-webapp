@@ -476,7 +476,7 @@ export default class StationDashboard extends Component {
     return (
       <div>
         {selected.map((param, idx) => {
-          return param in this.parameterMapping ? <TimeSeriesHabsPlot key={param} data={data.properties.data[param]} parameters={[param]} parameterMapping={this.parameterMapping} color={colors[idx % colors.length]}/> : null
+          return param in this.parameterMapping ? <TimeSeriesHabsPlot key={param} data={data.properties.data[param]} depth={this.state.depth} parameters={[param]} parameterMapping={this.parameterMapping} color={colors[idx % colors.length]}/> : null
         })}
       </div>
     );
@@ -581,7 +581,11 @@ export default class StationDashboard extends Component {
         } else if (lastValue === 'bdl') {
           description = 'Below Detection Limit';
         } else {
-          description = parseFloat(values[values.length - 1]).toFixed(2) + ' ' + data.properties.data[key].units;
+          if (Array.isArray(lastValue)) {
+            let ind = this.state.depth === 'surface' ? 0 : 1;
+            lastValue = lastValue[ind];
+          }
+          description = parseFloat(lastValue).toFixed(2) + ' ' + data.properties.data[key].units;
         }
         return params.push({
           title: key in this.parameterMapping ? this.parameterMapping[key] : key,
