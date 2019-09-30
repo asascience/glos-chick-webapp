@@ -413,7 +413,7 @@ export default class StationDashboard extends Component {
     const {stream, data} = this.state;
     let thisStation = this.props.match.params.id;
     return (
-        <Col sm={12}><div className='dashboard-map-container'><StationMap station={thisStation} data={data} showForecast={false}/></div></Col>
+        <div className='dashboard-map-container'><StationMap station={thisStation} data={data} showForecast={false}/></div>
       )
   }
 
@@ -437,25 +437,23 @@ export default class StationDashboard extends Component {
     // </Row>
     return (
       <div>
-          <Row>
-            {params.map((param, idx) => {
-              let dataPoint, timestamp;
-              if (habsData) {
-                let vals = habsData.properties.data[param].values;
-                dataPoint = vals[vals.length - 1];
-                if (Array.isArray(dataPoint)) {
-                  let ind = this.state.depth === 'surface' ? 0 : 1;
-                  dataPoint = dataPoint[ind]
-                }
-
-              } else {
-                let timeParam = 'timestamp' in stream[0] ? 'timestamp' : 'date';
-                dataPoint = stream[0][param];
+        <Row>
+          {params.map((param, idx) => {
+            let dataPoint, timestamp;
+            if (habsData) {
+              let vals = habsData.properties.data[param].values;
+              dataPoint = vals[vals.length - 1];
+              if (Array.isArray(dataPoint)) {
+                let ind = this.state.depth === 'surface' ? 0 : 1;
+                dataPoint = dataPoint[ind]
               }
-              return <Col sm={3}><GaugePlot dataPoint={dataPoint} parameter={this.parameterMapping[param]}/></Col>
-            })}
-          </Row>
-
+            } else {
+              let timeParam = 'timestamp' in stream[0] ? 'timestamp' : 'date';
+              dataPoint = stream[0][param];
+            }
+            return <Col sm={4}><GaugePlot dataPoint={dataPoint} parameter={this.parameterMapping[param]}/></Col>
+          })}
+        </Row>
       </div>
     );
   }
@@ -713,9 +711,7 @@ export default class StationDashboard extends Component {
         <h5 align='left'>Last Updated - {lastUpdate} </h5>
         <Row>
           <Col sm={6}>
-            <div>
-              {this._renderGauge(data)}
-            </div>
+            {this._renderGauge(data)}
           </Col>
           <Col sm={6}>
             <div>
