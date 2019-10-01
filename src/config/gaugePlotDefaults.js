@@ -4,7 +4,7 @@ export default {
     warningThreshold: 10,
     yAxis: {
       min: 0,
-      max: 15,
+      max: 20,
 
       minorTickInterval: 'auto',
       minorTickWidth: 1,
@@ -27,19 +27,19 @@ export default {
       plotBands: [
         {
           from: 0,
-          to: 8.5,
+          to: 10,
           thickness: 15,
           color: '#54C6DF' // blue
         },
         {
-          from: 8.5,
-          to: 10,
+          from: 10,
+          to: 15,
           thickness: 15,
           color: '#A3E3C3' // light green
         },
         {
-          from: 10,
-          to: 1000,
+          from: 15,
+          to: 20,
           thickness: 15,
           color: '#049372' // dark green
         }
@@ -51,7 +51,7 @@ export default {
     warningThreshold: 10,
     yAxis: {
       min: 0,
-      max: 15,
+      max: 20,
 
       minorTickInterval: 'auto',
       minorTickWidth: 1,
@@ -74,19 +74,19 @@ export default {
       plotBands: [
         {
           from: 0,
-          to: 8.5,
+          to: 10,
           thickness: 15,
           color: '#54C6DF' // blue
         },
         {
-          from: 8.5,
-          to: 10,
+          from: 10,
+          to: 15,
           thickness: 15,
           color: '#A3E3C3' // light green
         },
         {
-          from: 10,
-          to: 1000,
+          from: 15,
+          to: 20,
           thickness: 15,
           color: '#049372' // dark green
         }
@@ -97,8 +97,8 @@ export default {
     dangerThreshold: 3,
     warningThreshold: 2,
     yAxis: {
-      min: -1,
-      max: 5,
+      min: 0,
+      max: 6,
 
       minorTickInterval: 'auto',
       minorTickWidth: 1,
@@ -120,67 +120,20 @@ export default {
       },
       plotBands: [
         {
-          from: -1,
-          to: 2,
+          from: 0,
+          to: 1,
           thickness: 15,
           color: '#54C6DF' // blue
         },
         {
-          from: 2,
+          from: 1,
           to: 3,
           thickness: 15,
           color: '#A3E3C3' // light green
         },
         {
           from: 3,
-          to: 5,
-          thickness: 15,
-          color: '#049372' // dark green
-        }
-      ]
-    }
-  },
-  'Extracted Phycocyanin': {
-    dangerThreshold: 3,
-    warningThreshold: 2,
-    yAxis: {
-      min: -1,
-      max: 5,
-
-      minorTickInterval: 'auto',
-      minorTickWidth: 1,
-      minorTickLength: 10,
-      minorTickPosition: 'inside',
-      minorTickColor: '#336E7B',
-
-      tickPixelInterval: 30,
-      tickWidth: 2,
-      tickPosition: 'inside',
-      tickLength: 15,
-      tickColor: '#666',
-      labels: {
-        step: 2,
-        rotation: 'auto'
-      },
-      title: {
-        text: ''
-      },
-      plotBands: [
-        {
-          from: -1,
-          to: 2,
-          thickness: 15,
-          color: '#54C6DF' // blue
-        },
-        {
-          from: 2,
-          to: 3,
-          thickness: 15,
-          color: '#A3E3C3' // light green
-        },
-        {
-          from: 3,
-          to: 5,
+          to: 6,
           thickness: 15,
           color: '#049372' // dark green
         }
@@ -188,11 +141,11 @@ export default {
     }
   },
   'Dissolved Microcystin': {
-    dangerThreshold: 3,
-    warningThreshold: 2,
+    dangerThreshold: 1,
+    warningThreshold: 0.4,
     yAxis: {
-      min: -1,
-      max: 5,
+      min: 0,
+      max: 2,
 
       minorTickInterval: 'auto',
       minorTickWidth: 1,
@@ -214,20 +167,20 @@ export default {
       },
       plotBands: [
         {
-          from: -1,
-          to: 2,
+          from: 0,
+          to: 0.3,
           thickness: 15,
           color: '#54C6DF' // blue
         },
         {
-          from: 2,
-          to: 3,
+          from: 0.3,
+          to: 1,
           thickness: 15,
           color: '#A3E3C3' // light green
         },
         {
-          from: 3,
-          to: 5,
+          from: 1,
+          to: 2,
           thickness: 15,
           color: '#049372' // dark green
         }
@@ -235,11 +188,11 @@ export default {
     }
   },
   'Particulate Microcystin': {
-    dangerThreshold: 3,
-    warningThreshold: 2,
+    dangerThreshold: 1,
+    warningThreshold: 0.4,
     yAxis: {
-      min: -1,
-      max: 5,
+      min: 0,
+      max: 2,
 
       minorTickInterval: 'auto',
       minorTickWidth: 1,
@@ -261,20 +214,20 @@ export default {
       },
       plotBands: [
         {
-          from: -1,
-          to: 2,
+          from: 0,
+          to: 0.3,
           thickness: 15,
           color: '#54C6DF' // blue
         },
         {
-          from: 2,
-          to: 3,
+          from: 0.3,
+          to: 1,
           thickness: 15,
           color: '#A3E3C3' // light green
         },
         {
-          from: 3,
-          to: 5,
+          from: 1,
+          to: 2,
           thickness: 15,
           color: '#049372' // dark green
         }
