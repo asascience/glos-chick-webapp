@@ -647,7 +647,6 @@ export default class StationDashboard extends Component {
     return (
       <div className="home-container">
         {this._renderAlert()}
-        <h1 align='center'>Real time buoys/sondes</h1>
         <h2 align='left'>Station - {stationName}</h2>
         <h5 align='left'>Last Updated - {lastUpdate}</h5>
         <Row>
@@ -710,7 +709,6 @@ export default class StationDashboard extends Component {
     return (
       <div className="home-container">
         {this._renderAlert()}
-        <h1 align='center'>Field monitoring stations</h1>
         <h2 align='left'>Station - {stationName}
           <InfoPopover content={data.properties.metadata.summary} />
         </h2>

@@ -127,7 +127,7 @@ class GLMap extends Component {
       this.setState({
         animationState: 'play'
       });
-      this.intervalId = setInterval(this.nextFrame, 2000);
+      this.intervalId = this.intervalId || setInterval(this.nextFrame, 2000);
     }
 
     onPauseClick() {
@@ -145,8 +145,8 @@ class GLMap extends Component {
       const {currentImage} = this.state;
       let prependZero = (number) => number <= 9 ? '0' + number : number;
       // Type is a string (currents or winds)
-      let url = '/images/' + type + '_' + prependZero(currentImage) + '.png';
-      // let url = 'https://cors-anywhere.herokuapp.com/https://s3.us-east-2.amazonaws.com/ottews.glos.us/images/' + type + '_' + prependZero(currentImage) + '.png';
+      // let url = '/images/' + type + '_' + prependZero(currentImage) + '.png';
+      let url = 'https://cors-anywhere.herokuapp.com/https://s3.us-east-2.amazonaws.com/ottews.glos.us/images/' + type + '_' + prependZero(currentImage) + '.png';
       return url;
     }
 
@@ -365,6 +365,9 @@ class GLMap extends Component {
         'source': 'habs_winds',
         'layout': {
           'visibility': 'visible'
+        },
+        "paint": {
+          "raster-fade-duration": 0
         }
       });
 
@@ -374,6 +377,9 @@ class GLMap extends Component {
         'source': 'habs_currents',
         'layout': {
           'visibility': 'visible'
+        },
+        "paint": {
+          "raster-fade-duration": 0
         }
       });
 

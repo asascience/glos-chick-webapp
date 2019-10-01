@@ -1,5 +1,5 @@
 .Home {
-  height: 85vh;
+  height: 80vh;
 }
 
 .Home .lander {
@@ -30,7 +30,9 @@
 .home-container {
   position: relative;
   height: 100%;
-  margin: 40px;
+  margin-right: 40px;
+  margin-left: 40px;
+  margin-top: 40px;
 }
 
 .home-container  h1{
@@ -46,6 +48,7 @@
 .home-container  h5{
   color: grey;
   font-weight: bold;
+  padding-bottom: 20px;
 }
 
 .home-title {

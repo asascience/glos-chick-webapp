@@ -70,7 +70,13 @@ $selected-color: rgba(133, 208, 197, 1);
 }
 
 .content {
-  .title, .description {
+  .title {
+    font-size: 1.3rem;
+    margin: 0;
+    padding: 4px
+  }
+  .description {
+    font-size: 1.1rem;
     margin: 0;
     padding: 4px
   }
