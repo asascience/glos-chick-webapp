@@ -127,7 +127,7 @@ class GLMap extends Component {
       this.setState({
         animationState: 'play'
       });
-      this.intervalId = this.intervalId || setInterval(this.nextFrame, 2000);
+      this.intervalId = setInterval(this.nextFrame, 2000);
     }
 
     onPauseClick() {
@@ -146,7 +146,7 @@ class GLMap extends Component {
       let prependZero = (number) => number <= 9 ? '0' + number : number;
       // Type is a string (currents or winds)
       let url = '/images/' + type + '_' + prependZero(currentImage) + '.png';
-      // let url = 'https://cors-anywhere.herokuapp.com/https://s3.us-east-2.amazonaws.com/ottews.glos.us/images/' + type + '_' + prependZero(currentImage) + '.png';
+      // let url = 'https://s3.us-east-2.amazonaws.com/ottews.glos.us/images/' + type + '_' + prependZero(currentImage) + '.png';
       return url;
     }
 
@@ -182,12 +182,12 @@ class GLMap extends Component {
         pitch: 0,
         bearing: 0
       };
-      // const ICON_MAPPING = {
-      //   marker: {x: 0, y: 0, width: 20, height: 50, mask: true}
-      // };
       const ICON_MAPPING = {
-        marker: {x: 0, y: 0, width: 128, height: 128, anchorY: 128, mask:true}
+        marker: {x: 0, y: 0, width: 20, height: 50, mask: true}
       };
+      // const ICON_MAPPING = {
+      //   marker: {x: 0, y: 0, width: 128, height: 128, anchorY: 128, mask:true}
+      // };
 
       const weeklyMonitoringLayer = new GeoJsonLayer({
         id: 'station' in this.props ? this.props.station + '_geojson' : 'geojson',
@@ -256,15 +256,15 @@ class GLMap extends Component {
         id: 'icon-layer',
         data: data,
         pickable: true,
-        // iconAtlas: 'https://a.tiles.mapbox.com/v3/marker/pin-s+BB9427.png',
-        iconAtlas: '/icon-atlas.png',
+        iconAtlas: 'https://a.tiles.mapbox.com/v3/marker/pin-s+BB9427.png',
+        // iconAtlas: '/icon-atlas.png',
         iconMapping: ICON_MAPPING,
         // sizeScale: 15,
-        sizeScale: 8,
+        sizeScale: 5,
         opacity: 1,
         getIcon: d => 'marker',
         getPosition: d => [d.lon, d.lat],
-        getSize: d => 5,
+        getSize: d => 15,
         getColor: d => {
           if ('station' in this.props && d.id === this.props.station) {
             return [0,0,0];

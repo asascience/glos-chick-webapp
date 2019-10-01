@@ -570,7 +570,7 @@ export default class StationDashboard extends Component {
 
   handleDepthClick(event) {
     let depth = event.target.attributes.getNamedItem('data-key').value;
-    if (depth != this.state.depth) {
+    if (depth !== this.state.depth) {
       this.setState({depth: depth});
     }
   }
