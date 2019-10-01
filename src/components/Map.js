@@ -145,8 +145,8 @@ class GLMap extends Component {
       const {currentImage} = this.state;
       let prependZero = (number) => number <= 9 ? '0' + number : number;
       // Type is a string (currents or winds)
-      // let url = '/images/' + type + '_' + prependZero(currentImage) + '.png';
-      let url = 'https://cors-anywhere.herokuapp.com/https://s3.us-east-2.amazonaws.com/ottews.glos.us/images/' + type + '_' + prependZero(currentImage) + '.png';
+      let url = '/images/' + type + '_' + prependZero(currentImage) + '.png';
+      // let url = 'https://cors-anywhere.herokuapp.com/https://s3.us-east-2.amazonaws.com/ottews.glos.us/images/' + type + '_' + prependZero(currentImage) + '.png';
       return url;
     }
 
