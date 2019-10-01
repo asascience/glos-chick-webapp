@@ -1,6 +1,6 @@
 export default {
   'Turbidity (ntu)': {
-    dangerThreshold: 10,
+    dangerThreshold: 15,
     warningThreshold: 10,
     yAxis: {
       min: 0,
@@ -47,7 +47,7 @@ export default {
     }
   },
   'Turbidity': {
-    dangerThreshold: 10,
+    dangerThreshold: 15,
     warningThreshold: 10,
     yAxis: {
       min: 0,
@@ -95,7 +95,7 @@ export default {
   },
   'Blue Green Algae (rfu)': {
     dangerThreshold: 3,
-    warningThreshold: 2,
+    warningThreshold: 1,
     yAxis: {
       min: 0,
       max: 6,

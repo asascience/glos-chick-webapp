@@ -12,20 +12,20 @@ class GaugePlot extends React.Component {
     let prettyName = this.props.parameter;
     let timestamp = this.props.timestamp;
     let dataPoint = this.props.dataPoint;
-
-    let value = parseFloat(parseFloat(dataPoint).toFixed(2));
-    let backgroundColor = '#55BF3B';
+    let value = dataPoint === 'bdl' ? 0 : parseFloat(parseFloat(dataPoint).toFixed(2));
+    let backgroundColor = '#54C6DF';
     let yaxis = gaugePlotDefaults[prettyName].yAxis;
     let dangerThreshold = gaugePlotDefaults[prettyName].dangerThreshold;
     let warningThreshold = gaugePlotDefaults[prettyName].warningThreshold;
+    let maxThreshold = gaugePlotDefaults[prettyName].yAxis.max;
 
-    if (value > 15) {
-        value = 15;
+    if (value > maxThreshold) {
+      value = maxThreshold;
     }
     if (value > dangerThreshold) {
-      backgroundColor = '#DF5353';
+      backgroundColor = '#049372';
     } else if (value > warningThreshold) {
-      backgroundColor = '#DDDF0D';
+      backgroundColor = '#A3E3C3';
     }
     const options = {
       yAxis: yaxis,
@@ -69,11 +69,11 @@ class GaugePlot extends React.Component {
         name: prettyName,
         data: [value],
         tooltip: {
-          valuePrefix: value >= 15 ? '>' : ''
+          valuePrefix: value >= maxThreshold ? '>' : ''
         },
         dataLabels: {
-          backgroundColor: null,
-          format: value >= 15 ? '>{point.y}' : '{point.y}'
+          backgroundColor: backgroundColor,
+          format: value >= maxThreshold ? '>{point.y}' : '{point.y}'
         }
       }]
     }
