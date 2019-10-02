@@ -10,8 +10,8 @@
     height: 95%;
 }
 
-.marker-text {
-
+.legend-text {
+  margin-bottom: 15px;
 }
 
 .legend-panel {
@@ -29,6 +29,8 @@
 
 .dot {
   margin-left: 15px;
+  margin-right: 5px;
+  vertical-align: text-bottom;
   height: 20px;
   width: 20px;
   background-color: #377EB8;
