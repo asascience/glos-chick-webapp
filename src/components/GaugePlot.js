@@ -72,7 +72,7 @@ class GaugePlot extends React.Component {
           valuePrefix: value >= maxThreshold ? '>' : ''
         },
         dataLabels: {
-          backgroundColor: backgroundColor,
+          backgroundColor: null,  // backgroundColor
           format: value >= maxThreshold ? '>{point.y}' : '{point.y}'
         }
       }]
