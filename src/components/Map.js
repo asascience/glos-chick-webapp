@@ -10,6 +10,7 @@ import {json as requestJson} from 'd3-request';
 import './Map.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import {fromJS} from 'immutable';
+import stationMarker from './pin-s+377EB8.png'
 
 
 const GL_BUOYS_DATA_URL = 'https://cors-anywhere.herokuapp.com/https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
@@ -202,7 +203,6 @@ class GLMap extends Component {
         getLineWidth: 2,
         lineWidthScale: 1,
         getLineColor: [1,1,1],
-        // getFillColor: [115, 28, 226],
         getFillColor: d => {
           if ('station' in this.props && d.properties.metadata.id === this.props.station) {
             return [0,0,0];
@@ -407,29 +407,39 @@ class GLMap extends Component {
       let layers = [buoyLayer, buoyLabelLayer, weeklyMonitoringLayer, weeklyMonitoringLabelLayer];
       return (
         <div className="map-container">
-          {this._renderTooltip()}
-          <DeckGL initialViewState={viewstate} controller={true} layers={layers}>
-            <InteractiveMap mapStyle={mapStyle} mapboxApiAccessToken={token}/>
-          </DeckGL>
-          {this.props.showForecast && (
+          <div className="map">
+            {this._renderTooltip()}
+            <DeckGL initialViewState={viewstate} controller={true} layers={layers}>
+              <InteractiveMap mapStyle={mapStyle} mapboxApiAccessToken={token}/>
+            </DeckGL>
+            {this.props.showForecast && (
+              <div>
+                <ButtonGroup onClick={this.handleForecastLayerClick.bind(this)}>
+                  <Button active={this.state.forecastLayerActive === 'currents'} data-key='currents' variant="warning">Currents</Button>
+                  <Button active={this.state.forecastLayerActive === 'winds'} data-key='winds' variant="warning">Winds</Button>
+                  <Button active={this.state.forecastLayerActive === 'none'} data-key='none' variant="warning">Off</Button>
+                </ButtonGroup>
+              </div>
+            )}
+            {this.props.showForecast && this.state.forecastLayerActive !== 'none' && (
+              <div>
+                <ButtonGroup>
+                  <Button active={this.state.animationState === 'play'} variant="warning"><FontAwesomeIcon data-key='play' onClick={this.onPlayClick.bind(this)} icon='play-circle'/></Button>
+                  <Button active={this.state.animationState === 'pause'} variant="warning"><FontAwesomeIcon data-key='pause' onClick={this.onPauseClick.bind(this)} icon='pause-circle'/></Button>
+                </ButtonGroup>
+              </div>
+            )}
             <div>
-              <ButtonGroup onClick={this.handleForecastLayerClick.bind(this)}>
-                <Button active={this.state.forecastLayerActive === 'currents'} data-key='currents' variant="warning">Currents</Button>
-                <Button active={this.state.forecastLayerActive === 'winds'} data-key='winds' variant="warning">Winds</Button>
-                <Button active={this.state.forecastLayerActive === 'none'} data-key='none' variant="warning">Off</Button>
-              </ButtonGroup>
+              {this.props.showForecast && this._renderLegend()}
+
             </div>
-          )}
-          {this.props.showForecast && this.state.forecastLayerActive !== 'none' && (
-            <div>
-              <ButtonGroup>
-                <Button active={this.state.animationState === 'play'} variant="warning"><FontAwesomeIcon data-key='play' onClick={this.onPlayClick.bind(this)} icon='play-circle'/></Button>
-                <Button active={this.state.animationState === 'pause'} variant="warning"><FontAwesomeIcon data-key='pause' onClick={this.onPauseClick.bind(this)} icon='pause-circle'/></Button>
-              </ButtonGroup>
-            </div>
-          )}
-          <div>
-            {this.props.showForecast && this._renderLegend()}
+          </div>
+          <div className="legend-text">
+            Click on any station to see info.
+            <img src={stationMarker}/>
+            Real time in-water stations
+            <span class="dot"></span>
+            Field Samples
           </div>
         </div>
       );
