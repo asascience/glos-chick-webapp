@@ -11,7 +11,9 @@ import './Map.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import {fromJS} from 'immutable';
 import stationMarker from './pin-s+377EB8.png'
+// import MAP_STYLE from './map-style.json';
 
+// const defaultMapStyle = fromJS(MAP_STYLE);
 
 const GL_BUOYS_DATA_URL = 'https://cors-anywhere.herokuapp.com/https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
 const HABS_DATA_URL = 'https://4431mqp2sj.execute-api.us-east-2.amazonaws.com/prod/grabsample';
@@ -31,8 +33,13 @@ class GLMap extends Component {
         stream: [],
         forecastLayerActive: 'none',
         currentImage: 0,
-        animationState: 'pause',
+        animationState: 'play',
+        // mapStyle: defaultMapStyle
       };
+      this._child = React.createRef();
+      // this._defaultLayers = defaultMapStyle.get('layers');
+      this.animationLayerIds = ['habs_currents', 'habs_winds'];
+
       requestJson(GL_BUOYS_DATA_URL, (error, response) => {
         if (!error) {
           this.setState({data: response});
@@ -43,10 +50,6 @@ class GLMap extends Component {
           this.setState({habsData: response});
         }
       });
-      // Forecast image params
-      this.intervalId = null;
-      this.forecastFrameCount = 96;
-      this.nextFrame = this.nextFrame.bind(this);
     }
 
     async componentDidMount() {
@@ -62,7 +65,6 @@ class GLMap extends Component {
     }
 
     componentWillUnmount(){
-      clearInterval(this.intervalId);
     }
 
     _renderTooltip() {
@@ -114,43 +116,36 @@ class GLMap extends Component {
         });
       }
       if (layer === 'none') {
-        clearInterval(this.intervalId);
       }
     }
 
-    incrementAnimation() {
-      this.setState({
-        currentImage: (this.state.currentImage + 1) % this.forecastFrameCount
-      });
-    }
-
     onPlayClick() {
+      var self = this;
+
+      this.animationLayerIds.forEach(function (source, ind) {
+        if (self._child.current.getMap().getSource(source).getVideo().paused) {
+          self._child.current.getMap().getSource(source).getVideo().play();
+        }
+      });
+
       this.setState({
         animationState: 'play'
       });
-      this.intervalId = setInterval(this.nextFrame, 2000);
     }
 
     onPauseClick() {
+      var self = this;
+
+      this.animationLayerIds.forEach(function (source, ind) {
+        if (!self._child.current.getMap().getSource(source).getVideo().paused) {
+          self._child.current.getMap().getSource(source).getVideo().pause();
+        }
+      });
+
       this.setState({
         animationState: 'pause'
       });
-      clearInterval(this.intervalId);
     }
-
-    nextFrame() {
-      this.incrementAnimation();
-    }
-
-    getPath(type) {
-      const {currentImage} = this.state;
-      let prependZero = (number) => number <= 9 ? '0' + number : number;
-      // Type is a string (currents or winds)
-      let url = '/images/' + type + '_' + prependZero(currentImage) + '.png';
-      // let url = 'https://s3.us-east-2.amazonaws.com/ottews.glos.us/images/' + type + '_' + prependZero(currentImage) + '.png';
-      return url;
-    }
-
 
     renderMap() {
       const {data, habsData, stream} = this.state;
@@ -317,33 +312,23 @@ class GLMap extends Component {
             "tileSize": 256
           },
           "habs_currents": {
-            "type": "image",
-            "url": this.getPath('currents'),
+            "type": "video",
+            "urls": ["/test.webm"],
             "coordinates": [
               [-83.67187500000001, 43.06888777416961],
               [-78.75000000000001, 43.06888777416961],
               [-78.75000000000001, 41.244772343082076],
-              [-83.67187500000001, 41.244772343082076],
+              [-83.67187500000001, 41.244772343082076]
             ]
           },
           "habs_winds": {
-            "type": "image",
-            "url": this.getPath('winds'),
-            "coordinates": [
-              [-83.67187500000001, 43.06888777416961],
-              [-78.75000000000001, 43.06888777416961],
-              [-78.75000000000001, 41.244772343082076],
-              [-83.67187500000001, 41.244772343082076],
-            ]
-          },
-          "video": {
             "type": "video",
-            "urls": ["https://cors-anywhere.herokuapp.com/https://user-images.githubusercontent.com/5702672/64719900-3cfeea00-d497-11e9-95d0-0b53909d8724.gif"],
+            "urls": ["/test.webm"],
             "coordinates": [
               [-83.67187500000001, 43.06888777416961],
               [-78.75000000000001, 43.06888777416961],
               [-78.75000000000001, 41.244772343082076],
-              [-83.67187500000001, 41.244772343082076],
+              [-83.67187500000001, 41.244772343082076]
             ]
           }
         },
@@ -355,7 +340,7 @@ class GLMap extends Component {
             'layout': {
               'visibility': 'visible'
             },
-          }
+          },
         ]
       };
 
@@ -410,7 +395,7 @@ class GLMap extends Component {
           <div className="map">
             {this._renderTooltip()}
             <DeckGL initialViewState={viewstate} controller={true} layers={layers}>
-              <InteractiveMap mapStyle={mapStyle} mapboxApiAccessToken={token}/>
+              <InteractiveMap ref={this._child} mapStyle={mapStyle} mapboxApiAccessToken={token}/>
             </DeckGL>
             {this.props.showForecast && (
               <div>
