@@ -334,7 +334,7 @@ class GLMap extends Component {
         ]
       };
 
-      this.props.showForecast && this.state.forecastLayerActive === 'winds' && mapStyle.layers.push({
+      this.props.showForecast && this.state.forecastLayerActive === 'habs_winds' && mapStyle.layers.push({
         'id': 'habs_winds',
         'type': 'raster',
         'source': 'habs_winds',
@@ -346,7 +346,7 @@ class GLMap extends Component {
         }
       });
 
-      this.props.showForecast && this.state.forecastLayerActive === 'currents' && mapStyle.layers.push({
+      this.props.showForecast && this.state.forecastLayerActive === 'habs_currents' && mapStyle.layers.push({
         'id': 'habs_currents',
         'type': 'raster',
         'source': 'habs_currents',
