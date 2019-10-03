@@ -101,11 +101,14 @@ export default class StationDashboard extends Component {
   }
 
   _fetchStream() {
-    requestJson(DATA_URL, (error, response) => {
-      if (!error) {
-        this.setState({data: response});
-      }
-    });
+    const {data} = this.state;
+    if (!data) {
+      requestJson(DATA_URL, (error, response) => {
+        if (!error) {
+          this.setState({data: response});
+        }
+      });
+    }
 
     const url = 'wss://gdjcxvsub6.execute-api.us-east-2.amazonaws.com/testing';
     const connection = new WebSocket(url);

@@ -11,6 +11,7 @@ import './Map.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import {fromJS} from 'immutable';
 import stationMarker from './pin-s+377EB8.png'
+import inactiveStationMarker from './pin-s+DCDCDC.png'
 // import MAP_STYLE from './map-style.json';
 
 // const defaultMapStyle = fromJS(MAP_STYLE);
@@ -39,10 +40,16 @@ class GLMap extends Component {
       this._child = React.createRef();
       // this._defaultLayers = defaultMapStyle.get('layers');
       this.animationLayerIds = ['habs_currents', 'habs_winds'];
+      // TODO this is obviously a hack, get the streaming stations from the stream
+      this._streamingStations = ['leash', 'leavon', 'leelyria', 'lehuron', 'lelorain', 'lementor',
+                                 'lemrbhd', 'leoc', 'leorgn', 'leverm', 'tolcrib', 'tollsps']
 
       requestJson(GL_BUOYS_DATA_URL, (error, response) => {
         if (!error) {
-          this.setState({data: response});
+          let filteredStations = response.filter(function(station){
+            return station.lake === 'ER' && station.WqOnly;
+          });
+          this.setState({data: filteredStations});
         }
       });
       requestJson(HABS_DATA_URL, (error, response) => {
@@ -91,11 +98,16 @@ class GLMap extends Component {
       const values = hoveredObject.obsValues;
       const lastUpdate = hoveredObject.updateTime;
       const owner = hoveredObject.buoyOwners;
+      let disclaimer = '';
+      if (this._streamingStations.indexOf(hoveredObject.id) === -1) {
+        disclaimer = 'Station not currently streaming data';
+      }
       return (
         <div className="marker-tooltip" style={{left: x, top: y}}>
           <div><b>{`${name}`}</b></div>
           <div>{`${owner}`}</div>
           <div>Last Updated at {lastUpdate}</div>
+          <div><b>{`${disclaimer}`}</b></div>
         </div>
       );
     }
@@ -252,9 +264,12 @@ class GLMap extends Component {
         getSize: d => 15,
         getColor: d => {
           if ('station' in this.props && d.id === this.props.station) {
-            return [0,0,0];
+            return [0, 0, 0];
           }
-          return [55,126,184];
+          if (this._streamingStations.indexOf(d.id) === -1) {
+            return [220, 220, 220];
+          }
+          return [55, 126, 184];
         },
         onHover: station => this.setState({
           hoveredObject: station.object,
@@ -262,6 +277,9 @@ class GLMap extends Component {
           y: station.y
         }),
         onClick: station => {
+          if (this._streamingStations.indexOf(station.id) === -1) {
+            return null;
+          }
           const {data} = this.state;
           // Redirect to station dashboard page
           let route = '/' + station.object.id;
@@ -410,11 +428,14 @@ class GLMap extends Component {
             </div>
           </div>
           <div className="legend-text">
-            Click on any station to see info.
+            Click on a station to see info.
             <img src={stationMarker}/>
             Real time in-water stations
+            <img src={inactiveStationMarker}/>
+            (Not Streaming) Real time in-water stations
             <span class="dot"></span>
             Field Samples
+
           </div>
         </div>
       );
