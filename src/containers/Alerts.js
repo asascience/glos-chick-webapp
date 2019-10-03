@@ -292,10 +292,10 @@ export default class StationDashboard extends Component {
       <div className="home-container">
         {this._renderAlert()}
         <h1 align='center'>Alerts</h1>
-        <h2 align='left'>Station - {stationName}</h2>
-        <h5 align='left'>Last Updated - {lastUpdate}</h5>
         <Row>
           <Col sm={6} className='text-center'>
+            <h2 align='left'>Station - {stationName}</h2>
+            <h5 align='left'>Last Updated - {lastUpdate}</h5>
             <Button
               variant="warning"
               size="lg"
