@@ -60,9 +60,9 @@ export default class Home extends Component {
 
             <p align='left'><i>Sign up and get started!</i></p>
 
-            <p align='left'>Learn more about the project <a href='/project'>here</a></p>
+            <p align='left'>Learn more about the project <a href='/project'>here</a>.</p>
 
-            <p align='left'>Learn more about the data <a href='/data'>here</a></p>
+            <p align='left'>Learn more about the data <a href='/data'>here</a>.</p>
 
             <p align='left'>The Team</p>
             <Logos/>

@@ -16,15 +16,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import GLMap from '../components/Map'
 import Cards from '../components/Cards'
 import MovingStats from '../components/MovingStats'
-import './StationDashboard.css';
-import '../components/Cards.scss';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
 import {json as requestJson} from 'd3-request';
 import { point, distance } from '@turf/turf';
+import './StationDashboard.css';
+import '../components/Cards.scss';
 
 const DATA_URL = 'https://cors-anywhere.herokuapp.com/https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
 const HABS_DATA_URL = 'https://4431mqp2sj.execute-api.us-east-2.amazonaws.com/prod/grabsample';
-
 const FEATURED_PARAM = 'BGAPCrfu';
 
 
