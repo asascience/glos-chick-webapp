@@ -202,9 +202,9 @@ class GLMap extends Component {
         getLineColor: [1,1,1],
         getFillColor: d => {
           if ('station' in this.props && d.properties.metadata.id === this.props.station) {
-            return [0,0,0];
+            return [184, 75, 3];
           }
-          return [55,126,184];
+          return [55, 126, 184];
         },
         lineWidthMinPixelslineWidthMinPixels: 0,
         getRadius: 100,
@@ -264,7 +264,7 @@ class GLMap extends Component {
         getSize: d => 15,
         getColor: d => {
           if ('station' in this.props && d.id === this.props.station) {
-            return [0, 0, 0];
+            return [184, 75, 3];
           }
           if (this._streamingStations.indexOf(d.id) === -1) {
             return [220, 220, 220];
