@@ -430,12 +430,11 @@ class GLMap extends Component {
           <div className="legend-text">
             Click on a station to see info.
             <img src={stationMarker}/>
-            Real time in-water stations
+            Real time stations
             <img src={inactiveStationMarker}/>
-            (Not Streaming) Real time in-water stations
+            Not Streaming
             <span class="dot"></span>
             Field Samples
-
           </div>
         </div>
       );

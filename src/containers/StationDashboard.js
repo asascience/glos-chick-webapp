@@ -652,12 +652,12 @@ export default class StationDashboard extends Component {
     return (
       <div className="home-container">
         {this._renderAlert()}
-        <h2 align='left'>Station - {stationName}
-          <InfoPopover content={popoverContent} />
-        </h2>
-        <h5 align='left'>Last Updated - {lastUpdate}</h5>
         <Row>
           <Col sm={6}>
+            <h2 align='left'>Station - {stationName}
+              <InfoPopover content={popoverContent} />
+            </h2>
+            <h5 align='left'>Last Updated - {lastUpdate}</h5>
             <div>
               {this._renderGauge()}
             </div>
