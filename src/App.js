@@ -79,6 +79,11 @@ class App extends Component {
               <LinkContainer to="/">
                 <Nav.Item bsPrefix='nav'>Home</Nav.Item>
               </LinkContainer>
+              {this.state.isAuthenticated ? (
+                <LinkContainer to="/alerts">
+                  <Nav.Item bsPrefix='nav'>&nbsp;|&nbsp;Alerts</Nav.Item>
+                </LinkContainer>
+              ) : (null)}
             </Nav>
             <Navbar.Brand href={'http://glos.us'}>
               <img
@@ -91,12 +96,6 @@ class App extends Component {
             <Nav>
               {this.state.isAuthenticated ? (
                 <NavDropdown bsPrefix='navbar-link' title={this.state.userEmail}>
-                  <LinkContainer to="/">
-                    <NavDropdown.Item eventKey="1"><FontAwesomeIcon icon='home' style={{'marginRight': '7px'}} />Home</NavDropdown.Item>
-                  </LinkContainer>
-                  <LinkContainer to="/alerts">
-                    <NavDropdown.Item eventKey="2"><FontAwesomeIcon icon='bell' style={{'marginRight': '7px'}} />Alerts</NavDropdown.Item>
-                  </LinkContainer>
                   <NavDropdown.Item eventKey="3" onClick={this.handleLogout}><FontAwesomeIcon icon='sign-out-alt' style={{'marginRight': '7px'}} />Logout</NavDropdown.Item>
                 </NavDropdown>
               ) : (
