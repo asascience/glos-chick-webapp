@@ -8,6 +8,7 @@
 
 .logos img {
   padding: 0 35px;
-  max-height: 50px;
+  margin-bottom: 20px;
+  max-height: 55px;
   max-width: 300px;
 }
