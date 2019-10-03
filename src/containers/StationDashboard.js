@@ -646,11 +646,15 @@ export default class StationDashboard extends Component {
     }
     let stationName = this.state.station;
     let lastUpdate = moment.unix(this.state.stream[0]['timestamp']).format("ddd MMM DD YYYY hh:mm a");
-
+    let popoverContent = ('This is a real time in-water station. The sensors measure water quality and ' +
+                          'conditions in real-time. Most track blue-green algae, turbidity, PH, dissolved ' +
+                          'oxygen, and more.');
     return (
       <div className="home-container">
         {this._renderAlert()}
-        <h2 align='left'>Station - {stationName}</h2>
+        <h2 align='left'>Station - {stationName}
+          <InfoPopover content={popoverContent} />
+        </h2>
         <h5 align='left'>Last Updated - {lastUpdate}</h5>
         <Row>
           <Col sm={6}>
