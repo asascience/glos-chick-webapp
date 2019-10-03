@@ -130,7 +130,7 @@ class GLMap extends Component {
 
     onPauseClick() {
       let source = this.state.forecastLayerActive;
-      self._child.current.getMap().getSource(source).getVideo().pause();
+      this._child.current.getMap().getSource(source).getVideo().pause();
 
       this.setState({
         animationState: 'pause'
