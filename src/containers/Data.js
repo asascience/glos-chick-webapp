@@ -1,4 +1,12 @@
 import React, { Component } from 'react';
+import Col from 'react-bootstrap/Col'
+import Container from 'react-bootstrap/Container'
+import Row from 'react-bootstrap/Row';
+import sondeImage from '../images/sonde.jpg';
+import sonde2Image from '../images/sonde2.jpg';
+import microcystinImage from '../images/microcystin_stationMap.png';
+import habtrackerImage from '../images/habtracker2018.gif';
+import glcfsImage from '../images/glcfs.gif';
 import './Data.css';
 
 
@@ -24,6 +32,17 @@ export default class Data extends Component {
                 <i><b>Real-time In-water Stations</b></i>
               </p>
 
+              <Container className="images">
+                <Row style={{paddingTop: '20px'}}>
+                  <Col lg={6} sm={6} xs={12}>
+                    <img src={sondeImage} alt="sondeImage"/>
+                  </Col>
+                  <Col lg={6} sm={6} xs={12}>
+                    <img src={sonde2Image} alt="sonde2Image"/>
+                  </Col>
+                </Row>
+              </Container>
+
               <p align='left'>
                 This <a href='https://glbuoys.glos.us/erie'>network of buoys and water quality sensors</a>, called
                 “sondes,” collects real-time information on a variety of parameters. Most sondes measure blue-green
@@ -41,6 +60,14 @@ export default class Data extends Component {
                 <i><b>Field Samples</b></i>
               </p>
 
+              <Container className="images">
+                <Row style={{paddingTop: '20px'}}>
+                  <Col lg={12} sm={12} xs={12}>
+                    <img src={microcystinImage} alt="microcystinImage"/>
+                  </Col>
+                </Row>
+              </Container>
+
               <p align='left'>
                 Researchers at NOAA GLERL and the Cooperative Institute for Great Lakes Research
                 take <a href='https://www.glerl.noaa.gov/res/HABs_and_Hypoxia/habsMonWLE.html'>weekly water samples
@@ -56,6 +83,14 @@ export default class Data extends Component {
               <p align='left'>
                 <i><b>HABs Forecast Model</b></i>
               </p>
+
+              <Container className="images">
+                <Row style={{paddingTop: '20px'}}>
+                  <Col lg={12} sm={12} xs={12}>
+                    <img src={habtrackerImage} alt="habtrackerImage"/>
+                  </Col>
+                </Row>
+              </Container>
 
               <p align='left'>
                 The NOAA Great Lakes Environmental Research Laboratory <a href='https://www.glerl.noaa.gov/res/HABs_and_Hypoxia/habTracker.html'>
@@ -79,6 +114,14 @@ export default class Data extends Component {
               <p align='left'>
                 <i><b>Water Currents</b></i>
               </p>
+
+              <Container className="images">
+                <Row style={{paddingTop: '20px'}}>
+                  <Col lg={12} sm={12} xs={12}>
+                    <img src={glcfsImage} alt="glcfsImage"/>
+                  </Col>
+                </Row>
+              </Container>
 
               <p align='left'>
                 Water current information comes from the <a href='https://www.glerl.noaa.gov/res/glcfs/'>NOAA Great Lakes Coastal Forecasting System</a>.
