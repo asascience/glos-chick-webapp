@@ -39,12 +39,12 @@ export default class Home extends Component {
             <Container>
               <Row style={{paddingTop: '20px'}}>
                 <Col sm={3}/>
-                <Col sm={3}>
+                <Col xs={6} sm={3}>
                   <LinkContainer to="/signup">
                     <Button size="lg" block variant='warning'>SIGN UP</Button>
                   </LinkContainer>
                 </Col>
-                <Col sm={3}>
+                <Col xs={6} sm={3}>
                   <LinkContainer to="/login">
                     <Button size="lg" block variant='warning'>LOGIN</Button>
                   </LinkContainer>
