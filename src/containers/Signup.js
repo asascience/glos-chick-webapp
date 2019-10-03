@@ -91,7 +91,7 @@ export default class Signup extends Component {
         <FormGroup controlId="confirmationCode" bsSize="large">
           <FormLabel>Confirmation Code</FormLabel>
           <FormControl autoFocus type="tel" value={this.state.confirmationCode} onChange={this.handleChange} />
-          <FormText>Please check your email for the code.</FormText>
+          <FormText>Please check your phone for the code.</FormText>
         </FormGroup>
         <LoaderButton
           block
