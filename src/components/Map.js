@@ -120,13 +120,8 @@ class GLMap extends Component {
     }
 
     onPlayClick() {
-      var self = this;
-
-      this.animationLayerIds.forEach(function (source, ind) {
-        if (self._child.current.getMap().getSource(source).getVideo().paused) {
-          self._child.current.getMap().getSource(source).getVideo().play();
-        }
-      });
+      let source = this.state.forecastLayerActive;
+      this._child.current.getMap().getSource(source).getVideo().play();
 
       this.setState({
         animationState: 'play'
@@ -134,13 +129,8 @@ class GLMap extends Component {
     }
 
     onPauseClick() {
-      var self = this;
-
-      this.animationLayerIds.forEach(function (source, ind) {
-        if (!self._child.current.getMap().getSource(source).getVideo().paused) {
-          self._child.current.getMap().getSource(source).getVideo().pause();
-        }
-      });
+      let source = this.state.forecastLayerActive;
+      self._child.current.getMap().getSource(source).getVideo().pause();
 
       this.setState({
         animationState: 'pause'
@@ -400,8 +390,8 @@ class GLMap extends Component {
             {this.props.showForecast && (
               <div>
                 <ButtonGroup onClick={this.handleForecastLayerClick.bind(this)}>
-                  <Button active={this.state.forecastLayerActive === 'currents'} data-key='currents' variant="warning">Currents</Button>
-                  <Button active={this.state.forecastLayerActive === 'winds'} data-key='winds' variant="warning">Winds</Button>
+                  <Button active={this.state.forecastLayerActive === 'habs_currents'} data-key='habs_currents' variant="warning">Currents</Button>
+                  <Button active={this.state.forecastLayerActive === 'habs_winds'} data-key='habs_winds' variant="warning">Winds</Button>
                   <Button active={this.state.forecastLayerActive === 'none'} data-key='none' variant="warning">Off</Button>
                 </ButtonGroup>
               </div>
