@@ -1,0 +1,13 @@
+.logos {
+  padding-top: 12px;
+}
+
+.logos p {
+  width: 100%;
+}
+
+.logos img {
+  padding: 0 35px;
+  max-height: 50px;
+  max-width: 300px;
+}
