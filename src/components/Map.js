@@ -277,7 +277,7 @@ class GLMap extends Component {
           y: station.y
         }),
         onClick: station => {
-          if (this._streamingStations.indexOf(station.id) === -1) {
+          if (this._streamingStations.indexOf(station.object.id) === -1) {
             return null;
           }
           const {data} = this.state;
