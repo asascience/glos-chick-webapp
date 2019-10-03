@@ -17,7 +17,7 @@ class SelectableCard extends React.Component {
     let className = "selectable " + isSelected;
     return (
       <Card>
-        <div className={className} onClick={this.props.onClick}>
+        <div className={className} onClick={this.props.onClick} title="Click to add to graphs below">
           {this.props.children}
           <div className="check"><span className="checkmark">✔</span></div>
         </div>
