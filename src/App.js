@@ -75,16 +75,20 @@ class App extends Component {
         <Navbar bg="glos" expand="lg" fluid collapseOnSelect>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="mr-auto">
-              <LinkContainer to="/">
-                <Nav.Item bsPrefix='nav'>Home</Nav.Item>
-              </LinkContainer>
               {this.state.isAuthenticated ? (
-                <LinkContainer to="/alerts">
-                  <Nav.Item bsPrefix='nav'>&nbsp;|&nbsp;Alerts</Nav.Item>
-                </LinkContainer>
-              ) : (null)}
-            </Nav>
+                <Nav className="mr-auto">
+                  <LinkContainer to="/">
+                    <Nav.Item bsPrefix='nav'>Home</Nav.Item>
+                  </LinkContainer>
+                  <LinkContainer to="/alerts">
+                    <Nav.Item bsPrefix='nav'>&nbsp;|&nbsp;Alerts</Nav.Item>
+                  </LinkContainer>
+                </Nav>
+              ) : (
+                <Nav className="mr-auto">
+                </Nav>
+              )
+            }
             <Navbar.Brand href={'http://glos.us'}>
               <img
                   alt={'Glos Logo'}
