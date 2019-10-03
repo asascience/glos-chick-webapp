@@ -432,9 +432,9 @@ export default class StationDashboard extends Component {
 
     let params;
     if (habsData) {
-      params = ['Particulate_Microcystin_ugL_1', 'Turbidity_NTU', 'Turbidity_NTU'];
+      params = ['Dissolved_Microcystin_ugL_1', 'Turbidity_NTU'];
     } else {
-      params = ['BGAPCrfu', 'ysiturbntu', 'BGAPCrfu'];
+      params = ['BGAPCrfu', 'ysiturbntu'];
     }
 
     // Goodbye nearest station table :-( Sneha doesn't like you
@@ -457,7 +457,7 @@ export default class StationDashboard extends Component {
               let timeParam = 'timestamp' in stream[0] ? 'timestamp' : 'date';
               dataPoint = stream[0][param];
             }
-            return <Col xs={12} lg={4}><GaugePlot dataPoint={dataPoint} parameter={this.parameterMapping[param]}/></Col>
+            return <Col xs={12} lg={6}><GaugePlot dataPoint={dataPoint} parameter={this.parameterMapping[param]}/></Col>
           })}
         </Row>
       </div>
