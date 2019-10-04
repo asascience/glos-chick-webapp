@@ -44,6 +44,8 @@ class GLMap extends Component {
       this._streamingStations = ['leash', 'leavon', 'leelyria', 'lehuron', 'lelorain', 'lementor',
                                  'lemrbhd', 'leoc', 'leorgn', 'leverm', 'tolcrib', 'tollsps']
 
+      this.forecastFrameCount = 96;
+
       requestJson(GL_BUOYS_DATA_URL, (error, response) => {
         if (!error) {
           let filteredStations = response.filter(function(station){
@@ -147,6 +149,15 @@ class GLMap extends Component {
       this.setState({
         animationState: 'pause'
       });
+    }
+
+    getPath(type) {
+      const {currentImage} = this.state;
+      let prependZero = (number) => number <= 9 ? '0' + number : number;
+      // Type is a string (currents or winds)
+      // let url = '/images/' + type + '_' + prependZero(currentImage) + '.png';
+      let url = 'https://s3.us-east-2.amazonaws.com/ottews.glos.us/images/' + type + '_' + prependZero(currentImage) + '.png';
+      return url;
     }
 
     renderMap() {
@@ -320,8 +331,8 @@ class GLMap extends Component {
             "tileSize": 256
           },
           "habs_currents": {
-            "type": "video",
-            "urls": ["/test.webm"],
+            "type": "image",
+            "url": this.getPath('currents'),
             "coordinates": [
               [-83.67187500000001, 43.06888777416961],
               [-78.75000000000001, 43.06888777416961],
@@ -330,8 +341,8 @@ class GLMap extends Component {
             ]
           },
           "habs_winds": {
-            "type": "video",
-            "urls": ["/test.webm"],
+            "type": "image",
+            "url": this.getPath('winds'),
             "coordinates": [
               [-83.67187500000001, 43.06888777416961],
               [-78.75000000000001, 43.06888777416961],
@@ -414,7 +425,7 @@ class GLMap extends Component {
                 </ButtonGroup>
               </div>
             )}
-            {this.props.showForecast && this.state.forecastLayerActive !== 'none' && (
+            {this.props.showForecast && this.state.forecastLayerActive !== 'none' && false && (
               <div>
                 <ButtonGroup>
                   <Button active={this.state.animationState === 'play'} variant="warning"><FontAwesomeIcon data-key='play' onClick={this.onPlayClick.bind(this)} icon='play-circle'/></Button>
