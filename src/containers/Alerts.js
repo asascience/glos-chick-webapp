@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { Link } from 'react-router-bootstrap';
 import moment from 'moment'
 import Badge from 'react-bootstrap/Badge'
 import Alert from 'react-bootstrap/Alert'
@@ -200,6 +201,13 @@ export default class StationDashboard extends Component {
     })
   }
 
+  _onClickExternalLink() {
+    let route = '/' + this.state.station;
+    this.props.history.push({
+      pathname: route
+    })
+  }
+
   renderLander() {
     return (
       <div className="station-lander">
@@ -250,10 +258,14 @@ export default class StationDashboard extends Component {
           } else {
             dataPoint = stream[0][param];
           }
-          let alert = alerts.filter((obj, idx) => {
-            return obj.parameter === param;
-          });
-          let lastAlert = 'Last alert triggered ' + moment.unix(alert[0].lastMessage).format("ddd MMM DD YYYY hh:mm a");
+          let lastAlert = '';
+          if (alerts) {
+            let alert = alerts.filter((obj, idx) => {
+              return obj.parameter === param;
+            });
+            lastAlert = 'Last alert triggered ' + moment.unix(alert[0].lastMessage).format("ddd MMM DD YYYY hh:mm a");
+          }
+
           return (
             <Row>
               <Col sm={3} style={{paddingTop: '30px'}}><GaugePlot dataPoint={dataPoint} parameter={this.parameterMapping[param]}/></Col>
@@ -320,7 +332,10 @@ export default class StationDashboard extends Component {
         <h1 align='center'>Alerts</h1>
         <Row>
           <Col sm={6} className='text-center'>
-            <h2 align='left'>Station - {stationName}</h2>
+            <h2 align='left'>
+              Station - {stationName}
+              <FontAwesomeIcon onClick={this._onClickExternalLink.bind(this)} title='Go to Station Page' icon='external-link-alt' style={{'marginLeft': '7px'}} />
+            </h2>
             <h5 align='left'>Last Updated - {lastUpdate}</h5>
             <Button
               variant="warning"
