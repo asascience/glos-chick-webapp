@@ -40,6 +40,7 @@ export default class StationDashboard extends Component {
       tableData: [],
       selected: [FEATURED_PARAM],
       alert: false,
+      alerts: null,
       alertMessage: '',
       numAlerts: 0
     };
@@ -137,7 +138,6 @@ export default class StationDashboard extends Component {
 
       // Is this the alerts response?
       if ('phoneNumber' in jsonStreams[0]) {
-        console.log(jsonStreams)
         this._parseAlerts(jsonStreams);
         return null;
       }
@@ -244,12 +244,11 @@ export default class StationDashboard extends Component {
   }
 
   _renderPlots(habsData) {
-    const {stream, data, station} = this.state;
+    const {stream, data, station, alerts} = this.state;
     if ( (stream.length === 0 || !data) && !habsData) {
       return null;
     }
 
-    // Replace with selected
     const colors = ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1"];
     return (
       <div>
@@ -262,10 +261,14 @@ export default class StationDashboard extends Component {
             let timeParam = 'timestamp' in stream[0] ? 'timestamp' : 'date';
             dataPoint = stream[0][param];
           }
+          let alert = alerts.filter((obj, idx) => {
+            return obj.parameter === param;
+          });
+          let lastAlert = 'Last alert triggered ' + moment.unix(alert[0].lastMessage).format("ddd MMM DD YYYY hh:mm a");
           return (
             <Row>
               <Col sm={3} style={{paddingTop: '30px'}}><GaugePlot dataPoint={dataPoint} parameter={this.parameterMapping[param]}/></Col>
-              <Col sm={9}><TimeSeriesPlot key={param} stream={stream} parameters={[param]} parameterMapping={this.parameterMapping} color={colors[idx % colors.length]}/></Col>
+              <Col sm={9}><TimeSeriesPlot subtitle={lastAlert} key={param} stream={stream} parameters={[param]} parameterMapping={this.parameterMapping} color={colors[idx % colors.length]}/></Col>
             </Row>
           )
         })}

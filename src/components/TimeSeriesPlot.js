@@ -11,6 +11,7 @@ class TimeSeriesPlot extends React.Component {
     let stream = this.props.stream;
     let parameters = this.props.parameters;
     let color = this.props.color;
+    let subtitle = this.props.subtitle;
     let series = [];
     let prettyName = this.props.parameterMapping[parameters[0]];
     let units = '(' + prettyName.split('(')[1];
@@ -63,6 +64,9 @@ class TimeSeriesPlot extends React.Component {
       },
       title: {
         text: prettyName
+      },
+      subtitle: {
+        text: subtitle
       },
       legend: {
         enabled: false
