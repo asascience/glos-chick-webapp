@@ -77,7 +77,7 @@ class GaugePlot extends React.Component {
             if (dataPoint === 'bdl') {
               return 'bdl';
             }
-            return value >= maxThreshold ? '>' + parseFloat(dataPoint).toFixed(2) : parseFloat(dataPoint).toFixed(2);
+            return value >= maxThreshold ? parseFloat(dataPoint).toFixed(2) : parseFloat(dataPoint).toFixed(2);
           }
         }
       }]

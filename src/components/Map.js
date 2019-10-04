@@ -444,7 +444,7 @@ class GLMap extends Component {
             Real time stations
             <img src={inactiveStationMarker}/>
             Not Streaming
-            <span class="dot"></span>
+            <span className="dot"></span>
             Field Samples
           </div>
         </div>

@@ -35,7 +35,7 @@ export default class StationDashboard extends Component {
       data: null,
       habsData: null,
       stream: [],
-      station: 'tolcrib',
+      station: 'tollsps',
       tableColumns: [],
       tableData: [],
       selected: [FEATURED_PARAM],
@@ -309,7 +309,7 @@ export default class StationDashboard extends Component {
 
   renderDashboard() {
     const {stream, station} = this.state;
-    let thisStation = 'tolcrib';
+    let thisStation = 'tollsps';
     if (station !== thisStation) {
       this._fetchStream();
       this.setState({
