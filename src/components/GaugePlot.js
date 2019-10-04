@@ -1,6 +1,5 @@
 import gaugePlotDefaults from '../config/gaugePlotDefaults';
 import React from 'react'
-import moment from 'moment'
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import HighchartsMore from 'highcharts-more'
@@ -10,7 +9,6 @@ HighchartsMore(Highcharts)
 class GaugePlot extends React.Component {
   render () {
     let prettyName = this.props.parameter;
-    let timestamp = this.props.timestamp;
     let dataPoint = this.props.dataPoint;
     let value = dataPoint === 'bdl' ? 0 : parseFloat(parseFloat(dataPoint).toFixed(2));
     let backgroundColor = '#54C6DF';

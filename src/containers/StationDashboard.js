@@ -104,7 +104,10 @@ export default class StationDashboard extends Component {
     if (!data) {
       requestJson(DATA_URL, (error, response) => {
         if (!error) {
-          this.setState({data: response});
+          this.setState({
+            data: response,
+            selected: [FEATURED_PARAM]
+          });
         }
       });
     }
@@ -430,11 +433,16 @@ export default class StationDashboard extends Component {
       return null;
     }
 
-    let params;
+    let params = [];
     if (habsData) {
       params = ['Dissolved_Microcystin_ugL_1', 'Turbidity_NTU'];
     } else {
-      params = ['BGAPCrfu', 'ysiturbntu'];
+      let gaugeParams = ['BGAPCrfu', 'ysiturbntu', 'TurbidityNTU', 'Turbidity_NTU', 'ysibgarfu'];
+      params = gaugeParams.filter((item, idx) => {
+        return item in stream[0];
+      });
+
+
     }
 
     // Goodbye nearest station table :-( Sneha doesn't like you

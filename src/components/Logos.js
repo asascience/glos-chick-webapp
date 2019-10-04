@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import Col from 'react-bootstrap/Col'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row';
@@ -13,13 +13,7 @@ import limnoLogo from '../logos/LimnoTech_Logo.png';
 import './Logos.css';
 
 export default class Logos extends React.Component {
-
-  constructor(props) {
-    super(props);
-  }
-
   render = () => {
-    let logos = [];
     return (
       <Container className="logos">
         <Row style={{paddingTop: '20px'}}>

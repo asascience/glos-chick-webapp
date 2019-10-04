@@ -1,25 +1,17 @@
 import React, { Component } from 'react'
 import moment from 'moment'
-import BootstrapTable from 'react-bootstrap-table-next'
-import paginationFactory from 'react-bootstrap-table2-paginator';
 import Badge from 'react-bootstrap/Badge'
-import Table from 'react-bootstrap/Table'
 import Alert from 'react-bootstrap/Alert'
 import Button from 'react-bootstrap/Button'
 import Col from 'react-bootstrap/Col'
-import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import GaugePlot from '../components/GaugePlot'
-import { TimeSeriesPlot, TimeSeriesHabsPlot} from '../components/TimeSeriesPlot'
+import { TimeSeriesPlot } from '../components/TimeSeriesPlot'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import GLMap from '../components/Map'
-import Cards from '../components/Cards'
-import MovingStats from '../components/MovingStats'
+import {json as requestJson} from 'd3-request';
 import './StationDashboard.css';
 import './Alerts.css';
-import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
-import {json as requestJson} from 'd3-request';
-import { point, distance } from '@turf/turf';
 
 const DATA_URL = 'https://cors-anywhere.herokuapp.com/https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
 const HABS_DATA_URL = 'https://4431mqp2sj.execute-api.us-east-2.amazonaws.com/prod/grabsample';
@@ -106,7 +98,6 @@ export default class StationDashboard extends Component {
 
     const url = 'wss://gdjcxvsub6.execute-api.us-east-2.amazonaws.com/testing';
     const connection = new WebSocket(url);
-    const movingStats = new MovingStats();
 
     connection.onerror = e => {
       console.error('Stream Connection Error');
@@ -130,7 +121,6 @@ export default class StationDashboard extends Component {
       connection.send(alertMessage);
     }
     connection.onmessage = e => {
-      let self = this;
       let jsonStreams = JSON.parse(e.data);
       if (!Array.isArray(jsonStreams)) {
         return;
@@ -244,7 +234,7 @@ export default class StationDashboard extends Component {
   }
 
   _renderPlots(habsData) {
-    const {stream, data, station, alerts} = this.state;
+    const {stream, data, alerts} = this.state;
     if ( (stream.length === 0 || !data) && !habsData) {
       return null;
     }
@@ -253,12 +243,11 @@ export default class StationDashboard extends Component {
     return (
       <div>
         {this.state.selected.map((param, idx) => {
-          let dataPoint, timestamp;
+          let dataPoint;
           if (habsData) {
             let vals = habsData.properties.data[param].values;
             dataPoint = vals[vals.length - 1];
           } else {
-            let timeParam = 'timestamp' in stream[0] ? 'timestamp' : 'date';
             dataPoint = stream[0][param];
           }
           let alert = alerts.filter((obj, idx) => {
