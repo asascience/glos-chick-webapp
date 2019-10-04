@@ -40,7 +40,8 @@ export default class StationDashboard extends Component {
       tableData: [],
       selected: [FEATURED_PARAM],
       alert: false,
-      alertMessage: ''
+      alertMessage: '',
+      numAlerts: 0
     };
 
     this.blacklistParams = ['timestamp', 'date', 'station', 'topic'];
@@ -124,13 +125,21 @@ export default class StationDashboard extends Component {
       console.log('Stream opened');
       const message = JSON.stringify({action: 'history'});
       connection.send(message);
+      const alertMessage = JSON.stringify({action: 'alerts', phoneNumber: '+15182653837'});
+      connection.send(alertMessage);
     }
     connection.onmessage = e => {
       let self = this;
       let jsonStreams = JSON.parse(e.data);
-
       if (!Array.isArray(jsonStreams)) {
         return;
+      }
+
+      // Is this the alerts response?
+      if ('phoneNumber' in jsonStreams[0]) {
+        console.log(jsonStreams)
+        this._parseAlerts(jsonStreams);
+        return null;
       }
 
       let thisStation = this.state.station;
@@ -175,6 +184,31 @@ export default class StationDashboard extends Component {
     }
     this.setState({ isLoading: false });
   }
+  /*
+    Parses the most recent alert messages
+
+    Expecting a list of objects
+
+    object:
+    id: "ae06e100-726d-48e9-a972-3d6c2f40d580"
+    lastMessage: 0
+    parameter: "pH"
+    phoneNumber: "+5555555555"
+    station: "tolcrib"
+    threshold: 8.5
+  */
+  _parseAlerts(response) {
+    let selected = response.filter((obj, idx) => {
+      return obj.lastMessage > 0;
+    }).map((obj, idx) => {return obj.parameter});
+    let numAlerts = selected.length;
+
+    this.setState({
+      numAlerts: numAlerts,
+      alerts: response,
+      selected: selected
+    })
+  }
 
   renderLander() {
     return (
@@ -184,6 +218,7 @@ export default class StationDashboard extends Component {
       </div>
     );
   }
+
   _renderAlert() {
     const {alert, alertMessage} = this.state;
     if (!alert) {
@@ -215,11 +250,10 @@ export default class StationDashboard extends Component {
     }
 
     // Replace with selected
-    let params = ['BGAPCrfu', 'ysiturbntu', 'BGAPCrfu'];
     const colors = ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1"];
     return (
       <div>
-        {params.map((param, idx) => {
+        {this.state.selected.map((param, idx) => {
           let dataPoint, timestamp;
           if (habsData) {
             let vals = habsData.properties.data[param].values;
@@ -230,7 +264,7 @@ export default class StationDashboard extends Component {
           }
           return (
             <Row>
-              <Col sm={3}><GaugePlot dataPoint={dataPoint} parameter={this.parameterMapping[param]}/></Col>
+              <Col sm={3} style={{paddingTop: '30px'}}><GaugePlot dataPoint={dataPoint} parameter={this.parameterMapping[param]}/></Col>
               <Col sm={9}><TimeSeriesPlot key={param} stream={stream} parameters={[param]} parameterMapping={this.parameterMapping} color={colors[idx % colors.length]}/></Col>
             </Row>
           )
@@ -303,7 +337,7 @@ export default class StationDashboard extends Component {
               className="mr-auto ml-2 ml-sm-3 ml-md-4 ml-md-5 rounded-circle btn-sq btn-xl"
               id="reset">
               <FontAwesomeIcon style={{height: "50px", width: "50px"}} icon='bell' />
-              <Badge variant="primary">3</Badge>
+              <Badge variant="primary">{this.state.numAlerts}</Badge>
             </Button>
           </Col>
           <Col sm={6}>

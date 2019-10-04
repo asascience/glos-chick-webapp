@@ -93,6 +93,7 @@ export default {
       ]
     }
   },
+
   'Blue Green Algae (rfu)': {
     dangerThreshold: 3,
     warningThreshold: 1,
@@ -187,12 +188,12 @@ export default {
       ]
     }
   },
-  'Particulate Microcystin': {
-    dangerThreshold: 1,
-    warningThreshold: 0.4,
+  'pH': {
+    dangerThreshold: 8.5,
+    warningThreshold: 8.0,
     yAxis: {
-      min: 0,
-      max: 2,
+      min: 5,
+      max: 10,
 
       minorTickInterval: 'auto',
       minorTickWidth: 1,
@@ -214,20 +215,20 @@ export default {
       },
       plotBands: [
         {
-          from: 0,
-          to: 0.3,
+          from: 5,
+          to: 8,
           thickness: 15,
           color: '#54C6DF' // blue
         },
         {
-          from: 0.3,
-          to: 1,
+          from: 8,
+          to: 8.5,
           thickness: 15,
           color: '#A3E3C3' // light green
         },
         {
-          from: 1,
-          to: 2,
+          from: 8.5,
+          to: 10,
           thickness: 15,
           color: '#049372' // dark green
         }
