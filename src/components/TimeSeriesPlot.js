@@ -14,7 +14,7 @@ class TimeSeriesPlot extends React.Component {
     let subtitle = this.props.subtitle;
     let series = [];
     let prettyName = this.props.parameterMapping[parameters[0]];
-    let units = '(' + prettyName.split('(')[1];
+    let units = prettyName.indexOf('(') > -1 ? '(' + prettyName.split('(')[1] : '';
     let timestamp = 'timestamp' in stream[0] ? 'timestamp' : 'date';
 
     parameters.map((param, idx) => {
@@ -139,13 +139,7 @@ class TimeSeriesHabsPlot extends React.Component {
         data: seriesData,
         color: color,
         zones: zones,
-        type: 'spline',
-        // dataLabels: {
-        //   formatter: function() {
-        //     return this.point.properties['woe-label'].split(',')[0];
-        //   }
-        // },
-
+        type: 'spline'
       });
     });
     const options = {
