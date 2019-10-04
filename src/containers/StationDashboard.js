@@ -637,7 +637,7 @@ export default class StationDashboard extends Component {
   }
 
   renderDashboard() {
-    const {stream, station} = this.state;
+    const {stream, station, data} = this.state;
     let thisStation = this.props.match.params.id;
     if (station !== thisStation) {
       this._fetchStream();
@@ -651,7 +651,13 @@ export default class StationDashboard extends Component {
         this.renderLander()
       )
     }
-    let stationName = this.state.station;
+    let stationName = data.filter((obj, idx) => {
+      return obj.id === thisStation;
+    }).map((obj, idx) => {
+      return obj.longName;
+    });
+    stationName = stationName[0];
+
     let lastUpdate = moment.unix(this.state.stream[0]['timestamp']).format("ddd MMM DD YYYY hh:mm a");
     let popoverContent = ('This is a real time in-water station. The sensors measure water quality and ' +
                           'conditions in real-time. Most track blue-green algae, turbidity, PH, dissolved ' +
