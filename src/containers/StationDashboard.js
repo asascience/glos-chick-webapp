@@ -729,6 +729,7 @@ export default class StationDashboard extends Component {
     return (
       <div className="home-container">
         {this._renderAlert()}
+        <h1 align='center'>Station View</h1>
         <Row>
           <Col lg={6}>
             <h2 align='left'>Station - {stationName}
