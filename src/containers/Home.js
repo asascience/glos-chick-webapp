@@ -78,6 +78,14 @@ export default class Home extends Component {
       <div className='home-container'>
         <h1 align='center'>Lake View</h1>
         <StationMap showForecast={true}/>
+        <Container>
+          <Col sm={12}>
+            <p>The winds and currents data on the map above is provided by the Great Lakes Coastal Forecast system.</p>
+            <p>The lines or “feathers” on the wind map indicate from which direction the wind is blowing. A single, short feather represents 5 knots (5.75 mph), and a single, long feather represents 10 knots (11.5mph). Add the feathers to determine total windspeed.</p>
+            <p>The harmful algal bloom forecast data is provided by the Experimental Lake Erie HAB Tracker. Cyanobacterial chlorophyll is an indicator for the presence of HABs.</p>
+            <p>*Please note that data visualizations for the nowcasts provided above are under development. Improvements to graphics and additional forecast data coming soon.</p>
+          </Col>
+        </Container>
       </div>
     );
   }

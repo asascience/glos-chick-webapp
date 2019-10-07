@@ -440,8 +440,6 @@ export default class StationDashboard extends Component {
       params = gaugeParams.filter((item, idx) => {
         return item in stream[0];
       });
-
-
     }
 
     // Goodbye nearest station table :-( Sneha doesn't like you
