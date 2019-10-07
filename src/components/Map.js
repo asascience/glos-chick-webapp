@@ -434,7 +434,7 @@ class GLMap extends Component {
               </div>
             )}
             <div>
-              {this.props.showForecast && this._renderLegend()}
+              {this.props.showForecast && this.state.forecastLayerActive !== 'none' && this._renderLegend()}
 
             </div>
           </div>
