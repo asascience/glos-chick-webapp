@@ -76,6 +76,7 @@ export default class Home extends Component {
   renderMap() {
     return (
       <div className='home-container'>
+        <h1 align='center'>Lake View</h1>
         <StationMap showForecast={true}/>
       </div>
     );

@@ -132,12 +132,10 @@ export default class StationDashboard extends Component {
         this._parseAlerts(jsonStreams);
         return null;
       }
-
       let thisStation = this.state.station;
       let filteredStream = jsonStreams.filter(function(item){
         return item.station === thisStation;
       });
-
       if (filteredStream.length === 0) return null;
       // Check the stream for the correct station
       let station = filteredStream[0].station;
