@@ -420,7 +420,6 @@ export default class StationDashboard extends Component {
 
   _renderMap() {
     let thisStation = this.props.match.params.id;
-    console.log(thisStation)
     return (
       <div className='dashboard-map-container'><GLMap station={thisStation} showForecast={false}/></div>
     )
