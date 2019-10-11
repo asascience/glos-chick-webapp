@@ -133,7 +133,7 @@ export default class Signup extends Component {
           <FormGroup controlId="phoneNumber" bsSize="small">
             <FormLabel>Phone Number</FormLabel>
             <FormControl size="sm" value={this.state.phoneNumber} onChange={this.handleChange} />
-            <FormText>Example US based number: +14325551212</FormText>
+            <FormText>US based mobile number. Example: +14325551212</FormText>
           </FormGroup>
           <FormGroup controlId="password" bsSize="small">
             <FormLabel>Password</FormLabel>
