@@ -3,7 +3,12 @@ import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import moment from 'moment'
 
-
+const categoryMapping = {
+  ND: {text: '0 >= value <= LLOD', color: '#808080'},
+  B: {text: 'LLOD < value < LLOQ', color: '#add8e6'},
+  A: {text: 'value >= LLOQ', color: '#ffa500'},
+  N: {text: 'value', color: '#0000ff'}
+};
 
 class TimeSeriesPlot extends React.Component {
   render () {
@@ -99,6 +104,8 @@ class TimeSeriesHabsPlot extends React.Component {
     let series = [];
     let prettyName = this.props.parameterMapping[parameters[0]];
     let units = data.units;
+
+    debugger;
 
     parameters.map((param, idx) => {
       let seriesData = [];

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { StaticMap, InteractiveMap, ReactMapGL} from 'react-map-gl';
+import _Get from 'lodash.get';
 import { Table } from 'react-bootstrap';
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import Button from 'react-bootstrap/Button'
@@ -12,6 +13,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import {fromJS} from 'immutable';
 import stationMarker from './pin-s+377EB8.png'
 import inactiveStationMarker from './pin-s+DCDCDC.png'
+import {espDataUrl} from "../config/dataEndpoints";
 // import MAP_STYLE from './map-style.json';
 
 // const defaultMapStyle = fromJS(MAP_STYLE);
@@ -19,6 +21,8 @@ import inactiveStationMarker from './pin-s+DCDCDC.png'
 const GL_BUOYS_DATA_URL = 'https://cors-anywhere.herokuapp.com/https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
 const HABS_DATA_URL = 'https://4431mqp2sj.execute-api.us-east-2.amazonaws.com/prod/grabsample';
 
+export const ESP_DATA_TYPE = 'esp';
+export const HABS_DATA_TYPE = 'habs';
 
 class GLMap extends Component {
     constructor(props) {
@@ -30,6 +34,7 @@ class GLMap extends Component {
         hoveredObject: null,
         data: null,  // Buoy data
         habsData: null,  // Weekly habs data
+        espData: null, // ESP data
         station: null,
         stream: [],
         forecastLayerActive: 'none',
@@ -54,14 +59,30 @@ class GLMap extends Component {
           this.setState({data: filteredStations});
         }
       });
+
       requestJson(HABS_DATA_URL, (error, response) => {
         if (!error) {
           this.setState({habsData: response});
         }
       });
+
+      requestJson(espDataUrl, (error, response) => {
+        if (!error) {
+          response.features = [response.features[0]];
+
+          response.features[0].properties.metadata.id = 'ESP1';
+          response.features[0].geometry.coordinates = [-79.5264, 42.6944];
+          response.features.forEach(feature => feature.properties.metadata.type = ESP_DATA_TYPE);
+          this.setState({espData: response});
+        }
+      });
     }
 
     async componentDidMount() {
+
+      // TODO: this.props.isAuthenticated is always undefined
+      // data fetch should be performed here not in constructor
+
       if (!this.props.isAuthenticated) {
         return;
       }
@@ -81,16 +102,19 @@ class GLMap extends Component {
       if (!hoveredObject) {
           return null;
       }
+
       if ('geometry' in hoveredObject) {
+        const isEspType =_Get(hoveredObject, 'properties.metadata.type') === ESP_DATA_TYPE;
+
         const site = hoveredObject.properties.metadata.id;
         const params = Object.keys(hoveredObject.properties.data);
         const times = hoveredObject.properties.data[params[0]].times;
         const lastUpdate = times[times.length - 1];
         return (
           <div className="marker-tooltip" style={{left: x, top: y}}>
-            <div><b>{`${site.replace("WE", "Western Erie ")}`}</b></div>
-            <div>NOAA GLERL</div>
-            <div>Weekly Monitoring Station</div>
+            <div><b>{isEspType ? site : `${site.replace("WE", "Western Erie ")}`}</b></div>
+            {!isEspType && <div>NOAA GLERL</div>}
+            <div>{isEspType ? 'ESP Station': 'Weekly Monitoring Station'}</div>
             <div>Last Updated at {lastUpdate}</div>
           </div>
         );
@@ -161,8 +185,8 @@ class GLMap extends Component {
     }
 
     renderMap() {
-      const {data, habsData, stream} = this.state;
-      if (!data || !habsData) {
+      const {data, habsData, espData, stream} = this.state;
+      if (!data || !habsData || !espData)  {
         return null;
       }
 
@@ -172,15 +196,19 @@ class GLMap extends Component {
       let zoom = 7;
       if ('station' in this.props) {
         let stationObj = data.find(x => x.id === this.props.station);
-        let weeklyMonitoringObj = habsData.features.find(x => x.properties.metadata.id === this.props.station)
+        let weeklyMonitoringObj = habsData.features.find(x => x.properties.metadata.id === this.props.station);
+        let espStationObj = espData.features.find(x => x.properties.metadata.id === this.props.station);
+
+        zoom = 9;
         if (stationObj) {
-          zoom = 9;
           latitude = stationObj.lat;
           longitude = stationObj.lon;
         } else if (weeklyMonitoringObj) {
-          zoom = 9;
           latitude = weeklyMonitoringObj.geometry.coordinates[1];
           longitude = weeklyMonitoringObj.geometry.coordinates[0];
+        } else if (espStationObj) {
+          latitude = espStationObj.geometry.coordinates[1];
+          longitude = espStationObj.geometry.coordinates[0];
         }
       }
       // Viewport settings
@@ -259,6 +287,72 @@ class GLMap extends Component {
         getAlignmentBaseline: 'top',
         fontFamily: 'Arial',
       });
+
+      // new
+
+      const espLayer = new GeoJsonLayer({
+        id: 'station' in this.props ? this.props.station + '_geojson' : 'geojson',
+        data: espData,
+        opacity: 1,
+        filled: true,
+        stroked: false,
+        radiusScale: 1,
+        pointRadiusScale: 1,
+        pointRadiusMinPixels: 10,
+        pointRadiusMaxPixels: 100,
+        getLineWidth: 2,
+        lineWidthScale: 1,
+        getLineColor: [1,1,1],
+        getFillColor: d => {
+          if ('station' in this.props && d.properties.metadata.id === this.props.station) {
+            return [184, 75, 3];
+          }
+          return [0, 204, 153];
+        },
+        lineWidthMinPixelslineWidthMinPixels: 0,
+        getRadius: 100,
+        pickable: true,
+        onHover: station => {
+          this.setState({
+            hoveredObject: station.object,
+            x: station.x,
+            y: station.y
+          });
+        },
+        onClick: station => {
+          // Redirect to station dashboard page
+          let route = '/' + station.object.properties.metadata.id;
+          this.props.history.push({
+            pathname: route
+          })
+        },
+      });
+
+      let espLabels = [];
+      espData.features.map((obj, idx) => {
+        return espLabels.push({
+          lat: obj.geometry.coordinates[1],
+          lon: obj.geometry.coordinates[0],
+          id: obj.properties.metadata.id
+        });
+      });
+      const espLabelLayer = new TextLayer({
+        id: 'esp-text-layer',
+        data: espLabels,
+        pickable: true,
+        opacity: 1,
+        getPosition: d => [d.lon, d.lat],
+        getText: d => {
+          return d.id
+        },
+        getSize: 20,
+        getAngle: 0,
+        getTextAnchor: 'start',
+        getAlignmentBaseline: 'top',
+        fontFamily: 'Arial',
+      });
+
+      // end new
 
       const buoyLayer = new IconLayer({
         id: 'icon-layer',
@@ -408,7 +502,8 @@ class GLMap extends Component {
       let token = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
       // let layers = this.props.showForecast ? [] : [buoyLayer, buoyLabelLayer, weeklyMonitoringLayer, weeklyMonitoringLabelLayer];
-      let layers = [buoyLayer, buoyLabelLayer, weeklyMonitoringLayer, weeklyMonitoringLabelLayer];
+      let layers = [buoyLayer, buoyLabelLayer, weeklyMonitoringLayer, weeklyMonitoringLabelLayer,
+        espLayer, espLabelLayer];
       return (
         <div className="map-container">
           <div className="map">

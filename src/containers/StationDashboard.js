@@ -13,7 +13,7 @@ import GaugePlot from '../components/GaugePlot'
 import InfoPopover from '../components/InfoPopover'
 import { TimeSeriesPlot, TimeSeriesHabsPlot} from '../components/TimeSeriesPlot'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import GLMap from '../components/Map'
+import GLMap, {ESP_DATA_TYPE, HABS_DATA_TYPE} from '../components/Map'
 import Cards from '../components/Cards'
 import MovingStats from '../components/MovingStats'
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
@@ -21,6 +21,8 @@ import {json as requestJson} from 'd3-request';
 import { point, distance } from '@turf/turf';
 import './StationDashboard.css';
 import '../components/Cards.scss';
+import {espDataUrl} from "../config/dataEndpoints";
+import {espStations,habsStations} from "../config/stations";
 
 const DATA_URL = 'https://cors-anywhere.herokuapp.com/https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
 const HABS_DATA_URL = 'https://4431mqp2sj.execute-api.us-east-2.amazonaws.com/prod/grabsample';
@@ -35,6 +37,8 @@ export default class StationDashboard extends Component {
       data: null,
       habsData: null,
       loadingHabs: false,
+      espData: null,
+      loadingEsp: false,
       stream: [],
       station: '',
       tableColumns: [],
@@ -82,6 +86,32 @@ export default class StationDashboard extends Component {
       Secchi_Depth_m: 'Secchi Depth',
       DO_mgL_1: 'Dissolved Oxygen',
     };
+  }
+
+  _fetchEsp() {
+    // TODO: remove this (only for testing)
+    const buildFakeData = response => {
+      response.features = [response.features[0]];
+      response.features[0].properties.metadata.id = 'ESP1';
+      response.features[0].geometry.coordinates = [-79.5264, 42.6944];
+      response.features.forEach(feature => feature.properties.metadata.type = ESP_DATA_TYPE);
+
+      debugger
+      return response
+    };
+
+    requestJson(espDataUrl, (error, response) => {
+      if (!error) {
+        this.setState({
+          loadingEsp: false,
+          espData: buildFakeData(response),
+          selected: ['Dissolved_Microcystin_ugL_1']
+        });
+      }
+    });
+    this.setState({
+      loadingEsp: true
+    })
   }
 
   _fetchHabs() {
@@ -490,7 +520,15 @@ export default class StationDashboard extends Component {
     return (
       <div>
         {selected.map((param, idx) => {
-          return param in this.parameterMapping ? <TimeSeriesHabsPlot key={param} data={data.properties.data[param]} depth={this.state.depth} parameters={[param]} parameterMapping={this.parameterMapping} color={colors[idx % colors.length]}/> : null
+          return param in this.parameterMapping ?
+              <TimeSeriesHabsPlot
+                  key={param}
+                  data={data.properties.data[param]}
+                  depth={this.state.depth}
+                  parameters={[param]}
+                  parameterMapping={this.parameterMapping}
+                  color={colors[idx % colors.length]}/> :
+              null
         })}
       </div>
     );
@@ -696,18 +734,40 @@ export default class StationDashboard extends Component {
     )
   }
 
-  renderHabsDashboard() {
-    const {habsData, loadingHabs} = this.state;
-    if (!habsData  && !loadingHabs){
-      this._fetchHabs();
-    }
-    if (!habsData) {
-      return (
-        this.renderLander()
-      )
-    }
+  renderNonStreamingDashboard(dataType) {
+
     let thisStation = this.props.match.params.id;
-    let data = habsData.features.filter(item => {
+    let data;
+    switch (dataType) {
+      case HABS_DATA_TYPE:
+        let {habsData, loadingHabs} = this.state;
+        data = habsData;
+        if (!habsData  && !loadingHabs){
+          this._fetchHabs();
+        }
+        if (!habsData) {
+          return (
+            this.renderLander()
+          )
+        }
+        break;
+      case ESP_DATA_TYPE:
+        const {espData, loadingEsp} = this.state;
+        data = espData;
+        if (!espData  && !loadingEsp){
+          this._fetchEsp();
+        }
+        if (!espData) {
+          return (
+              this.renderLander()
+          )
+        }
+        break;
+      default:
+        // code here
+    }
+
+    data = data.features.filter(item => {
       return thisStation === item.properties.metadata.id;
     });
 
@@ -763,11 +823,16 @@ export default class StationDashboard extends Component {
   }
 
   render() {
-    let habsStations = ['WE2', 'WE4', 'WE6', 'WE8', 'WE9', 'WE12', 'WE13', 'WE16'];
     let thisStation = this.props.match.params.id;
+
     if (habsStations.indexOf(thisStation) > -1) {
-      return <div className="Home">{this.renderHabsDashboard()}</div>;
+      return <div className="Home">{this.renderNonStreamingDashboard(HABS_DATA_TYPE)}</div>;
     }
+
+    if (espStations.indexOf(thisStation) > -1) {
+      return <div className="Home">{this.renderNonStreamingDashboard(ESP_DATA_TYPE)}</div>;
+    }
+
     return <div className="Home">{this.renderDashboard()}</div>;
   }
 }
