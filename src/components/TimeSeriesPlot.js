@@ -1,7 +1,9 @@
-import React from 'react'
-import Highcharts from 'highcharts'
-import HighchartsReact from 'highcharts-react-official'
-import moment from 'moment'
+import React from 'react';
+import Highcharts from 'highcharts';
+import HighchartsReact from 'highcharts-react-official';
+import moment from 'moment';
+import _Set from 'lodash.set';
+import {ESP_TIMESERIES_CHART_OPTIONS} from "../config/chartConfig";
 import '../index.css';
 
 const categoryMapping = {
@@ -197,17 +199,17 @@ class TimeSeriesHabsPlot extends React.Component {
   }
 }
 
-class TimeSeriesEspPlot extends React.Component {
+function TimeSeriesEspPlot(props) {
 
-  constructor() {
-    super();
+  const {data, parameters, depth, color, parameterMapping} = props;
 
-    this.createLegend = this.createLegend.bind(this);
-  }
+  const [showCustomLegend, setShowCustomLegend] = React.useState(false);
 
-  createLegend(chart) {
+  let prettyName = parameterMapping[parameters[0]];
+  let units = data.units;
+
+  const createLegend = () => {
     let classifications = ['ND', 'B', 'A', 'N'];
-
     return classifications.map(classification => {
       return (
           <div className="custom-legend-item">
@@ -219,24 +221,16 @@ class TimeSeriesEspPlot extends React.Component {
               {categoryMapping[classification].text}
             </span>
           </div>
-        )
+      )
     });
-  }
+  };
 
-  render () {
-    let self = this;
-    let data = this.props.data;
-    let parameters = this.props.parameters;
-    let depth = this.props.depth;
-    let color = this.props.color;
+  const buildConfig = (parameters,data) => {
     let series = [];
-    let prettyName = this.props.parameterMapping[parameters[0]];
-    let units = data.units;
 
-    parameters.map((param, idx) => {
+    parameters.forEach((param, idx) => {
       let seriesData = [];
-      let zones = [];
-      for (var i = 0; i <= data.times.length - 1; i++) {
+      for (let i = 0; i <= data.times.length - 1; i++) {
         let value = data.values[i];
         let category = data.category[i];
         if (Array.isArray(value)) {
@@ -244,6 +238,7 @@ class TimeSeriesEspPlot extends React.Component {
           value = value[ind];
           category = category[ind];
         }
+
         seriesData.push({
           x: moment(data.times[i]).valueOf(),
           y: category !== 'NA' ? parseFloat(value) : null,
@@ -256,65 +251,34 @@ class TimeSeriesEspPlot extends React.Component {
         });
       }
 
-      return series.push({
-        name: self.props.parameterMapping[param],
+      series.push({
+        name: parameterMapping[param],
         data: seriesData,
         color: color,
-        zones: zones,
         type: 'spline'
       });
     });
-    const options = {
-      chart: {
-        type: 'spline',
-        height: 250,
-      },
-      time: {
-        useUTC: false
-      },
-      xAxis: {
-        type: 'datetime'
-      },
-      yAxis: {
-        title: {text: units}
-      },
-      title: {
-        text: prettyName
-      },
-      legend: {
-        enabled: true
-      },
-      credits: {
-        enabled: false
-      },
-      plotOptions: {
-        spline: {
-          keys: ['x', 'y', 'marker'],
-        }
-      },
-      tooltip: {
-        pointFormatter: function() {
-          return [
-            '<b>' + this.fullname +'</b>' + '<br/>',
-            (this.y + ' ' + this.uom) +
-            ' ' + (this.depth !== null ? '@ ' + this.depth : ''),
-            this.classification ? '<br/>' + this.classification : ''
-          ].join('');
-        }
-      },
-      series: series
-    };
-    return (
-        <>
-          <HighchartsReact
-              highcharts={Highcharts}
-              options={options}
-              callback={this.createLegend}
-          />
-          <div style={{display: 'flex', justifyContent: 'center'}}>{this.createLegend()}</div>
-        </>
-    )
-  }
+
+    let options = {...ESP_TIMESERIES_CHART_OPTIONS};
+
+    _Set(options, 'title.text', prettyName);
+    _Set(options, 'yAxis.title.text', units);
+    _Set(options, 'series', series);
+
+    return options
+  };
+
+  return (
+      <>
+        <HighchartsReact
+            highcharts={Highcharts}
+            options={buildConfig(parameters,data)}
+            callback={() => {setShowCustomLegend(true)}}
+        />
+        {showCustomLegend && <div style={{display: 'flex', justifyContent: 'center'}}>{createLegend()}</div>}
+      </>
+  )
 }
+
 
 export {TimeSeriesPlot, TimeSeriesHabsPlot, TimeSeriesEspPlot}
