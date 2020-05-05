@@ -11,7 +11,7 @@ import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import GaugePlot from '../components/GaugePlot'
 import InfoPopover from '../components/InfoPopover'
-import { TimeSeriesPlot, TimeSeriesHabsPlot} from '../components/TimeSeriesPlot'
+import {TimeSeriesPlot, TimeSeriesHabsPlot, TimeSeriesEspPlot} from '../components/TimeSeriesPlot'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import GLMap, {ESP_DATA_TYPE, HABS_DATA_TYPE} from '../components/Map'
 import Cards from '../components/Cards'
@@ -91,12 +91,35 @@ export default class StationDashboard extends Component {
   _fetchEsp() {
     // TODO: remove this (only for testing)
     const buildFakeData = response => {
+
+      const categories = ['NA','ND','B','A','N'];
+
+      function getRandomInt(max) {
+        return Math.floor(Math.random() * Math.floor(max));
+      }
+
       response.features = [response.features[0]];
       response.features[0].properties.metadata.id = 'ESP1';
       response.features[0].geometry.coordinates = [-79.5264, 42.6944];
       response.features.forEach(feature => feature.properties.metadata.type = ESP_DATA_TYPE);
 
-      debugger
+      let firstParam = Object.keys(response.features[0].properties.data)[0];
+
+      for (let param of Object.keys(response.features[0].properties.data)) {
+        let randCategoryArr = response.features[0].properties.data[param]['times'].map(time => {
+
+          let numDepths = response.features[0].properties.data[param]['depth'] ?
+              response.features[0].properties.data[param]['depth']['values'].length : 0;
+
+          if (numDepths) {
+            return new Array(numDepths).fill(0).map((_,indx) => categories[getRandomInt(5)])
+          } else {
+            return categories[getRandomInt(5)];
+          }
+        });
+        response.features[0].properties.data[param]['category'] = randCategoryArr;
+      }
+
       return response
     };
 
@@ -449,6 +472,7 @@ export default class StationDashboard extends Component {
   }
 
   _renderMap() {
+    // TODO: need to show UI indication that map is loading (logic belongs in Map component)
     let thisStation = this.props.match.params.id;
     return (
       <div className='dashboard-map-container'><GLMap station={thisStation} showForecast={false}/></div>
@@ -514,14 +538,17 @@ export default class StationDashboard extends Component {
     );
   }
 
-  _renderHabsTimeSeriesPlot(data) {
+  _renderNonStreamingTimeSeriesPlot(data, dType) {
     const {selected} = this.state;
     const colors = ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1"];
+
+    let TimeSeriesComp = dType === HABS_DATA_TYPE ? TimeSeriesHabsPlot : TimeSeriesEspPlot;
+
     return (
       <div>
         {selected.map((param, idx) => {
           return param in this.parameterMapping ?
-              <TimeSeriesHabsPlot
+              <TimeSeriesComp
                   key={param}
                   data={data.properties.data[param]}
                   depth={this.state.depth}
@@ -813,7 +840,7 @@ export default class StationDashboard extends Component {
               {this._renderCards(data)}
             </div>
             <div id="plot" style={{marginBottom: '100px'}}>
-              {this._renderHabsTimeSeriesPlot(data)}
+              {this._renderNonStreamingTimeSeriesPlot(data, dataType)}
             </div>
           </Col>
 
