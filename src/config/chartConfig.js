@@ -16,7 +16,7 @@ const ESP_TIMESERIES_CHART_OPTIONS = {
         text: null
     },
     legend: {
-        enabled: true
+        enabled: false
     },
     credits: {
         enabled: false

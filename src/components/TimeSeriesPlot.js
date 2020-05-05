@@ -3,6 +3,7 @@ import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import moment from 'moment';
 import _Set from 'lodash.set';
+import _CloneDeep from 'lodash.clonedeep';
 import {ESP_TIMESERIES_CHART_OPTIONS} from "../config/chartConfig";
 import '../index.css';
 
@@ -259,7 +260,7 @@ function TimeSeriesEspPlot(props) {
       });
     });
 
-    let options = {...ESP_TIMESERIES_CHART_OPTIONS};
+    let options = _CloneDeep(ESP_TIMESERIES_CHART_OPTIONS);
 
     _Set(options, 'title.text', prettyName);
     _Set(options, 'yAxis.title.text', units);
