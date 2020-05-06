@@ -18,7 +18,7 @@ import {espDataUrl} from "../config/dataEndpoints";
 
 // const defaultMapStyle = fromJS(MAP_STYLE);
 
-const GL_BUOYS_DATA_URL = 'https://cors-anywhere.herokuapp.com/https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
+const GL_BUOYS_DATA_URL = 'https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
 const HABS_DATA_URL = 'https://4431mqp2sj.execute-api.us-east-2.amazonaws.com/prod/grabsample';
 
 export const ESP_DATA_TYPE = 'esp';
