@@ -842,9 +842,10 @@ export default class StationDashboard extends Component {
             <div id="plot" style={{marginBottom: '100px'}}>
               {this._renderNonStreamingTimeSeriesPlot(data, dataType)}
             </div>
+            {espStations.indexOf(thisStation) > -1 && <p><span>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Autem beatae debitis delectus doloribus harum laborum nam nostrum officiis, qui sint sunt voluptas! Architecto fugiat incidunt minus praesentium quo quos reiciendis!</span><span>Ad architecto distinctio dolorem et eum ex fugiat illo ipsum iste magnam, placeat possimus quasi sit sunt voluptatum. Adipisci aliquam iure minus modi nemo nesciunt quidem sequi similique vero voluptatibus?</span><span>Aspernatur nisi numquam officia omnis optio porro sed totam veritatis? Adipisci architecto dicta eveniet expedita laudantium nam neque nihil quia quis, repudiandae, sapiente sint soluta sunt suscipit ullam unde voluptate.</span><span>Aut consequatur deserunt dolore, doloremque earum error et fugiat id impedit iusto minima necessitatibus nisi nostrum numquam quasi qui quibusdam rem repellat sed sint suscipit totam velit veniam. Commodi, in?</span><span>Assumenda delectus deserunt dicta dolorem doloremque eaque eos esse eum facilis fugiat id iste iusto, libero nam natus officiis omnis placeat quaerat, quam quos repellendus sint soluta tempora vitae voluptatem?</span></p>}
           </Col>
-
         </Row>
+
       </div>
     )
   }
@@ -857,7 +858,11 @@ export default class StationDashboard extends Component {
     }
 
     if (espStations.indexOf(thisStation) > -1) {
-      return <div className="Home">{this.renderNonStreamingDashboard(ESP_DATA_TYPE)}</div>;
+      return (
+        <div className="Home">
+          {this.renderNonStreamingDashboard(ESP_DATA_TYPE)}
+        </div>
+      )
     }
 
     return <div className="Home">{this.renderDashboard()}</div>;
