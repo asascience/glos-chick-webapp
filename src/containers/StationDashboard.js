@@ -23,6 +23,7 @@ import './StationDashboard.css';
 import '../components/Cards.scss';
 import {espDataUrl} from "../config/dataEndpoints";
 import {espStations,habsStations} from "../config/stations";
+import {ESP_CATEGORY_MAPPING, ESP_CLASSIFICATIONS} from "../config/chartConfig";
 
 const DATA_URL = 'https://cors-anywhere.herokuapp.com/https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
 const HABS_DATA_URL = 'https://4431mqp2sj.execute-api.us-east-2.amazonaws.com/prod/grabsample';
@@ -384,7 +385,6 @@ export default class StationDashboard extends Component {
     this.setState({ isLoading: false });
   }
 
-
   renderLander() {
     return (
       <div className="station-lander">
@@ -393,6 +393,7 @@ export default class StationDashboard extends Component {
       </div>
     );
   }
+
   _renderAlert() {
     const {alert, alertMessage} = this.state;
     if (!alert) {
@@ -571,7 +572,7 @@ export default class StationDashboard extends Component {
         selected: this.state.selected.filter(x => x !== row.parameter)
       }));
     }
-  }
+  };
 
   handleOnSelectAll = (isSelect, rows) => {
     const params = rows.map(r => r.parameter);
@@ -584,7 +585,7 @@ export default class StationDashboard extends Component {
         selected: []
       }));
     }
-  }
+  };
 
   _renderTable() {
     const {tableData, tableColumns} = this._buildTable();
@@ -634,6 +635,7 @@ export default class StationDashboard extends Component {
       </div>
     );
   }
+
   handleClick(selected){
     this.setState({
       selected: selected
@@ -761,6 +763,24 @@ export default class StationDashboard extends Component {
     )
   }
 
+  constructLegendDescription() {
+    let descriptions = ESP_CLASSIFICATIONS.map(classification => {
+      return (
+          <p style={{marginBottom: 8, fontSize: '0.8em'}}>
+            <b>{ESP_CATEGORY_MAPPING[classification]['descriptionTitleText']}</b> -
+            {ESP_CATEGORY_MAPPING[classification]['description']}
+          </p>
+        )
+    });
+
+    return (
+        <div style={{marginBottom: 20}}>
+          <p style={{textDecoration: 'underline'}}>Description of Terms:</p>
+          {descriptions}
+        </div>
+    )
+  }
+
   renderNonStreamingDashboard(dataType) {
 
     let thisStation = this.props.match.params.id;
@@ -842,7 +862,7 @@ export default class StationDashboard extends Component {
             <div id="plot" style={{marginBottom: '100px'}}>
               {this._renderNonStreamingTimeSeriesPlot(data, dataType)}
             </div>
-            {espStations.indexOf(thisStation) > -1 && <p><span>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Autem beatae debitis delectus doloribus harum laborum nam nostrum officiis, qui sint sunt voluptas! Architecto fugiat incidunt minus praesentium quo quos reiciendis!</span><span>Ad architecto distinctio dolorem et eum ex fugiat illo ipsum iste magnam, placeat possimus quasi sit sunt voluptatum. Adipisci aliquam iure minus modi nemo nesciunt quidem sequi similique vero voluptatibus?</span><span>Aspernatur nisi numquam officia omnis optio porro sed totam veritatis? Adipisci architecto dicta eveniet expedita laudantium nam neque nihil quia quis, repudiandae, sapiente sint soluta sunt suscipit ullam unde voluptate.</span><span>Aut consequatur deserunt dolore, doloremque earum error et fugiat id impedit iusto minima necessitatibus nisi nostrum numquam quasi qui quibusdam rem repellat sed sint suscipit totam velit veniam. Commodi, in?</span><span>Assumenda delectus deserunt dicta dolorem doloremque eaque eos esse eum facilis fugiat id iste iusto, libero nam natus officiis omnis placeat quaerat, quam quos repellendus sint soluta tempora vitae voluptatem?</span></p>}
+            {espStations.indexOf(thisStation) > -1 && this.constructLegendDescription()}
           </Col>
         </Row>
 

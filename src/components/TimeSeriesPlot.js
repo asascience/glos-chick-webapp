@@ -4,16 +4,8 @@ import HighchartsReact from 'highcharts-react-official';
 import moment from 'moment';
 import _Set from 'lodash.set';
 import _CloneDeep from 'lodash.clonedeep';
-import {ESP_TIMESERIES_CHART_OPTIONS} from "../config/chartConfig";
+import {ESP_TIMESERIES_CHART_OPTIONS, ESP_CATEGORY_MAPPING, ESP_CLASSIFICATIONS} from "../config/chartConfig";
 import '../index.css';
-
-const categoryMapping = {
-  NA: {text: 'Not Available', color: '#FF0000'},
-  ND: {text: '0 >= value <= LLOD', color: '#808080'},
-  B: {text: 'LLOD < value < LLOQ', color: '#add8e6'},
-  A: {text: 'value >= LLOQ', color: '#ffa500'},
-  N: {text: 'Normal Value', color: '#0000ff'}
-};
 
 class TimeSeriesPlot extends React.Component {
   render () {
@@ -210,16 +202,15 @@ function TimeSeriesEspPlot(props) {
   let units = data.units;
 
   const createLegend = () => {
-    let classifications = ['ND', 'B', 'A', 'N'];
-    return classifications.map(classification => {
+    return ESP_CLASSIFICATIONS.map(classification => {
       return (
           <div className="custom-legend-item">
             <span
                 className={"custom-legend-symbol"}
-                style={{backgroundColor: categoryMapping[classification].color}}>
+                style={{backgroundColor: ESP_CATEGORY_MAPPING[classification].color}}>
             </span>
             <span className={"custom-legend-symbol-text"}>
-              {categoryMapping[classification].text}
+              {ESP_CATEGORY_MAPPING[classification].legendText}
             </span>
           </div>
       )
@@ -244,8 +235,8 @@ function TimeSeriesEspPlot(props) {
           x: moment(data.times[i]).valueOf(),
           y: category !== 'NA' ? parseFloat(value) : null,
           marker: category !== 'NA' ?
-              {enabled: true, fillColor: categoryMapping[category].color} : null,
-          classification: categoryMapping[category].text,
+              {enabled: true, fillColor: ESP_CATEGORY_MAPPING[category].color} : null,
+          classification: ESP_CATEGORY_MAPPING[category].descriptionTitleText,
           uom: units,
           fullname: prettyName,
           depth: depth
