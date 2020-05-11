@@ -22,21 +22,27 @@ import { point, distance } from '@turf/turf';
 import './StationDashboard.css';
 import '../components/Cards.scss';
 import {espDataUrl,habsDataUrl, glBuoysUrl} from "../config/dataEndpoints";
-import {espStations,habsStations} from "../config/stations";
+// import {espStations,habsStations} from "../config/stations";
 import {ESP_CATEGORY_MAPPING, ESP_CLASSIFICATIONS} from "../config/chartConfig";
 
-
 const FEATURED_PARAM = 'BGAPCrfu';
+
+const INITIAL_SELECTED = {
+  [HABS_DATA_TYPE]: ['Dissolved_Microcystin_ugL_1'],
+  [ESP_DATA_TYPE]: ['MC_ug_L_1']
+};
 
 export default class StationDashboard extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: true,
+      loadingData: true,
       data: null,
       habsData: null,
+      habsStations: [],
       loadingHabs: false,
       espData: null,
+      espStations: [],
       loadingEsp: false,
       stream: [],
       station: '',
@@ -88,34 +94,17 @@ export default class StationDashboard extends Component {
     };
   }
 
-  _fetchEsp() {
-    requestJson(espDataUrl, (error, response) => {
-      if (!error) {
-        this.setState({
-          loadingEsp: false,
-          espData: response,
-          selected: ['MC_ug_L_1']
-        });
+  async _fetchData(url) {
+    try {
+      let resp = await fetch(url);
+      if (!resp.ok) {
+        throw new Error();
       }
-    });
-    this.setState({
-      loadingEsp: true
-    })
-  }
-
-  _fetchHabs() {
-    requestJson(habsDataUrl, (error, response) => {
-      if (!error) {
-        this.setState({
-          loadingHabs: false,
-          habsData: response,
-          selected: ['Dissolved_Microcystin_ugL_1']
-        });
-      }
-    });
-    this.setState({
-      loadingHabs: true
-    })
+      let data = await resp.json();
+      return data;
+    } catch (err) {
+      throw new Error(`Failed to load data: ${err}`);
+    }
   }
 
   _fetchStream() {
@@ -338,16 +327,53 @@ export default class StationDashboard extends Component {
     };
   }
 
+  parseStations(dataFeatures) {
+    return dataFeatures.features.map(feature => feature.properties.metadata.id) || [];
+  }
+
   async componentDidMount() {
     if (!this.props.isAuthenticated) {
       return;
     }
+
+    this.setState({loadingData: true, dataLoadingError: false});
+
+    let habsData, habsStations, espData, espStations;
     try {
-        // Test API?
-    } catch (e) {
-      alert(e);
+      let dataSources = [habsDataUrl, espDataUrl];
+      let data = await Promise.all(dataSources.map(sourceUrl => this._fetchData(sourceUrl)));
+      // parse habs response data
+      habsData = data[0];
+      habsStations = this.parseStations(habsData);
+      // parse esp response data
+      espData = data[1];
+      espStations = this.parseStations(espData);
+    } catch (err) {
+      console.debug('Failed to fetch data');
+      this.setState({dataLoadingError: true});
+      return
     }
-    this.setState({ isLoading: false });
+
+    let isHabsStation = habsStations.includes(this.props.match.params.id);
+    let isEspStation = espStations.includes(this.props.match.params.id);
+
+    if (isHabsStation) {
+      this.setState({
+        loadingData: false,
+        habsStations,
+        habsData,
+        selected: ['Dissolved_Microcystin_ugL_1']
+      });
+    }
+
+    if (isEspStation) {
+      this.setState({
+        loadingData: false,
+        espStations,
+        espData,
+        selected: ['MC_ug_L_1']
+      });
+    }
   }
 
   renderLander() {
@@ -511,10 +537,10 @@ export default class StationDashboard extends Component {
     const colors = ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1"];
 
     let TimeSeriesComp = dType === HABS_DATA_TYPE ? TimeSeriesHabsPlot : TimeSeriesEspPlot;
-
     return (
       <div>
         {selected.map((param, idx) => {
+          console.log('DATA', data.properties.data[param]);
           return param in this.parameterMapping ?
               <TimeSeriesComp
                   key={param}
@@ -750,39 +776,14 @@ export default class StationDashboard extends Component {
 
   renderNonStreamingDashboard(dataType) {
 
-    let thisStation = this.props.match.params.id;
-    let data;
-    switch (dataType) {
-      case HABS_DATA_TYPE:
-        let {habsData, loadingHabs} = this.state;
-        data = habsData;
-        if (!habsData  && !loadingHabs){
-          this._fetchHabs();
-        }
-        if (!habsData) {
-          return (
-            this.renderLander()
-          )
-        }
-        break;
-      case ESP_DATA_TYPE:
-        const {espData, loadingEsp} = this.state;
-        data = espData;
-        if (!espData  && !loadingEsp){
-          this._fetchEsp();
-        }
-        if (!espData) {
-          return (
-              this.renderLander()
-          )
-        }
-        break;
-      default:
-        // code here
-    }
+    const {habsData, espData} = this.state;
+    let stationName = this.props.match.params.id;
+    let data = dataType === HABS_DATA_TYPE ? habsData : espData;
+
+    if (!data) this.renderLander();
 
     data = data.features.filter(item => {
-      return thisStation === item.properties.metadata.id;
+      return stationName === item.properties.metadata.id;
     });
 
     if (data.length === 0) {
@@ -793,12 +794,10 @@ export default class StationDashboard extends Component {
       );
     }
     data = data[0];
-    let stationName = thisStation;
     let times = dataType === ESP_DATA_TYPE ? data.properties.data[Object.keys(data.properties.data)[0]]['times']:
         data.properties.data.Arrival_Time.times;
 
     let lastUpdate = moment(times[times.length - 1]).format('ddd MMM DD YYYY');
-
     return (
       <div className="home-container">
         {this._renderAlert()}
@@ -831,7 +830,7 @@ export default class StationDashboard extends Component {
             <div id="plot" style={{marginBottom: '100px'}}>
               {this._renderNonStreamingTimeSeriesPlot(data, dataType)}
             </div>
-            {espStations.indexOf(thisStation) > -1 && this.constructLegendDescription()}
+            {this.state.espStations.indexOf(stationName) > -1 && this.constructLegendDescription()}
           </Col>
         </Row>
 
@@ -842,11 +841,15 @@ export default class StationDashboard extends Component {
   render() {
     let thisStation = this.props.match.params.id;
 
-    if (habsStations.indexOf(thisStation) > -1) {
+    if (this.state.loadingData) {
+      return <>{this.renderLander()}</>
+    }
+
+    if (this.state.habsStations.indexOf(thisStation) > -1) {
       return <div className="Home">{this.renderNonStreamingDashboard(HABS_DATA_TYPE)}</div>;
     }
 
-    if (espStations.indexOf(thisStation) > -1) {
+    if (this.state.espStations.indexOf(thisStation) > -1) {
       return (
         <div className="Home">
           {this.renderNonStreamingDashboard(ESP_DATA_TYPE)}

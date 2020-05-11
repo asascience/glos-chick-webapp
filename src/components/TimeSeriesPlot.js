@@ -94,7 +94,7 @@ class TimeSeriesHabsPlot extends React.Component {
   render () {
     let self = this;
     let data = this.props.data;
-    // let data = this.props.data
+    debugger;
     let parameters = this.props.parameters;
     let depth = this.props.depth;
     let color = this.props.color;
