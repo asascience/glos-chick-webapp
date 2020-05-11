@@ -21,14 +21,12 @@ import {json as requestJson} from 'd3-request';
 import { point, distance } from '@turf/turf';
 import './StationDashboard.css';
 import '../components/Cards.scss';
-import {espDataUrl} from "../config/dataEndpoints";
+import {espDataUrl,habsDataUrl, glBuoysUrl} from "../config/dataEndpoints";
 import {espStations,habsStations} from "../config/stations";
 import {ESP_CATEGORY_MAPPING, ESP_CLASSIFICATIONS} from "../config/chartConfig";
 
-const DATA_URL = 'https://cors-anywhere.herokuapp.com/https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
-const HABS_DATA_URL = 'https://4431mqp2sj.execute-api.us-east-2.amazonaws.com/prod/grabsample';
-const FEATURED_PARAM = 'BGAPCrfu';
 
+const FEATURED_PARAM = 'BGAPCrfu';
 
 export default class StationDashboard extends Component {
   constructor(props) {
@@ -83,6 +81,7 @@ export default class StationDashboard extends Component {
       Extracted_PC_ugL_1: 'Extracted Phycocyanin',
       Particulate_Microcystin_ugL_1: 'Particulate Microcystin',
       Dissolved_Microcystin_ugL_1: 'Dissolved Microcystin',
+      MC_ug_L_1: 'Dissolved Microcystin',
       Wind_speed_knots: 'Wind Speed',
       Secchi_Depth_m: 'Secchi Depth',
       DO_mgL_1: 'Dissolved Oxygen',
@@ -90,46 +89,12 @@ export default class StationDashboard extends Component {
   }
 
   _fetchEsp() {
-    // TODO: remove this (only for testing)
-    const buildFakeData = response => {
-
-      const categories = ['NA','ND','B','A','N'];
-
-      function getRandomInt(max) {
-        return Math.floor(Math.random() * Math.floor(max));
-      }
-
-      response.features = [response.features[0]];
-      response.features[0].properties.metadata.id = 'ESP1';
-      response.features[0].geometry.coordinates = [-79.5264, 42.6944];
-      response.features.forEach(feature => feature.properties.metadata.type = ESP_DATA_TYPE);
-
-      let firstParam = Object.keys(response.features[0].properties.data)[0];
-
-      for (let param of Object.keys(response.features[0].properties.data)) {
-        let randCategoryArr = response.features[0].properties.data[param]['times'].map(time => {
-
-          let numDepths = response.features[0].properties.data[param]['depth'] ?
-              response.features[0].properties.data[param]['depth']['values'].length : 0;
-
-          if (numDepths) {
-            return new Array(numDepths).fill(0).map((_,indx) => categories[getRandomInt(5)])
-          } else {
-            return categories[getRandomInt(5)];
-          }
-        });
-        response.features[0].properties.data[param]['category'] = randCategoryArr;
-      }
-
-      return response
-    };
-
     requestJson(espDataUrl, (error, response) => {
       if (!error) {
         this.setState({
           loadingEsp: false,
-          espData: buildFakeData(response),
-          selected: ['Dissolved_Microcystin_ugL_1']
+          espData: response,
+          selected: ['MC_ug_L_1']
         });
       }
     });
@@ -139,7 +104,7 @@ export default class StationDashboard extends Component {
   }
 
   _fetchHabs() {
-    requestJson(HABS_DATA_URL, (error, response) => {
+    requestJson(habsDataUrl, (error, response) => {
       if (!error) {
         this.setState({
           loadingHabs: false,
@@ -156,7 +121,7 @@ export default class StationDashboard extends Component {
   _fetchStream() {
     const {data} = this.state;
     if (!data) {
-      requestJson(DATA_URL, (error, response) => {
+      requestJson(glBuoysUrl, (error, response) => {
         if (!error) {
           this.setState({
             data: response,
@@ -480,7 +445,7 @@ export default class StationDashboard extends Component {
     )
   }
 
-  _renderGauge(habsData) {
+  _renderGauge(habsData,dataType) {
     const {stream, data} = this.state;
     let thisStation = this.props.match.params.id;
     if ( (stream.length === 0 || !data) && !habsData) {
@@ -488,9 +453,11 @@ export default class StationDashboard extends Component {
     }
 
     let params = [];
-    if (habsData) {
+    if (habsData && dataType === HABS_DATA_TYPE) {
       params = ['Dissolved_Microcystin_ugL_1', 'Turbidity_NTU'];
-    } else {
+    } else if (habsData && dataType === ESP_DATA_TYPE) {
+      params = ['MC_ug_L_1'];
+    } else if (!habsData) {
       let gaugeParams = ['BGAPCrfu', 'ysiturbntu', 'TurbidityNTU', 'Turbidity_NTU', 'ysibgarfu'];
       params = gaugeParams.filter((item, idx) => {
         return item in stream[0];
@@ -827,7 +794,9 @@ export default class StationDashboard extends Component {
     }
     data = data[0];
     let stationName = thisStation;
-    let times = data.properties.data.Arrival_Time.times;
+    let times = dataType === ESP_DATA_TYPE ? data.properties.data[Object.keys(data.properties.data)[0]]['times']:
+        data.properties.data.Arrival_Time.times;
+
     let lastUpdate = moment(times[times.length - 1]).format('ddd MMM DD YYYY');
 
     return (
@@ -840,7 +809,7 @@ export default class StationDashboard extends Component {
               <InfoPopover content={data.properties.metadata.summary} />
             </h2>
             <h5 align='left'>Last Updated - {lastUpdate} </h5>
-            {this._renderGauge(data)}
+            {this._renderGauge(data,dataType)}
           </Col>
           <Col lg={6}>
             <div>

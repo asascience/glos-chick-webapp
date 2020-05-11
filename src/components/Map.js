@@ -13,13 +13,10 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import {fromJS} from 'immutable';
 import stationMarker from './pin-s+377EB8.png'
 import inactiveStationMarker from './pin-s+DCDCDC.png'
-import {espDataUrl} from "../config/dataEndpoints";
+import {espDataUrl, habsDataUrl, glBuoysUrl} from "../config/dataEndpoints";
 // import MAP_STYLE from './map-style.json';
 
 // const defaultMapStyle = fromJS(MAP_STYLE);
-
-const GL_BUOYS_DATA_URL = 'https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
-const HABS_DATA_URL = 'https://4431mqp2sj.execute-api.us-east-2.amazonaws.com/prod/grabsample';
 
 export const ESP_DATA_TYPE = 'esp';
 export const HABS_DATA_TYPE = 'habs';
@@ -51,7 +48,7 @@ class GLMap extends Component {
 
       this.forecastFrameCount = 96;
 
-      requestJson(GL_BUOYS_DATA_URL, (error, response) => {
+      requestJson(glBuoysUrl, (error, response) => {
         if (!error) {
           let filteredStations = response.filter(function(station){
             return station.lake === 'ER' && station.WqOnly;
@@ -60,7 +57,7 @@ class GLMap extends Component {
         }
       });
 
-      requestJson(HABS_DATA_URL, (error, response) => {
+      requestJson(habsDataUrl, (error, response) => {
         if (!error) {
           this.setState({habsData: response});
         }
@@ -68,10 +65,6 @@ class GLMap extends Component {
 
       requestJson(espDataUrl, (error, response) => {
         if (!error) {
-          response.features = [response.features[0]];
-
-          response.features[0].properties.metadata.id = 'ESP1';
-          response.features[0].geometry.coordinates = [-79.5264, 42.6944];
           response.features.forEach(feature => feature.properties.metadata.type = ESP_DATA_TYPE);
           this.setState({espData: response});
         }

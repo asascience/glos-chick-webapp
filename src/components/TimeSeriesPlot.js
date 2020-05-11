@@ -224,11 +224,11 @@ function TimeSeriesEspPlot(props) {
       let seriesData = [];
       for (let i = 0; i <= data.times.length - 1; i++) {
         let value = data.values[i];
-        let category = data.category[i];
+        let category = data.category[i] || 'NA';
         if (Array.isArray(value)) {
           let ind = depth === 'surface' ? 0 : 1;
           value = value[ind];
-          category = category[ind];
+          category = category[ind] || 'NA';
         }
 
         seriesData.push({
