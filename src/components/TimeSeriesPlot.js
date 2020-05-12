@@ -94,7 +94,7 @@ class TimeSeriesHabsPlot extends React.Component {
   render () {
     let self = this;
     let data = this.props.data;
-    debugger;
+
     let parameters = this.props.parameters;
     let depth = this.props.depth;
     let color = this.props.color;
@@ -197,6 +197,7 @@ function TimeSeriesEspPlot(props) {
   const {data, parameters, depth, color, parameterMapping} = props;
 
   const [showCustomLegend, setShowCustomLegend] = React.useState(false);
+  const chartRef = React.useRef(null);
 
   let prettyName = parameterMapping[parameters[0]];
   let units = data.units;
@@ -222,12 +223,16 @@ function TimeSeriesEspPlot(props) {
 
     parameters.forEach((param, idx) => {
       let seriesData = [];
-      for (let i = 0; i <= data.times.length - 1; i++) {
+      for (let i = 0; i < data.times.length - 1; i++) {
         let value = data.values[i];
+        let llod = data.llod[i];
+        let lloq = data.lloq[i];
         let category = data.category[i] || 'NA';
         if (Array.isArray(value)) {
           let ind = depth === 'surface' ? 0 : 1;
           value = value[ind];
+          llod = llod[ind];
+          lloq = lloq[ind];
           category = category[ind] || 'NA';
         }
 
@@ -237,6 +242,8 @@ function TimeSeriesEspPlot(props) {
           marker: category !== 'NA' ?
               {enabled: true, fillColor: ESP_CATEGORY_MAPPING[category].color} : null,
           classification: ESP_CATEGORY_MAPPING[category].descriptionTitleText,
+          llod: llod,
+          lloq: lloq,
           uom: units,
           fullname: prettyName,
           depth: depth
@@ -263,6 +270,7 @@ function TimeSeriesEspPlot(props) {
   return (
       <>
         <HighchartsReact
+            ref={chartRef}
             highcharts={Highcharts}
             options={buildConfig(parameters,data)}
             callback={() => {setShowCustomLegend(true)}}

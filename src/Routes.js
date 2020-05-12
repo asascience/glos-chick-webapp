@@ -19,7 +19,7 @@ export default ({ childProps }) => {
             <AppliedRoute path="/alerts" exact component={Alerts} props={childProps}/>
             <AppliedRoute path="/project" exact component={Project} props={childProps}/>
             <AppliedRoute path="/data" exact component={Data} props={childProps}/>
-            <AppliedRoute path="/:id" component={StationDashboard} props={childProps} privateResource={true}/>
+            <AppliedRoute path="/:id" exact component={StationDashboard} props={childProps} privateResource={true}/>
             {/* Finally, catch all unmatched routes */}
             <Route component={NotFound}/>
         </Switch>

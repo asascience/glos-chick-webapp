@@ -22,7 +22,6 @@ import { point, distance } from '@turf/turf';
 import './StationDashboard.css';
 import '../components/Cards.scss';
 import {espDataUrl,habsDataUrl, glBuoysUrl} from "../config/dataEndpoints";
-// import {espStations,habsStations} from "../config/stations";
 import {ESP_CATEGORY_MAPPING, ESP_CLASSIFICATIONS} from "../config/chartConfig";
 
 const FEATURED_PARAM = 'BGAPCrfu';
@@ -357,23 +356,15 @@ export default class StationDashboard extends Component {
     let isHabsStation = habsStations.includes(this.props.match.params.id);
     let isEspStation = espStations.includes(this.props.match.params.id);
 
-    if (isHabsStation) {
-      this.setState({
-        loadingData: false,
-        habsStations,
-        habsData,
-        selected: ['Dissolved_Microcystin_ugL_1']
-      });
-    }
+    let stationProps = {
+      habsData,
+      habsStations,
+      espData,
+      espStations,
+      selected: isHabsStation ? INITIAL_SELECTED[HABS_DATA_TYPE] : INITIAL_SELECTED[ESP_DATA_TYPE]
+    };
 
-    if (isEspStation) {
-      this.setState({
-        loadingData: false,
-        espStations,
-        espData,
-        selected: ['MC_ug_L_1']
-      });
-    }
+    this.setState({...stationProps, loadingData: false});
   }
 
   renderLander() {
@@ -537,13 +528,21 @@ export default class StationDashboard extends Component {
     const colors = ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1"];
 
     let TimeSeriesComp = dType === HABS_DATA_TYPE ? TimeSeriesHabsPlot : TimeSeriesEspPlot;
+
+    // all currently selected items should be keys in available data
+    // if they are not then a station type switch occurred and need to fallback to initial selected array
+    let validSelection = selected.every(x => Object.keys(data.properties.data).includes(x));
+    let origSelected;
+    if (!validSelection) {
+      origSelected = INITIAL_SELECTED[dType];
+    }
+
     return (
       <div>
-        {selected.map((param, idx) => {
-          console.log('DATA', data.properties.data[param]);
+        {(origSelected || selected).map((param, idx) => {
           return param in this.parameterMapping ?
               <TimeSeriesComp
-                  key={param}
+                  key={`${param}-${this.state.depth}`}
                   data={data.properties.data[param]}
                   depth={this.state.depth}
                   parameters={[param]}
@@ -696,6 +695,7 @@ export default class StationDashboard extends Component {
   renderDashboard() {
     const {stream, station, data} = this.state;
     let thisStation = this.props.match.params.id;
+
     if (station !== thisStation) {
       this._fetchStream();
       this.setState({
@@ -703,11 +703,21 @@ export default class StationDashboard extends Component {
         station: thisStation
       });
     }
-    if (stream.length === 0) {
+    // implemented a temp fix to solve issue with continual loading screen if stream.length === 0
+    // TODO: can we assume data contains all the accepted station ids? if so need to compare that with
+    // current station name
+    if (stream.length === 0 && !data) {
       return (
         this.renderLander()
       )
+    } else if (stream.length === 0 && data) {
+      return (
+          <div className="home-container">
+            <h5>Station Data not found</h5>
+          </div>
+      );
     }
+
     let stationName = data.filter((obj, idx) => {
       return obj.id === thisStation;
     }).map((obj, idx) => {
@@ -846,7 +856,11 @@ export default class StationDashboard extends Component {
     }
 
     if (this.state.habsStations.indexOf(thisStation) > -1) {
-      return <div className="Home">{this.renderNonStreamingDashboard(HABS_DATA_TYPE)}</div>;
+      return (
+          <div className="Home">
+            {this.renderNonStreamingDashboard(HABS_DATA_TYPE)}
+          </div>
+      )
     }
 
     if (this.state.espStations.indexOf(thisStation) > -1) {
@@ -857,6 +871,7 @@ export default class StationDashboard extends Component {
       )
     }
 
+    //only show this if thisStation isn't in either habs or esp
     return <div className="Home">{this.renderDashboard()}</div>;
   }
 }

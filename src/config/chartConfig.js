@@ -68,10 +68,11 @@ const ESP_TIMESERIES_CHART_OPTIONS = {
     tooltip: {
         pointFormatter: function () {
             return [
-                '<b>' + this.fullname + '</b>' + '<br/>',
-                (this.y + ' ' + this.uom) +
-                ' ' + (this.depth !== null ? '@ ' + this.depth : ''),
-                this.classification ? '<br/>' + this.classification : ''
+                `<b>${this.fullname}</b>`,
+                '<br/>' + `${this.y} ${this.uom} ` + (this.depth !== null ? `@ ${this.depth}` : ''),
+                this.llod ? '<br/>' + `LLOD: ${this.llod}` : '',
+                this.lloq ? '<br/>' + `LLOQ: ${this.lloq}` : '',
+                this.classification ? '<br/>' + `(${this.classification})` : ''
             ].join('');
         }
     },

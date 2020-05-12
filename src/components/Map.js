@@ -20,6 +20,7 @@ import {espDataUrl, habsDataUrl, glBuoysUrl} from "../config/dataEndpoints";
 
 export const ESP_DATA_TYPE = 'esp';
 export const HABS_DATA_TYPE = 'habs';
+export const STREAMING_DATA_TYPE = 'stream';
 
 class GLMap extends Component {
     constructor(props) {
@@ -59,6 +60,7 @@ class GLMap extends Component {
 
       requestJson(habsDataUrl, (error, response) => {
         if (!error) {
+          response.features.forEach(feature => feature.properties.metadata.type = HABS_DATA_TYPE);
           this.setState({habsData: response});
         }
       });
@@ -300,7 +302,7 @@ class GLMap extends Component {
           if ('station' in this.props && d.properties.metadata.id === this.props.station) {
             return [184, 75, 3];
           }
-          return [0, 204, 153];
+          return [55,126,184];
         },
         lineWidthMinPixelslineWidthMinPixels: 0,
         getRadius: 100,
