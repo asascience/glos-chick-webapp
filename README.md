@@ -6,6 +6,8 @@ Lightweight web app for demonstration of the GLOS Rapid Prototype (chick) of str
 
 The dev site is deployed to a web enabled S3 bucket [here](http://glos-ottews.s3-website.us-east-2.amazonaws.com)
 
+* Environment variables must be updated [here](https://circleci.com/gh/asascience/glos-chick-webapp/edit#env-vars) when making changes to a data endpoint.
+
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
 Below you will find some information on how to perform common tasks.<br>
