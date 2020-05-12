@@ -72,10 +72,11 @@ class GaugePlot extends React.Component {
         dataLabels: {
           backgroundColor: null,  // backgroundColor
           formatter: function() {
-            if (dataPoint === 'bdl') {
-              return 'bdl';
-            }
-            return value >= maxThreshold ? parseFloat(dataPoint).toFixed(2) : parseFloat(dataPoint).toFixed(2);
+            if (dataPoint !== 'bdl' && (dataPoint === null || (Number.isNaN(Number(dataPoint))))) return 'No Data';
+            if (dataPoint === 'bdl') return 'bdl';
+
+            return value >= maxThreshold ? parseFloat(dataPoint).toFixed(2) :
+                parseFloat(dataPoint).toFixed(2);
           }
         }
       }]
