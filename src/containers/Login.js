@@ -29,10 +29,12 @@ export default class Login extends Component {
     event.preventDefault();
     this.setState({ isLoading: true });
 
+    let { from } = this.props.location.state || { from: { pathname: "/" } };
+
     try {
       await Auth.signIn(this.state.email, this.state.password);
       this.props.userHasAuthenticated(true);
-      this.props.history.push('/');
+      this.props.history.replace(from);
     } catch (e) {
       alert(e.message);
       this.setState({ isLoading: false });
@@ -40,6 +42,12 @@ export default class Login extends Component {
   };
 
   render() {
+    let { from } = this.props.location.state || { from: { pathname: "/" } };
+
+    if (this.props.isAuthenticated) {
+      this.props.history.replace(from);
+    }
+
     return (
       <div className="Login">
         <form onSubmit={this.handleSubmit}>

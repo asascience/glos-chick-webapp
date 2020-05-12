@@ -1,9 +1,11 @@
-import React from 'react'
-import Highcharts from 'highcharts'
-import HighchartsReact from 'highcharts-react-official'
-import moment from 'moment'
-
-
+import React from 'react';
+import Highcharts from 'highcharts';
+import HighchartsReact from 'highcharts-react-official';
+import moment from 'moment';
+import _Set from 'lodash.set';
+import _CloneDeep from 'lodash.clonedeep';
+import {ESP_TIMESERIES_CHART_OPTIONS, ESP_CATEGORY_MAPPING, ESP_CLASSIFICATIONS} from "../config/chartConfig";
+import '../index.css';
 
 class TimeSeriesPlot extends React.Component {
   render () {
@@ -92,7 +94,7 @@ class TimeSeriesHabsPlot extends React.Component {
   render () {
     let self = this;
     let data = this.props.data;
-    // let data = this.props.data
+
     let parameters = this.props.parameters;
     let depth = this.props.depth;
     let color = this.props.color;
@@ -189,4 +191,94 @@ class TimeSeriesHabsPlot extends React.Component {
     )
   }
 }
-export {TimeSeriesPlot, TimeSeriesHabsPlot}
+
+function TimeSeriesEspPlot(props) {
+
+  const {data, parameters, depth, color, parameterMapping} = props;
+
+  const [showCustomLegend, setShowCustomLegend] = React.useState(false);
+  const chartRef = React.useRef(null);
+
+  let prettyName = parameterMapping[parameters[0]];
+  let units = data.units;
+
+  const createLegend = () => {
+    return ESP_CLASSIFICATIONS.map(classification => {
+      return (
+          <div className="custom-legend-item">
+            <span
+                className={"custom-legend-symbol"}
+                style={{backgroundColor: ESP_CATEGORY_MAPPING[classification].color}}>
+            </span>
+            <span className={"custom-legend-symbol-text"}>
+              {ESP_CATEGORY_MAPPING[classification].legendText}
+            </span>
+          </div>
+      )
+    });
+  };
+
+  const buildConfig = (parameters,data) => {
+    let series = [];
+
+    parameters.forEach((param, idx) => {
+      let seriesData = [];
+      for (let i = 0; i < data.times.length - 1; i++) {
+        let value = data.values[i];
+        let llod = data.llod[i];
+        let lloq = data.lloq[i];
+        let category = data.category[i] || 'NA';
+        if (Array.isArray(value)) {
+          let ind = depth === 'surface' ? 0 : 1;
+          value = value[ind];
+          llod = llod[ind];
+          lloq = lloq[ind];
+          category = category[ind] || 'NA';
+        }
+
+        seriesData.push({
+          x: moment(data.times[i]).valueOf(),
+          y: category !== 'NA' ? parseFloat(value) : null,
+          marker: category !== 'NA' ?
+              {enabled: true, fillColor: ESP_CATEGORY_MAPPING[category].color} : null,
+          classification: ESP_CATEGORY_MAPPING[category].descriptionTitleText,
+          llod: llod,
+          lloq: lloq,
+          uom: units,
+          fullname: prettyName,
+          depth: depth
+        });
+      }
+
+      series.push({
+        name: parameterMapping[param],
+        data: seriesData,
+        color: color,
+        type: 'spline'
+      });
+    });
+
+    let options = _CloneDeep(ESP_TIMESERIES_CHART_OPTIONS);
+
+    _Set(options, 'title.text', prettyName);
+    _Set(options, 'yAxis.title.text', units);
+    _Set(options, 'series', series);
+
+    return options
+  };
+
+  return (
+      <>
+        <HighchartsReact
+            ref={chartRef}
+            highcharts={Highcharts}
+            options={buildConfig(parameters,data)}
+            callback={() => {setShowCustomLegend(true)}}
+        />
+        {showCustomLegend && <div style={{display: 'flex', justifyContent: 'center'}}>{createLegend()}</div>}
+      </>
+  )
+}
+
+
+export {TimeSeriesPlot, TimeSeriesHabsPlot, TimeSeriesEspPlot}

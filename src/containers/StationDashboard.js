@@ -11,9 +11,9 @@ import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import GaugePlot from '../components/GaugePlot'
 import InfoPopover from '../components/InfoPopover'
-import { TimeSeriesPlot, TimeSeriesHabsPlot} from '../components/TimeSeriesPlot'
+import {TimeSeriesPlot, TimeSeriesHabsPlot, TimeSeriesEspPlot} from '../components/TimeSeriesPlot'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import GLMap from '../components/Map'
+import GLMap, {ESP_DATA_TYPE, HABS_DATA_TYPE} from '../components/Map'
 import Cards from '../components/Cards'
 import MovingStats from '../components/MovingStats'
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
@@ -21,20 +21,28 @@ import {json as requestJson} from 'd3-request';
 import { point, distance } from '@turf/turf';
 import './StationDashboard.css';
 import '../components/Cards.scss';
+import {espDataUrl,habsDataUrl, glBuoysUrl} from "../config/dataEndpoints";
+import {ESP_CATEGORY_MAPPING, ESP_CLASSIFICATIONS} from "../config/chartConfig";
 
-const DATA_URL = 'https://cors-anywhere.herokuapp.com/https://glbuoys.glos.us/static/Buoy_tool/data/meta_english.json?';
-const HABS_DATA_URL = 'https://4431mqp2sj.execute-api.us-east-2.amazonaws.com/prod/grabsample';
 const FEATURED_PARAM = 'BGAPCrfu';
 
+const INITIAL_SELECTED = {
+  [HABS_DATA_TYPE]: ['Dissolved_Microcystin_ugL_1'],
+  [ESP_DATA_TYPE]: ['MC_ug_L_1']
+};
 
 export default class StationDashboard extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: true,
+      loadingData: true,
       data: null,
       habsData: null,
+      habsStations: [],
       loadingHabs: false,
+      espData: null,
+      espStations: [],
+      loadingEsp: false,
       stream: [],
       station: '',
       tableColumns: [],
@@ -78,31 +86,30 @@ export default class StationDashboard extends Component {
       Extracted_PC_ugL_1: 'Extracted Phycocyanin',
       Particulate_Microcystin_ugL_1: 'Particulate Microcystin',
       Dissolved_Microcystin_ugL_1: 'Dissolved Microcystin',
+      MC_ug_L_1: 'Dissolved Microcystin',
       Wind_speed_knots: 'Wind Speed',
       Secchi_Depth_m: 'Secchi Depth',
       DO_mgL_1: 'Dissolved Oxygen',
     };
   }
 
-  _fetchHabs() {
-    requestJson(HABS_DATA_URL, (error, response) => {
-      if (!error) {
-        this.setState({
-          loadingHabs: false,
-          habsData: response,
-          selected: ['Dissolved_Microcystin_ugL_1']
-        });
+  async _fetchData(url) {
+    try {
+      let resp = await fetch(url);
+      if (!resp.ok) {
+        throw new Error();
       }
-    });
-    this.setState({
-      loadingHabs: true
-    })
+      let data = await resp.json();
+      return data;
+    } catch (err) {
+      throw new Error(`Failed to load data: ${err}`);
+    }
   }
 
   _fetchStream() {
     const {data} = this.state;
     if (!data) {
-      requestJson(DATA_URL, (error, response) => {
+      requestJson(glBuoysUrl, (error, response) => {
         if (!error) {
           this.setState({
             data: response,
@@ -319,18 +326,46 @@ export default class StationDashboard extends Component {
     };
   }
 
+  parseStations(dataFeatures) {
+    return dataFeatures.features.map(feature => feature.properties.metadata.id) || [];
+  }
+
   async componentDidMount() {
     if (!this.props.isAuthenticated) {
       return;
     }
-    try {
-        // Test API?
-    } catch (e) {
-      alert(e);
-    }
-    this.setState({ isLoading: false });
-  }
 
+    this.setState({loadingData: true, dataLoadingError: false});
+
+    let habsData, habsStations, espData, espStations;
+    try {
+      let dataSources = [habsDataUrl, espDataUrl];
+      let data = await Promise.all(dataSources.map(sourceUrl => this._fetchData(sourceUrl)));
+      // parse habs response data
+      habsData = data[0];
+      habsStations = this.parseStations(habsData);
+      // parse esp response data
+      espData = data[1];
+      espStations = this.parseStations(espData);
+    } catch (err) {
+      console.debug('Failed to fetch data');
+      this.setState({dataLoadingError: true});
+      return
+    }
+
+    let isHabsStation = habsStations.includes(this.props.match.params.id);
+    let isEspStation = espStations.includes(this.props.match.params.id);
+
+    let stationProps = {
+      habsData,
+      habsStations,
+      espData,
+      espStations,
+      selected: isHabsStation ? INITIAL_SELECTED[HABS_DATA_TYPE] : INITIAL_SELECTED[ESP_DATA_TYPE]
+    };
+
+    this.setState({...stationProps, loadingData: false});
+  }
 
   renderLander() {
     return (
@@ -340,6 +375,7 @@ export default class StationDashboard extends Component {
       </div>
     );
   }
+
   _renderAlert() {
     const {alert, alertMessage} = this.state;
     if (!alert) {
@@ -419,13 +455,14 @@ export default class StationDashboard extends Component {
   }
 
   _renderMap() {
+    // TODO: need to show UI indication that map is loading (logic belongs in Map component)
     let thisStation = this.props.match.params.id;
     return (
       <div className='dashboard-map-container'><GLMap station={thisStation} showForecast={false}/></div>
     )
   }
 
-  _renderGauge(habsData) {
+  _renderGauge(habsData,dataType) {
     const {stream, data} = this.state;
     let thisStation = this.props.match.params.id;
     if ( (stream.length === 0 || !data) && !habsData) {
@@ -433,9 +470,11 @@ export default class StationDashboard extends Component {
     }
 
     let params = [];
-    if (habsData) {
+    if (habsData && dataType === HABS_DATA_TYPE) {
       params = ['Dissolved_Microcystin_ugL_1', 'Turbidity_NTU'];
-    } else {
+    } else if (habsData && dataType === ESP_DATA_TYPE) {
+      params = ['MC_ug_L_1'];
+    } else if (!habsData) {
       let gaugeParams = ['BGAPCrfu', 'ysiturbntu', 'TurbidityNTU', 'Turbidity_NTU', 'ysibgarfu'];
       params = gaugeParams.filter((item, idx) => {
         return item in stream[0];
@@ -484,13 +523,32 @@ export default class StationDashboard extends Component {
     );
   }
 
-  _renderHabsTimeSeriesPlot(data) {
+  _renderNonStreamingTimeSeriesPlot(data, dType) {
     const {selected} = this.state;
     const colors = ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1"];
+
+    let TimeSeriesComp = dType === HABS_DATA_TYPE ? TimeSeriesHabsPlot : TimeSeriesEspPlot;
+
+    // all currently selected items should be keys in available data
+    // if they are not then a station type switch occurred and need to fallback to initial selected array
+    let validSelection = selected.every(x => Object.keys(data.properties.data).includes(x));
+    let origSelected;
+    if (!validSelection) {
+      origSelected = INITIAL_SELECTED[dType];
+    }
+
     return (
       <div>
-        {selected.map((param, idx) => {
-          return param in this.parameterMapping ? <TimeSeriesHabsPlot key={param} data={data.properties.data[param]} depth={this.state.depth} parameters={[param]} parameterMapping={this.parameterMapping} color={colors[idx % colors.length]}/> : null
+        {(origSelected || selected).map((param, idx) => {
+          return param in this.parameterMapping ?
+              <TimeSeriesComp
+                  key={`${param}-${this.state.depth}`}
+                  data={data.properties.data[param]}
+                  depth={this.state.depth}
+                  parameters={[param]}
+                  parameterMapping={this.parameterMapping}
+                  color={colors[idx % colors.length]}/> :
+              null
         })}
       </div>
     );
@@ -506,7 +564,7 @@ export default class StationDashboard extends Component {
         selected: this.state.selected.filter(x => x !== row.parameter)
       }));
     }
-  }
+  };
 
   handleOnSelectAll = (isSelect, rows) => {
     const params = rows.map(r => r.parameter);
@@ -519,7 +577,7 @@ export default class StationDashboard extends Component {
         selected: []
       }));
     }
-  }
+  };
 
   _renderTable() {
     const {tableData, tableColumns} = this._buildTable();
@@ -569,6 +627,7 @@ export default class StationDashboard extends Component {
       </div>
     );
   }
+
   handleClick(selected){
     this.setState({
       selected: selected
@@ -590,17 +649,14 @@ export default class StationDashboard extends Component {
         let values = data.properties.data[key].values;
         let lastValue = values[values.length - 1];
         let description;
-        if (lastValue === null) {
-          description = 'N/A';
-        } else if (lastValue === 'bdl') {
-          description = 'Below Detection Limit';
-        } else {
-          if (Array.isArray(lastValue)) {
-            let ind = this.state.depth === 'surface' ? 0 : 1;
-            lastValue = lastValue[ind];
-          }
-          description = parseFloat(lastValue).toFixed(2) + ' ' + data.properties.data[key].units;
+
+        if (Array.isArray(lastValue)) {
+          let ind = this.state.depth === 'surface' ? 0 : 1;
+          lastValue = lastValue[ind];
         }
+        description = parseFloat(lastValue).toFixed(2) + ' ' + data.properties.data[key].units;
+        if (lastValue === null || Number.isNaN(Number(lastValue))) description = 'No Data';
+        if (lastValue === 'bdl') description = 'Below Detection Limit';
         return params.push({
           title: key in this.parameterMapping ? this.parameterMapping[key] : key,
           description: description,
@@ -636,6 +692,7 @@ export default class StationDashboard extends Component {
   renderDashboard() {
     const {stream, station, data} = this.state;
     let thisStation = this.props.match.params.id;
+
     if (station !== thisStation) {
       this._fetchStream();
       this.setState({
@@ -643,11 +700,21 @@ export default class StationDashboard extends Component {
         station: thisStation
       });
     }
-    if (stream.length === 0) {
+    // implemented a temp fix to solve issue with continual loading screen if stream.length === 0
+    // TODO: can we assume data contains all the accepted station ids? if so need to compare that with
+    // current station name
+    if (stream.length === 0 && !data) {
       return (
         this.renderLander()
       )
+    } else if (stream.length === 0 && data) {
+      return (
+          <div className="home-container">
+            <h5>Station Data not found</h5>
+          </div>
+      );
     }
+
     let stationName = data.filter((obj, idx) => {
       return obj.id === thisStation;
     }).map((obj, idx) => {
@@ -696,19 +763,34 @@ export default class StationDashboard extends Component {
     )
   }
 
-  renderHabsDashboard() {
-    const {habsData, loadingHabs} = this.state;
-    if (!habsData  && !loadingHabs){
-      this._fetchHabs();
-    }
-    if (!habsData) {
+  constructLegendDescription() {
+    let descriptions = ESP_CLASSIFICATIONS.map(classification => {
       return (
-        this.renderLander()
-      )
-    }
-    let thisStation = this.props.match.params.id;
-    let data = habsData.features.filter(item => {
-      return thisStation === item.properties.metadata.id;
+          <p style={{marginBottom: 8, fontSize: '0.8em'}}>
+            <b>{ESP_CATEGORY_MAPPING[classification]['descriptionTitleText']}</b> -
+            {ESP_CATEGORY_MAPPING[classification]['description']}
+          </p>
+        )
+    });
+
+    return (
+        <div style={{marginBottom: 20}}>
+          <p style={{textDecoration: 'underline'}}>Description of Terms:</p>
+          {descriptions}
+        </div>
+    )
+  }
+
+  renderNonStreamingDashboard(dataType) {
+
+    const {habsData, espData} = this.state;
+    let stationName = this.props.match.params.id;
+    let data = dataType === HABS_DATA_TYPE ? habsData : espData;
+
+    if (!data) this.renderLander();
+
+    data = data.features.filter(item => {
+      return stationName === item.properties.metadata.id;
     });
 
     if (data.length === 0) {
@@ -719,10 +801,10 @@ export default class StationDashboard extends Component {
       );
     }
     data = data[0];
-    let stationName = thisStation;
-    let times = data.properties.data.Arrival_Time.times;
-    let lastUpdate = moment(times[times.length - 1]).format('ddd MMM DD YYYY');
+    let times = dataType === ESP_DATA_TYPE ? data.properties.data[Object.keys(data.properties.data)[0]]['times']:
+        data.properties.data.Arrival_Time.times;
 
+    let lastUpdate = moment(times[times.length - 1]).format('ddd MMM DD YYYY');
     return (
       <div className="home-container">
         {this._renderAlert()}
@@ -733,7 +815,7 @@ export default class StationDashboard extends Component {
               <InfoPopover content={data.properties.metadata.summary} />
             </h2>
             <h5 align='left'>Last Updated - {lastUpdate} </h5>
-            {this._renderGauge(data)}
+            {this._renderGauge(data,dataType)}
           </Col>
           <Col lg={6}>
             <div>
@@ -753,21 +835,40 @@ export default class StationDashboard extends Component {
               {this._renderCards(data)}
             </div>
             <div id="plot" style={{marginBottom: '100px'}}>
-              {this._renderHabsTimeSeriesPlot(data)}
+              {this._renderNonStreamingTimeSeriesPlot(data, dataType)}
             </div>
+            {this.state.espStations.indexOf(stationName) > -1 && this.constructLegendDescription()}
           </Col>
-
         </Row>
+
       </div>
     )
   }
 
   render() {
-    let habsStations = ['WE2', 'WE4', 'WE6', 'WE8', 'WE9', 'WE12', 'WE13', 'WE16'];
     let thisStation = this.props.match.params.id;
-    if (habsStations.indexOf(thisStation) > -1) {
-      return <div className="Home">{this.renderHabsDashboard()}</div>;
+
+    if (this.state.loadingData) {
+      return <>{this.renderLander()}</>
     }
+
+    if (this.state.habsStations.indexOf(thisStation) > -1) {
+      return (
+          <div className="Home">
+            {this.renderNonStreamingDashboard(HABS_DATA_TYPE)}
+          </div>
+      )
+    }
+
+    if (this.state.espStations.indexOf(thisStation) > -1) {
+      return (
+        <div className="Home">
+          {this.renderNonStreamingDashboard(ESP_DATA_TYPE)}
+        </div>
+      )
+    }
+
+    //only show this if thisStation isn't in either habs or esp
     return <div className="Home">{this.renderDashboard()}</div>;
   }
 }

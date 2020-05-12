@@ -65,7 +65,7 @@ class GaugePlot extends React.Component {
       },
       series: [{
         name: prettyName,
-        data: [value],
+        data: [value || 0],
         tooltip: {
           valuePrefix: value >= maxThreshold ? '>' : ''
         },

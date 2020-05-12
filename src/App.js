@@ -1,6 +1,7 @@
 import { LinkContainer } from 'react-router-bootstrap';
 import React, { Component, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
+import IdleTimer from 'react-idle-timer'
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
@@ -23,10 +24,15 @@ library.add(faPlayCircle);
 library.add(faPauseCircle);
 library.add(faExternalLinkAlt);
 
+const IDLE_TIMEOUT = 1000 * 60 * 30; // 30 minutes
+const ACTIVITY_DEBOUNCE = 250; // ms
 
 class App extends Component {
   constructor(props) {
     super(props);
+
+    this.idleTimer = null;
+    this.onIdle = this.onIdle.bind(this);
 
     this.state = {
       isAuthenticated: false,
@@ -59,6 +65,10 @@ class App extends Component {
     this.props.history.push('/login');
   };
 
+  onIdle = () => {
+    this.handleLogout();
+  };
+
   render() {
     const childProps = {
       isAuthenticated: this.state.isAuthenticated,
@@ -73,6 +83,13 @@ class App extends Component {
 
     return (
       <div className="App container-fluid">
+        <IdleTimer
+            ref={ref => { this.idleTimer = ref }}
+            element={document}
+            onIdle={this.onIdle}
+            debounce={ACTIVITY_DEBOUNCE}
+            timeout={IDLE_TIMEOUT}
+        />
         <Navbar bg="glos" expand="lg" fluid collapseOnSelect>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">

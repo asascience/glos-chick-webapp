@@ -10,16 +10,18 @@ import Project from './containers/Project';
 import Data from './containers/Data';
 import StationDashboard from './containers/StationDashboard'
 
-export default ({ childProps }) => (
-    <Switch>
-        <AppliedRoute path="/" exact component={Home} props={childProps} />
-        <AppliedRoute path="/login" exact component={Login} props={childProps} />
-        <AppliedRoute path="/signup" exact component={Signup} props={childProps} />
-        <AppliedRoute path="/alerts" exact component={Alerts} props={childProps} />
-        <AppliedRoute path="/project" exact component={Project} props={childProps} />
-        <AppliedRoute path="/data" exact component={Data} props={childProps} />
-        <Route path="/:id" component={StationDashboard} />
-        {/* Finally, catch all unmatched routes */}
-        <Route component={NotFound} />
-    </Switch>
-);
+export default ({ childProps }) => {
+    return (
+        <Switch>
+            <AppliedRoute path="/" exact component={Home} props={childProps}/>
+            <AppliedRoute path="/login" exact component={Login} props={childProps}/>
+            <AppliedRoute path="/signup" exact component={Signup} props={childProps}/>
+            <AppliedRoute path="/alerts" exact component={Alerts} props={childProps}/>
+            <AppliedRoute path="/project" exact component={Project} props={childProps}/>
+            <AppliedRoute path="/data" exact component={Data} props={childProps}/>
+            <AppliedRoute path="/:id" exact component={StationDashboard} props={childProps} privateResource={true}/>
+            {/* Finally, catch all unmatched routes */}
+            <Route component={NotFound}/>
+        </Switch>
+    )
+};
