@@ -649,17 +649,14 @@ export default class StationDashboard extends Component {
         let values = data.properties.data[key].values;
         let lastValue = values[values.length - 1];
         let description;
-        if (lastValue === null) {
-          description = 'N/A';
-        } else if (lastValue === 'bdl') {
-          description = 'Below Detection Limit';
-        } else {
-          if (Array.isArray(lastValue)) {
-            let ind = this.state.depth === 'surface' ? 0 : 1;
-            lastValue = lastValue[ind];
-          }
-          description = parseFloat(lastValue).toFixed(2) + ' ' + data.properties.data[key].units;
+
+        if (Array.isArray(lastValue)) {
+          let ind = this.state.depth === 'surface' ? 0 : 1;
+          lastValue = lastValue[ind];
         }
+        description = parseFloat(lastValue).toFixed(2) + ' ' + data.properties.data[key].units;
+        if (lastValue === null || Number.isNaN(Number(lastValue))) description = 'No Data';
+        if (lastValue === 'bdl') description = 'Below Detection Limit';
         return params.push({
           title: key in this.parameterMapping ? this.parameterMapping[key] : key,
           description: description,
